@@ -1,0 +1,59 @@
+import { describe, expect, it } from 'vitest';
+import {
+  mockAccessibilityResponse,
+  mockCrowdManagementResponse,
+  mockMultilingualAssistanceResponse,
+  mockNavigationResponse,
+  mockOperationalIntelligenceResponse,
+  mockRealTimeDecisionSupportResponse,
+  mockSustainabilityResponse,
+  mockTransportationResponse,
+} from './mock';
+
+const MOCK_FNS: ReadonlyArray<[string, () => unknown]> = [
+  ['mockNavigationResponse', mockNavigationResponse],
+  ['mockCrowdManagementResponse', mockCrowdManagementResponse],
+  ['mockAccessibilityResponse', mockAccessibilityResponse],
+  ['mockTransportationResponse', mockTransportationResponse],
+  ['mockSustainabilityResponse', mockSustainabilityResponse],
+  ['mockMultilingualAssistanceResponse', mockMultilingualAssistanceResponse],
+  ['mockOperationalIntelligenceResponse', mockOperationalIntelligenceResponse],
+  ['mockRealTimeDecisionSupportResponse', mockRealTimeDecisionSupportResponse],
+];
+
+describe('mock responses', () => {
+  it.each(MOCK_FNS)('%s is deterministic across calls', (_name, mockFn) => {
+    expect(mockFn()).toEqual(mockFn());
+  });
+});
+
+describe('mockNavigationResponse', () => {
+  it('returns a non-empty summary and at least one step', () => {
+    const response = mockNavigationResponse();
+    expect(response.summary.length).toBeGreaterThan(0);
+    expect(response.steps.length).toBeGreaterThan(0);
+    expect(response.etaMinutes).toBeGreaterThan(0);
+  });
+});
+
+describe('mockCrowdManagementResponse', () => {
+  it('flags at least one hot zone', () => {
+    expect(mockCrowdManagementResponse().hotZones.length).toBeGreaterThan(0);
+  });
+});
+
+describe('mockRealTimeDecisionSupportResponse', () => {
+  it('returns a valid priority and a non-empty action plan', () => {
+    const response = mockRealTimeDecisionSupportResponse();
+    expect(['normal', 'elevated', 'critical']).toContain(response.priority);
+    expect(response.actionPlan.length).toBeGreaterThan(0);
+  });
+});
+
+describe('mockMultilingualAssistanceResponse', () => {
+  it('returns a reply and a language code', () => {
+    const response = mockMultilingualAssistanceResponse();
+    expect(response.reply.length).toBeGreaterThan(0);
+    expect(response.language.length).toBeGreaterThan(0);
+  });
+});

@@ -1,0 +1,217 @@
+import { GEMINI_MIN_REQUEST_INTERVAL_MS } from '../../config/constants';
+import type { DensityReading } from '../../types/crowd';
+import type { Incident } from '../../types/incident';
+import type { KpiSnapshot } from '../../types/operational';
+import type { SustainabilityMetrics } from '../../types/sustainability';
+import type { TransitOption } from '../../types/transportation';
+import { hasShape, isNumber, isOneOf, isString, isStringArray } from '../../utils/validate';
+import { parseJsonResponse, requestGemini } from './client';
+import {
+  mockAccessibilityResponse,
+  mockCrowdManagementResponse,
+  mockMultilingualAssistanceResponse,
+  mockNavigationResponse,
+  mockOperationalIntelligenceResponse,
+  mockRealTimeDecisionSupportResponse,
+  mockSustainabilityResponse,
+  mockTransportationResponse,
+} from './mock';
+import {
+  buildAccessibilityPrompt,
+  buildCrowdManagementPrompt,
+  buildMultilingualAssistancePrompt,
+  buildNavigationPrompt,
+  buildOperationalIntelligencePrompt,
+  buildRealTimeDecisionSupportPrompt,
+  buildSustainabilityPrompt,
+  buildTransportationPrompt,
+  type AccessibilityResponse,
+  type CrowdManagementResponse,
+  type FeatureId,
+  type MultilingualAssistanceResponse,
+  type NavigationResponse,
+  type OperationalIntelligenceResponse,
+  type RealTimeDecisionSupportResponse,
+  type SustainabilityResponse,
+  type TransportationResponse,
+} from './prompts';
+
+export interface GeminiResult<T> {
+  data: T;
+  /** "mock" drives the "Demo data" badge in the UI — live and mock never look identical to the fan. */
+  source: 'live' | 'mock';
+}
+
+const lastCalledAt = new Map<FeatureId, number>();
+
+function isWithinMinInterval(feature: FeatureId): boolean {
+  const last = lastCalledAt.get(feature);
+  return last !== undefined && Date.now() - last < GEMINI_MIN_REQUEST_INTERVAL_MS;
+}
+
+/**
+ * Shared per-feature request flow: client-side rate limiting (so rapid
+ * repeated triggers on one screen don't hammer the API), then a live
+ * Gemini call, defensively parsed — falling back to the deterministic mock
+ * on any failure so the app never shows an error state for AI content.
+ */
+async function callFeature<T>(
+  feature: FeatureId,
+  prompt: string,
+  isValidResponse: (value: unknown) => value is T,
+  mockResponse: () => T,
+): Promise<GeminiResult<T>> {
+  if (isWithinMinInterval(feature)) {
+    return { data: mockResponse(), source: 'mock' };
+  }
+
+  lastCalledAt.set(feature, Date.now());
+
+  try {
+    const text = await requestGemini(prompt);
+    const data = parseJsonResponse(text, isValidResponse);
+    return { data, source: 'live' };
+  } catch {
+    return { data: mockResponse(), source: 'mock' };
+  }
+}
+
+const isNavigationResponse = (value: unknown): value is NavigationResponse =>
+  hasShape<NavigationResponse>(value, {
+    summary: isString,
+    steps: isStringArray,
+    etaMinutes: isNumber,
+  });
+
+export async function getNavigationGuidance(
+  query: string,
+): Promise<GeminiResult<NavigationResponse>> {
+  return callFeature(
+    'navigation',
+    buildNavigationPrompt({ query }),
+    isNavigationResponse,
+    mockNavigationResponse,
+  );
+}
+
+const isCrowdManagementResponse = (value: unknown): value is CrowdManagementResponse =>
+  hasShape<CrowdManagementResponse>(value, {
+    summary: isString,
+    recommendation: isString,
+    hotZones: isStringArray,
+  });
+
+export async function getCrowdManagementSummary(
+  readings: DensityReading[],
+): Promise<GeminiResult<CrowdManagementResponse>> {
+  return callFeature(
+    'crowd-management',
+    buildCrowdManagementPrompt({ readings }),
+    isCrowdManagementResponse,
+    mockCrowdManagementResponse,
+  );
+}
+
+const isAccessibilityResponse = (value: unknown): value is AccessibilityResponse =>
+  hasShape<AccessibilityResponse>(value, {
+    summary: isString,
+    recommendedRoute: isString,
+    accommodations: isStringArray,
+  });
+
+export async function getAccessibilityGuidance(
+  query: string,
+): Promise<GeminiResult<AccessibilityResponse>> {
+  return callFeature(
+    'accessibility',
+    buildAccessibilityPrompt({ query }),
+    isAccessibilityResponse,
+    mockAccessibilityResponse,
+  );
+}
+
+const isTransportationResponse = (value: unknown): value is TransportationResponse =>
+  hasShape<TransportationResponse>(value, {
+    summary: isString,
+    recommendedOptionId: isString,
+    alternatives: isStringArray,
+  });
+
+export async function getTransportationRecommendation(
+  options: TransitOption[],
+  destination: string,
+): Promise<GeminiResult<TransportationResponse>> {
+  return callFeature(
+    'transportation',
+    buildTransportationPrompt({ options, destination }),
+    isTransportationResponse,
+    mockTransportationResponse,
+  );
+}
+
+const isSustainabilityResponse = (value: unknown): value is SustainabilityResponse =>
+  hasShape<SustainabilityResponse>(value, { summary: isString, tips: isStringArray });
+
+export async function getSustainabilityTips(
+  metrics: SustainabilityMetrics,
+): Promise<GeminiResult<SustainabilityResponse>> {
+  return callFeature(
+    'sustainability',
+    buildSustainabilityPrompt({ metrics }),
+    isSustainabilityResponse,
+    mockSustainabilityResponse,
+  );
+}
+
+const isMultilingualAssistanceResponse = (
+  value: unknown,
+): value is MultilingualAssistanceResponse =>
+  hasShape<MultilingualAssistanceResponse>(value, { reply: isString, language: isString });
+
+export async function getMultilingualReply(
+  message: string,
+  targetLanguage: string,
+): Promise<GeminiResult<MultilingualAssistanceResponse>> {
+  return callFeature(
+    'multilingual-assistance',
+    buildMultilingualAssistancePrompt({ message, targetLanguage }),
+    isMultilingualAssistanceResponse,
+    mockMultilingualAssistanceResponse,
+  );
+}
+
+const isOperationalIntelligenceResponse = (
+  value: unknown,
+): value is OperationalIntelligenceResponse =>
+  hasShape<OperationalIntelligenceResponse>(value, { summary: isString, alerts: isStringArray });
+
+export async function getOperationalIntelligenceSummary(
+  kpis: KpiSnapshot[],
+): Promise<GeminiResult<OperationalIntelligenceResponse>> {
+  return callFeature(
+    'operational-intelligence',
+    buildOperationalIntelligencePrompt({ kpis }),
+    isOperationalIntelligenceResponse,
+    mockOperationalIntelligenceResponse,
+  );
+}
+
+const isRealTimeDecisionSupportResponse = (
+  value: unknown,
+): value is RealTimeDecisionSupportResponse =>
+  hasShape<RealTimeDecisionSupportResponse>(value, {
+    summary: isString,
+    actionPlan: isStringArray,
+    priority: isOneOf(['normal', 'elevated', 'critical'] as const),
+  });
+
+export async function getRealTimeDecisionSupport(
+  incident: Incident,
+): Promise<GeminiResult<RealTimeDecisionSupportResponse>> {
+  return callFeature(
+    'real-time-decision-support',
+    buildRealTimeDecisionSupportPrompt({ incident }),
+    isRealTimeDecisionSupportResponse,
+    mockRealTimeDecisionSupportResponse,
+  );
+}
