@@ -18,6 +18,7 @@ export default {
           darker: '#96610E',
           tint: '#FDF3E1',
           tintbdr: '#F0DCAE',
+          hover: '#D2941F',
         },
         glow: '#4ED08A',
 
@@ -46,10 +47,13 @@ export default {
         },
 
         // Semantic severity (BOTH themes)
-        danger: { DEFAULT: '#FF6B5E', fan: '#B0241A' },
+        danger: { DEFAULT: '#FF6B5E', fan: '#B0241A', hover: '#E5564A' },
         warn: '#E8A93B',
         ok: '#4ED08A',
         info: '#2A5CC4',
+
+        // Organizer role accent on cards (DESIGN.md §4: pitch / gold / #4A5A80)
+        steel: '#4A5A80',
       },
       fontFamily: {
         display: ['Poppins', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
@@ -82,6 +86,17 @@ export default {
         '3xl': '20px',
         '4xl': '24px',
         pill: '100px',
+      },
+      // DESIGN.md §5: decorative animation uses transform/opacity only, and every
+      // animated element also carries motion-reduce:animate-none.
+      keyframes: {
+        floatBall: {
+          '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
+          '50%': { transform: 'translateY(-16px) rotate(12deg)' },
+        },
+      },
+      animation: {
+        'float-ball': 'floatBall 6s ease-in-out infinite',
       },
       boxShadow: {
         card: '0 1px 2px rgba(20,24,31,0.04)',

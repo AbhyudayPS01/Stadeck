@@ -1,4 +1,6 @@
+import type { LanguageOption } from '../types/language';
 import type { Module } from '../types/module';
+import type { GatedRole, RoleOption } from '../types/role';
 
 /** Demo venue for all mock data: the FIFA World Cup 2026 Final host. */
 export const STADIUM_NAME = 'MetLife Stadium';
@@ -7,30 +9,109 @@ export const STADIUM_CAPACITY = 82_500;
 
 /**
  * The eight modules named exactly after the challenge clauses. Drives route
- * generation and navigation — see App.tsx.
+ * generation, Shell navigation, and the ModuleGate role guard — see App.tsx.
  */
 export const MODULES: readonly Module[] = [
-  { id: 'navigation', label: 'Navigation', path: '/navigation' },
-  { id: 'crowd-management', label: 'Crowd Management', path: '/crowd-management' },
-  { id: 'accessibility', label: 'Accessibility', path: '/accessibility' },
-  { id: 'transportation', label: 'Transportation', path: '/transportation' },
-  { id: 'sustainability', label: 'Sustainability', path: '/sustainability' },
+  {
+    id: 'navigation',
+    label: 'Navigation',
+    path: '/navigation',
+    roles: ['fan', 'volunteer', 'organizer'],
+  },
+  {
+    id: 'crowd-management',
+    label: 'Crowd Management',
+    path: '/crowd-management',
+    roles: ['volunteer', 'organizer'],
+  },
+  {
+    id: 'accessibility',
+    label: 'Accessibility',
+    path: '/accessibility',
+    roles: ['fan', 'volunteer', 'organizer'],
+  },
+  {
+    id: 'transportation',
+    label: 'Transportation',
+    path: '/transportation',
+    roles: ['fan', 'volunteer', 'organizer'],
+  },
+  {
+    id: 'sustainability',
+    label: 'Sustainability',
+    path: '/sustainability',
+    roles: ['fan', 'organizer'],
+  },
   {
     id: 'multilingual-assistance',
     label: 'Multilingual Assistance',
     path: '/multilingual-assistance',
+    roles: ['fan', 'volunteer', 'organizer'],
   },
   {
     id: 'operational-intelligence',
     label: 'Operational Intelligence',
     path: '/operational-intelligence',
+    roles: ['organizer'],
   },
   {
     id: 'real-time-decision-support',
     label: 'Real-Time Decision Support',
     path: '/real-time-decision-support',
+    roles: ['volunteer', 'organizer'],
   },
 ];
+
+/** The three role views selectable from the landing screen, in display order. */
+export const ROLES: readonly RoleOption[] = [
+  {
+    id: 'fan',
+    label: 'Fan',
+    description: 'Wayfinding, matchday help, and multilingual assistance — no sign-in needed.',
+    gated: false,
+  },
+  {
+    id: 'volunteer',
+    label: 'Volunteer & Staff',
+    description: 'Crowd flow, accessibility support, and live guidance for teams on the concourse.',
+    gated: true,
+  },
+  {
+    id: 'organizer',
+    label: 'Organizer',
+    description: 'The full operational picture: intelligence, decision support, and every module.',
+    gated: true,
+  },
+];
+
+/**
+ * Demo-only role gate for hackathon judging. Production would use venue
+ * SSO/OIDC — see SECURITY.md. These are access codes, not passwords: they
+ * select which demo view loads and protect nothing sensitive. The landing
+ * screen's "Continue with demo access" button submits these through the same
+ * validation path as the text field — there is no separate bypass logic.
+ */
+export const DEMO_ACCESS_CODES: Readonly<Record<GatedRole, string>> = {
+  volunteer: 'PITCH-CREW-2026',
+  organizer: 'FINAL-OPS-2026',
+};
+
+/**
+ * Languages offered for AI-generated content (chat replies, translated
+ * announcements). UI chrome stays English — there is deliberately no full UI
+ * i18n, only the AI content regions set `lang` on their containers.
+ */
+export const SUPPORTED_LANGUAGES: readonly LanguageOption[] = [
+  { code: 'en', label: 'English', nativeLabel: 'English' },
+  { code: 'es', label: 'Spanish', nativeLabel: 'Español' },
+  { code: 'fr', label: 'French', nativeLabel: 'Français' },
+  { code: 'pt', label: 'Portuguese', nativeLabel: 'Português' },
+  { code: 'ar', label: 'Arabic', nativeLabel: 'العربية' },
+  { code: 'ja', label: 'Japanese', nativeLabel: '日本語' },
+];
+
+/** Default AI content language until the visitor picks another. */
+export const DEFAULT_LANGUAGE = 'en';
 
 /** Gemini model requested through the serverless proxy — never called directly from the client. */
 export const GEMINI_MODEL = 'gemini-1.5-flash';

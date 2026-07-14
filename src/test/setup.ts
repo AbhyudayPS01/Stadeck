@@ -1,4 +1,13 @@
 import '@testing-library/jest-dom/vitest';
+import { cleanup } from '@testing-library/react';
+import { afterEach } from 'vitest';
+
+/**
+ * Vitest runs without injected globals, so Testing Library's automatic
+ * afterEach cleanup never registers itself — without this, every render in a
+ * file accumulates in one shared document and role queries find duplicates.
+ */
+afterEach(() => cleanup());
 
 /**
  * jsdom does not implement matchMedia. Stadeck relies on it for

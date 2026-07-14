@@ -7,3 +7,18 @@
     @apply bg-fan-bg font-body text-fan-ink;
   }
 }
+
+@layer components {
+  /*
+   * Focus treatment for keyboard-focusable SVG shapes on the schematic
+   * stadium map (sections, gates). CSS outlines follow the bounding box, not
+   * the arc, so focus is drawn as a thick pitch-green stroke instead.
+   */
+  .map-focusable {
+    @apply cursor-pointer outline-none;
+  }
+  .map-focusable:focus-visible {
+    stroke: #0c4f28;
+    stroke-width: 3;
+  }
+}
