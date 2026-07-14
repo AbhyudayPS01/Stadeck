@@ -73,7 +73,7 @@ export function Shell() {
                     cx(
                       'block rounded-md px-3 py-2 text-body-sm font-medium transition-colors focus-visible:outline-none focus-visible:shadow-inputfocus',
                       isActive
-                        ? 'bg-ops-surface2 text-ops-ink'
+                        ? 'bg-pitch-deep text-white'
                         : 'text-ops-muted hover:bg-ops-surface hover:text-ops-ink',
                     )
                   }
