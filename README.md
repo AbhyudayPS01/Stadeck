@@ -14,4 +14,5 @@ A generative AI application for controlling stadium operations and making fan in
 | Multilingual Assistance | multilingual assistance | Fact-grounded concierge chat that auto-detects the fan's language, plus one-click AI translation of live venue announcements. |
 | Sustainability | sustainability | Live venue dashboard (waste diverted, energy, water, transit share, crowd carbon estimate) with AI per-fan eco-actions and an organizer-only AI match report. |
 | Transportation | transportation | Live (simulated) post-match transit board with clamped feed values, plus an AI departure strategy with concrete times and expected crowd loads; the AI's pick is highlighted on the board. |
+| Operational Intelligence | operational intelligence | Live organizer KPI board (attendance, gate waits, incidents, transit, energy) with an on-demand AI executive briefing: state of venue, anomalies, trends. |
 | Real-Time Decision Support | real-time decision support | Simulated incident feed with AI structured action plans (immediate actions, teams to notify, escalation criteria) and an organizer what-if scenario planner. |

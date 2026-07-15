@@ -11,7 +11,7 @@ import type {
   SustainabilityReportResponse,
   SustainabilityResponse,
   TransportationResponse,
-} from './prompts';
+} from './responses';
 
 /**
  * Deterministic fallback content per feature, served whenever the live
@@ -171,8 +171,16 @@ export function mockAnnouncementTranslationResponse(
 
 export function mockOperationalIntelligenceResponse(): OperationalIntelligenceResponse {
   return {
-    summary: 'Operations are running within normal parameters across all monitored systems.',
-    alerts: ['Gate C wait times trending up ahead of kickoff.'],
+    summary:
+      'The venue is running close to plan: attendance is tracking toward capacity, and every monitored system is inside its normal band. Gate throughput is the one number worth watching.',
+    anomalies: [
+      'Average gate wait is trending above 10 minutes — open an extra lane at Gate C before the pre-kickoff surge.',
+      'Transit on-time rate has dipped under 85% — brief the rail liaison and queue a fan announcement.',
+    ],
+    trends: [
+      'Attendance should reach 95% of capacity by kickoff.',
+      'Grid energy draw climbs toward its evening peak; the renewable block carries the early load.',
+    ],
   };
 }
 

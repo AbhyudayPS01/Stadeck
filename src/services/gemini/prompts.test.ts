@@ -193,7 +193,8 @@ describe('data-based prompt builders', () => {
     ];
     const prompt = buildOperationalIntelligencePrompt({ kpis });
     expect(prompt).toContain('"id":"attendance"');
-    expect(prompt).toContain('"alerts"');
+    expect(prompt).toContain('"anomalies"');
+    expect(prompt).toContain('"trends"');
   });
 
   it('buildRealTimeDecisionSupportPrompt embeds the incident and requests the structured plan', () => {

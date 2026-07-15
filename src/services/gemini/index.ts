@@ -8,7 +8,6 @@ import type { Gate, StadiumSection } from '../../types/stadium';
 import type { SustainabilityMetrics } from '../../types/sustainability';
 import type { TransitOption } from '../../types/transportation';
 import { detectLanguage } from '../../utils/detectLanguage';
-import { hasShape, isNumber, isOneOf, isString, isStringArray } from '../../utils/validate';
 import { parseJsonResponse, requestGemini } from './client';
 import {
   mockAccessibilityResponse,
@@ -37,19 +36,34 @@ import {
   buildSustainabilityPrompt,
   buildSustainabilityReportPrompt,
   buildTransportationPrompt,
-  type AccessibilityResponse,
-  type AnnouncementTranslationResponse,
-  type CrowdManagementResponse,
-  type FeatureId,
-  type MultilingualAssistanceResponse,
-  type NavigationResponse,
-  type OperationalIntelligenceResponse,
-  type PlainLanguageResponse,
-  type RealTimeDecisionSupportResponse,
-  type SustainabilityReportResponse,
-  type SustainabilityResponse,
-  type TransportationResponse,
 } from './prompts';
+import type {
+  AccessibilityResponse,
+  AnnouncementTranslationResponse,
+  CrowdManagementResponse,
+  FeatureId,
+  MultilingualAssistanceResponse,
+  NavigationResponse,
+  OperationalIntelligenceResponse,
+  PlainLanguageResponse,
+  RealTimeDecisionSupportResponse,
+  SustainabilityReportResponse,
+  SustainabilityResponse,
+  TransportationResponse,
+} from './responses';
+import {
+  isAccessibilityResponse,
+  isAnnouncementTranslationResponse,
+  isCrowdManagementResponse,
+  isMultilingualAssistanceResponse,
+  isNavigationResponse,
+  isOperationalIntelligenceResponse,
+  isPlainLanguageResponse,
+  isRealTimeDecisionSupportResponse,
+  isSustainabilityReportResponse,
+  isSustainabilityResponse,
+  isTransportationResponse,
+} from './validators';
 
 export interface GeminiResult<T> {
   data: T;
@@ -58,9 +72,9 @@ export interface GeminiResult<T> {
 }
 
 /**
- * Announcement translation gets its own limiter key so translating an
- * announcement never rate-limits the concierge chat (both live on the
- * Multilingual Assistance screen and are used back-to-back).
+ * Secondary AI actions get their own limiter key so they never rate-limit the
+ * primary feature they share a screen with (e.g. translating an announcement
+ * vs. the concierge chat — used back-to-back on the same screen).
  */
 type LimiterKey =
   | FeatureId
@@ -103,13 +117,6 @@ async function callFeature<T>(
   }
 }
 
-const isNavigationResponse = (value: unknown): value is NavigationResponse =>
-  hasShape<NavigationResponse>(value, {
-    summary: isString,
-    steps: isStringArray,
-    etaMinutes: isNumber,
-  });
-
 /** Turn-by-turn walking directions from an entry gate to a seating section. */
 export async function getNavigationDirections(
   gate: Gate,
@@ -123,14 +130,7 @@ export async function getNavigationDirections(
   );
 }
 
-const isCrowdManagementResponse = (value: unknown): value is CrowdManagementResponse =>
-  hasShape<CrowdManagementResponse>(value, {
-    summary: isString,
-    gatesToOpen: isStringArray,
-    stewardRedeployment: isStringArray,
-    congestionForecast: isString,
-  });
-
+/** Gate/steward recommendations and a congestion forecast over the live sensor sweep. */
 export async function getCrowdManagementSummary(
   readings: DensityReading[],
 ): Promise<GeminiResult<CrowdManagementResponse>> {
@@ -141,13 +141,6 @@ export async function getCrowdManagementSummary(
     mockCrowdManagementResponse,
   );
 }
-
-const isAccessibilityResponse = (value: unknown): value is AccessibilityResponse =>
-  hasShape<AccessibilityResponse>(value, {
-    summary: isString,
-    recommendedRoute: isString,
-    accommodations: isStringArray,
-  });
 
 /** Step-free route from an entry gate to an accessible seating section. */
 export async function getStepFreeRoute(
@@ -162,14 +155,7 @@ export async function getStepFreeRoute(
   );
 }
 
-const isPlainLanguageResponse = (value: unknown): value is PlainLanguageResponse =>
-  hasShape<PlainLanguageResponse>(value, { rewrite: isString });
-
-/**
- * "Access Companion": rewrites a venue announcement into plain language. Own
- * limiter key so a rewrite never rate-limits the step-free planner (both live
- * on the Accessibility screen and are used back-to-back).
- */
+/** "Access Companion": rewrites a venue announcement into plain language. */
 export async function getPlainLanguageRewrite(
   announcement: Announcement,
 ): Promise<GeminiResult<PlainLanguageResponse>> {
@@ -180,14 +166,6 @@ export async function getPlainLanguageRewrite(
     () => mockPlainLanguageResponse(announcement),
   );
 }
-
-const isTransportationResponse = (value: unknown): value is TransportationResponse =>
-  hasShape<TransportationResponse>(value, {
-    summary: isString,
-    recommendedOptionId: isString,
-    departureWindow: isString,
-    steps: isStringArray,
-  });
 
 /** Personalized post-match departure strategy built from the live transit board. */
 export async function getTransportationRecommendation(
@@ -202,9 +180,6 @@ export async function getTransportationRecommendation(
   );
 }
 
-const isSustainabilityResponse = (value: unknown): value is SustainabilityResponse =>
-  hasShape<SustainabilityResponse>(value, { summary: isString, tips: isStringArray });
-
 /** Per-fan eco-actions grounded in the live venue metrics. */
 export async function getSustainabilityTips(
   metrics: SustainabilityMetrics,
@@ -217,18 +192,7 @@ export async function getSustainabilityTips(
   );
 }
 
-const isSustainabilityReportResponse = (value: unknown): value is SustainabilityReportResponse =>
-  hasShape<SustainabilityReportResponse>(value, {
-    headline: isString,
-    highlights: isStringArray,
-    recommendations: isStringArray,
-  });
-
-/**
- * Organizer match report over the same metrics. Own limiter key so generating
- * the report never rate-limits the fan eco-actions (both live on the
- * Sustainability screen and are used back-to-back).
- */
+/** Organizer sustainability match report over the same venue metrics. */
 export async function getSustainabilityReport(
   metrics: SustainabilityMetrics,
 ): Promise<GeminiResult<SustainabilityReportResponse>> {
@@ -239,11 +203,6 @@ export async function getSustainabilityReport(
     mockSustainabilityReportResponse,
   );
 }
-
-const isMultilingualAssistanceResponse = (
-  value: unknown,
-): value is MultilingualAssistanceResponse =>
-  hasShape<MultilingualAssistanceResponse>(value, { reply: isString, language: isString });
 
 /**
  * Concierge chat: the model detects the fan's language and answers in it,
@@ -262,11 +221,6 @@ export async function getMultilingualReply(
   );
 }
 
-const isAnnouncementTranslationResponse = (
-  value: unknown,
-): value is AnnouncementTranslationResponse =>
-  hasShape<AnnouncementTranslationResponse>(value, { translation: isString, language: isString });
-
 /** One-click translation of a venue announcement into the fan's chosen language. */
 export async function getAnnouncementTranslation(
   announcement: Announcement,
@@ -280,11 +234,7 @@ export async function getAnnouncementTranslation(
   );
 }
 
-const isOperationalIntelligenceResponse = (
-  value: unknown,
-): value is OperationalIntelligenceResponse =>
-  hasShape<OperationalIntelligenceResponse>(value, { summary: isString, alerts: isStringArray });
-
+/** On-demand executive briefing over the organizer KPI snapshot. */
 export async function getOperationalIntelligenceSummary(
   kpis: KpiSnapshot[],
 ): Promise<GeminiResult<OperationalIntelligenceResponse>> {
@@ -296,17 +246,7 @@ export async function getOperationalIntelligenceSummary(
   );
 }
 
-const isRealTimeDecisionSupportResponse = (
-  value: unknown,
-): value is RealTimeDecisionSupportResponse =>
-  hasShape<RealTimeDecisionSupportResponse>(value, {
-    summary: isString,
-    immediateActions: isStringArray,
-    teamsToNotify: isStringArray,
-    escalationCriteria: isStringArray,
-    priority: isOneOf(['normal', 'elevated', 'critical'] as const),
-  });
-
+/** Structured action plan (actions, teams, escalation criteria) for a reported incident. */
 export async function getRealTimeDecisionSupport(
   incident: Incident,
 ): Promise<GeminiResult<RealTimeDecisionSupportResponse>> {
@@ -318,11 +258,7 @@ export async function getRealTimeDecisionSupport(
   );
 }
 
-/**
- * Organizer "what-if" scenario planning. Shares the action-plan shape with
- * incident analysis but gets its own limiter key — both live on the
- * Real-Time Decision Support screen and are used back-to-back.
- */
+/** Organizer "what-if" scenario planning — same action-plan shape as incident analysis. */
 export async function getScenarioPlan(
   scenario: string,
 ): Promise<GeminiResult<RealTimeDecisionSupportResponse>> {

@@ -1,7 +1,7 @@
 import { Badge } from '../../components/ui/Badge';
 import { DemoDataBadge } from '../../components/ui/DemoDataBadge';
 import { InsightCard } from '../../components/ui/InsightCard';
-import type { RealTimeDecisionSupportResponse } from '../../services/gemini/prompts';
+import type { RealTimeDecisionSupportResponse } from '../../services/gemini/responses';
 
 interface ActionPlanDetailsProps {
   plan: RealTimeDecisionSupportResponse;

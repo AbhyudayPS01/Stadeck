@@ -127,6 +127,9 @@ export const ANNOUNCEMENT_FEED_LIMIT = 6;
 /** How often the simulated occupancy sensors publish a fresh set of readings. */
 export const DENSITY_REFRESH_INTERVAL_MS = 5_000;
 
+/** How often the simulated organizer KPI snapshot refreshes. */
+export const KPI_REFRESH_INTERVAL_MS = 10_000;
+
 /** How often the simulated sustainability metrics refresh. */
 export const SUSTAINABILITY_REFRESH_INTERVAL_MS = 20_000;
 

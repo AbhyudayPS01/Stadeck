@@ -1,11 +1,28 @@
-/** Operational Intelligence — implements the challenge clause "operational intelligence". */
+import { KPI_REFRESH_INTERVAL_MS } from '../../config/constants';
+import { useMockStream } from '../../hooks/useMockStream';
+import { getKpiSnapshot } from '../../services/data/kpis';
+import { ExecutiveBriefingPanel } from './ExecutiveBriefingPanel';
+import { KpiBoard } from './KpiBoard';
+
+/**
+ * Operational Intelligence — implements the challenge clause "operational
+ * intelligence". A live (simulated) organizer KPI board with an on-demand AI
+ * executive briefing: state of venue, anomalies to act on, trends to watch.
+ */
 export default function OperationalIntelligenceScreen() {
+  const kpis = useMockStream(getKpiSnapshot, KPI_REFRESH_INTERVAL_MS);
+
   return (
-    <main className="min-h-screen bg-ops-bg px-page py-section">
+    <main className="min-h-screen bg-gradient-to-b from-ops-bg to-ops-bg2 px-gutter py-section md:px-page">
       <h1 className="font-display text-h1 text-ops-ink">Operational Intelligence</h1>
-      <p className="mt-2 text-body text-ops-muted">
-        KPI snapshots and AI-generated summaries for organizers and venue staff.
+      <p className="mt-2 max-w-2xl text-body text-ops-muted">
+        The operational picture at a glance — live KPIs from every monitored system, with an AI
+        executive briefing on demand.
       </p>
+      <div className="mt-section grid grid-cols-1 items-start gap-gutter xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
+        <KpiBoard kpis={kpis} />
+        <ExecutiveBriefingPanel kpis={kpis} />
+      </div>
     </main>
   );
 }
