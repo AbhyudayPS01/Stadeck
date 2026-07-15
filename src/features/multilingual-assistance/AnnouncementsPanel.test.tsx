@@ -8,6 +8,22 @@ vi.mock('../../services/gemini', () => ({
   getAnnouncementTranslation: vi.fn(),
 }));
 
+// Deterministic stream item: the randomly-picked template could otherwise
+// duplicate a seed's text and break single-match queries.
+vi.mock('../../services/data/announcements', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../services/data/announcements')>();
+  return {
+    ...actual,
+    generateAnnouncement: () => ({
+      id: 'announcement-stream-1',
+      category: 'services' as const,
+      message: 'Stream item: concourse update.',
+      translations: {},
+      issuedAt: '2026-07-15T14:20:00.000Z',
+    }),
+  };
+});
+
 import { getAnnouncementTranslation } from '../../services/gemini';
 
 const getAnnouncementTranslationMock = vi.mocked(getAnnouncementTranslation);

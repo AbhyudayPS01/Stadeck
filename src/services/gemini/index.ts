@@ -17,6 +17,7 @@ import {
   mockNavigationResponse,
   mockOperationalIntelligenceResponse,
   mockRealTimeDecisionSupportResponse,
+  mockScenarioPlanResponse,
   mockSustainabilityResponse,
   mockTransportationResponse,
 } from './mock';
@@ -28,6 +29,7 @@ import {
   buildNavigationPrompt,
   buildOperationalIntelligencePrompt,
   buildRealTimeDecisionSupportPrompt,
+  buildScenarioPrompt,
   buildSustainabilityPrompt,
   buildTransportationPrompt,
   type AccessibilityResponse,
@@ -53,7 +55,7 @@ export interface GeminiResult<T> {
  * announcement never rate-limits the concierge chat (both live on the
  * Multilingual Assistance screen and are used back-to-back).
  */
-type LimiterKey = FeatureId | 'announcement-translation';
+type LimiterKey = FeatureId | 'announcement-translation' | 'scenario-planning';
 
 const lastCalledAt = new Map<LimiterKey, number>();
 
@@ -110,8 +112,9 @@ export async function getNavigationGuidance(
 const isCrowdManagementResponse = (value: unknown): value is CrowdManagementResponse =>
   hasShape<CrowdManagementResponse>(value, {
     summary: isString,
-    recommendation: isString,
-    hotZones: isStringArray,
+    gatesToOpen: isStringArray,
+    stewardRedeployment: isStringArray,
+    congestionForecast: isString,
   });
 
 export async function getCrowdManagementSummary(
@@ -237,7 +240,9 @@ const isRealTimeDecisionSupportResponse = (
 ): value is RealTimeDecisionSupportResponse =>
   hasShape<RealTimeDecisionSupportResponse>(value, {
     summary: isString,
-    actionPlan: isStringArray,
+    immediateActions: isStringArray,
+    teamsToNotify: isStringArray,
+    escalationCriteria: isStringArray,
     priority: isOneOf(['normal', 'elevated', 'critical'] as const),
   });
 
@@ -249,5 +254,21 @@ export async function getRealTimeDecisionSupport(
     buildRealTimeDecisionSupportPrompt({ incident }),
     isRealTimeDecisionSupportResponse,
     mockRealTimeDecisionSupportResponse,
+  );
+}
+
+/**
+ * Organizer "what-if" scenario planning. Shares the action-plan shape with
+ * incident analysis but gets its own limiter key — both live on the
+ * Real-Time Decision Support screen and are used back-to-back.
+ */
+export async function getScenarioPlan(
+  scenario: string,
+): Promise<GeminiResult<RealTimeDecisionSupportResponse>> {
+  return callFeature(
+    'scenario-planning',
+    buildScenarioPrompt({ scenario }),
+    isRealTimeDecisionSupportResponse,
+    mockScenarioPlanResponse,
   );
 }

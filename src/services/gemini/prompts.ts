@@ -17,8 +17,12 @@ export interface NavigationResponse {
 
 export interface CrowdManagementResponse {
   summary: string;
-  recommendation: string;
-  hotZones: string[];
+  /** Gates staff should open (or keep prioritized) to relieve pressure. */
+  gatesToOpen: string[];
+  /** Concrete steward redeployment moves, one per entry. */
+  stewardRedeployment: string[];
+  /** Short forecast of how congestion will develop over the next ~30 minutes. */
+  congestionForecast: string;
 }
 
 export interface AccessibilityResponse {
@@ -57,7 +61,12 @@ export interface OperationalIntelligenceResponse {
 
 export interface RealTimeDecisionSupportResponse {
   summary: string;
-  actionPlan: string[];
+  /** Ordered steps to take right now. */
+  immediateActions: string[];
+  /** Teams/roles to notify, e.g. "Medical response team". */
+  teamsToNotify: string[];
+  /** Conditions under which the incident must be escalated. */
+  escalationCriteria: string[];
   priority: 'normal' | 'elevated' | 'critical';
 }
 
@@ -73,12 +82,40 @@ export function buildNavigationPrompt(params: { query: string }): string {
   ].join('\n\n');
 }
 
+/**
+ * The full sensor sweep is ~104 zones — raw JSON would blow the proxy's
+ * payload cap and bury the signal. The prompt gets aggregates plus the
+ * hottest zones only.
+ */
+function compactDensityReadings(readings: DensityReading[]): string {
+  const sorted = [...readings].sort((a, b) => b.percentOfCapacity - a.percentOfCapacity);
+  const average =
+    readings.length === 0
+      ? 0
+      : Math.round(
+          readings.reduce((sum, reading) => sum + reading.percentOfCapacity, 0) / readings.length,
+        );
+  return JSON.stringify({
+    totalZones: readings.length,
+    averagePercentOfCapacity: average,
+    criticalZones: readings.filter((reading) => reading.level === 'critical').length,
+    elevatedZones: readings.filter((reading) => reading.level === 'elevated').length,
+    hottestZones: sorted.slice(0, 12).map((reading) => ({
+      zoneId: reading.zoneId,
+      level: reading.level,
+      percentOfCapacity: reading.percentOfCapacity,
+    })),
+  });
+}
+
 export function buildCrowdManagementPrompt(params: { readings: DensityReading[] }): string {
   return [
     "You are Stadeck's crowd management assistant for venue staff at MetLife Stadium.",
-    `Current occupancy readings:\n${JSON.stringify(params.readings)}`,
-    'Summarize crowd conditions and recommend how staff should respond.',
-    jsonOnlyInstruction('{ "summary": string, "recommendation": string, "hotZones": string[] }'),
+    `Aggregated live occupancy readings (zone ids: sec-<number> = seating section, gate-<letter> = entry gate):\n${compactDensityReadings(params.readings)}`,
+    'Recommend which gates to open, how to redeploy stewards, and forecast congestion for the next 30 minutes.',
+    jsonOnlyInstruction(
+      '{ "summary": string, "gatesToOpen": string[], "stewardRedeployment": string[], "congestionForecast": string }',
+    ),
   ].join('\n\n');
 }
 
@@ -151,13 +188,23 @@ export function buildOperationalIntelligencePrompt(params: { kpis: KpiSnapshot[]
   ].join('\n\n');
 }
 
+const ACTION_PLAN_SHAPE =
+  '{ "summary": string, "immediateActions": string[], "teamsToNotify": string[], "escalationCriteria": string[], "priority": "normal" | "elevated" | "critical" }';
+
 export function buildRealTimeDecisionSupportPrompt(params: { incident: Incident }): string {
   return [
     "You are Stadeck's real-time decision support assistant for venue staff at MetLife Stadium.",
     `An incident was reported:\n${JSON.stringify(params.incident)}`,
-    'Recommend a concrete action plan and its priority.',
-    jsonOnlyInstruction(
-      '{ "summary": string, "actionPlan": string[], "priority": "normal" | "elevated" | "critical" }',
-    ),
+    'Produce a structured action plan: immediate actions in order, teams to notify, and escalation criteria.',
+    jsonOnlyInstruction(ACTION_PLAN_SHAPE),
+  ].join('\n\n');
+}
+
+export function buildScenarioPrompt(params: { scenario: string }): string {
+  return [
+    "You are Stadeck's real-time decision support assistant for venue staff at MetLife Stadium.",
+    `An organizer wants to war-game a hypothetical matchday scenario:\n${wrapUntrustedInput(params.scenario)}`,
+    'Produce a structured contingency plan: immediate actions in order, teams to notify, and escalation criteria.',
+    jsonOnlyInstruction(ACTION_PLAN_SHAPE),
   ].join('\n\n');
 }

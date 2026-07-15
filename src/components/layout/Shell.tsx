@@ -53,42 +53,45 @@ export function Shell() {
         </button>
       </header>
 
+      {/* The aside stretches the full column height (its background must cover tall pages);
+          the inner block is what stays sticky and viewport-sized on desktop. */}
       <aside
         className={cx(
-          'w-full flex-col gap-6 bg-ops-bg px-gutter py-6',
-          'md:sticky md:top-0 md:flex md:h-screen md:w-64 md:shrink-0 md:overflow-y-auto',
-          navOpen ? 'flex' : 'hidden',
+          'w-full bg-ops-bg md:block md:w-64 md:shrink-0',
+          navOpen ? 'block' : 'hidden',
         )}
         id="shell-sidebar"
       >
-        <div className="hidden md:block">
-          <BrandMark />
-        </div>
-        <nav aria-label="Modules" className="flex-1">
-          <ul className="flex flex-col gap-1">
-            {visibleModules.map((module) => (
-              <li key={module.id}>
-                <NavLink
-                  className={({ isActive }) =>
-                    cx(
-                      'block rounded-md px-3 py-2 text-body-sm font-medium transition-colors focus-visible:outline-none focus-visible:shadow-inputfocus',
-                      isActive
-                        ? 'bg-pitch-deep text-white'
-                        : 'text-ops-muted hover:bg-ops-surface hover:text-ops-ink',
-                    )
-                  }
-                  onClick={() => setNavOpen(false)}
-                  to={module.path}
-                >
-                  {module.label}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-        </nav>
-        <div className="flex flex-col gap-4 border-t border-ops-border pt-4">
-          <RoleSwitcher />
-          <LanguagePicker />
+        <div className="flex flex-col gap-6 px-gutter py-6 md:sticky md:top-0 md:h-screen md:overflow-y-auto">
+          <div className="hidden md:block">
+            <BrandMark />
+          </div>
+          <nav aria-label="Modules" className="flex-1">
+            <ul className="flex flex-col gap-1">
+              {visibleModules.map((module) => (
+                <li key={module.id}>
+                  <NavLink
+                    className={({ isActive }) =>
+                      cx(
+                        'block rounded-md px-3 py-2 text-body-sm font-medium transition-colors focus-visible:outline-none focus-visible:shadow-inputfocus',
+                        isActive
+                          ? 'bg-pitch-deep text-white'
+                          : 'text-ops-muted hover:bg-ops-surface hover:text-ops-ink',
+                      )
+                    }
+                    onClick={() => setNavOpen(false)}
+                    to={module.path}
+                  >
+                    {module.label}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <div className="flex flex-col gap-4 border-t border-ops-border pt-4">
+            <RoleSwitcher />
+            <LanguagePicker />
+          </div>
         </div>
       </aside>
 

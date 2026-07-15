@@ -106,12 +106,17 @@ export default {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.35' },
         },
+        pulseRing: {
+          '0%': { transform: 'scale(0.85)', opacity: '0.9' },
+          '100%': { transform: 'scale(1.6)', opacity: '0' },
+        },
       },
       animation: {
         'float-ball': 'floatBall 6s ease-in-out infinite',
         'msg-in': 'msgIn 0.35s ease-out',
         'typing-bounce': 'typingBounce 1.1s ease-in-out infinite',
         blink: 'blink 1.6s ease-in-out infinite',
+        'pulse-ring': 'pulseRing 2.2s ease-out infinite',
       },
       boxShadow: {
         card: '0 1px 2px rgba(20,24,31,0.04)',

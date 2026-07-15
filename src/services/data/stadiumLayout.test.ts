@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AMENITIES, GATES, SECTIONS } from './stadiumLayout';
+import { AMENITIES, findZoneLabel, GATES, SECTIONS } from './stadiumLayout';
 
 describe('SECTIONS', () => {
   it('generates 96 sections across the three tiers', () => {
@@ -34,6 +34,17 @@ describe('GATES', () => {
     expect(GATES).toHaveLength(8);
     const compassPoints = new Set(GATES.map((gate) => gate.compassPoint));
     expect(compassPoints.size).toBe(8);
+  });
+});
+
+describe('findZoneLabel', () => {
+  it('labels section and gate zone ids', () => {
+    expect(findZoneLabel('sec-118')).toBe('Section 118');
+    expect(findZoneLabel('gate-a')).toBe('Gate A');
+  });
+
+  it('falls back to the raw id for unknown zones', () => {
+    expect(findZoneLabel('mystery-zone')).toBe('mystery-zone');
   });
 });
 

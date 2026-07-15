@@ -9,6 +9,7 @@ import {
   mockNavigationResponse,
   mockOperationalIntelligenceResponse,
   mockRealTimeDecisionSupportResponse,
+  mockScenarioPlanResponse,
   mockSustainabilityResponse,
   mockTransportationResponse,
 } from './mock';
@@ -22,6 +23,7 @@ const MOCK_FNS: ReadonlyArray<[string, () => unknown]> = [
   ['mockMultilingualAssistanceResponse', mockMultilingualAssistanceResponse],
   ['mockOperationalIntelligenceResponse', mockOperationalIntelligenceResponse],
   ['mockRealTimeDecisionSupportResponse', mockRealTimeDecisionSupportResponse],
+  ['mockScenarioPlanResponse', mockScenarioPlanResponse],
 ];
 
 describe('mock responses', () => {
@@ -40,16 +42,30 @@ describe('mockNavigationResponse', () => {
 });
 
 describe('mockCrowdManagementResponse', () => {
-  it('flags at least one hot zone', () => {
-    expect(mockCrowdManagementResponse().hotZones.length).toBeGreaterThan(0);
+  it('recommends gates, steward moves, and a forecast', () => {
+    const response = mockCrowdManagementResponse();
+    expect(response.gatesToOpen.length).toBeGreaterThan(0);
+    expect(response.stewardRedeployment.length).toBeGreaterThan(0);
+    expect(response.congestionForecast.length).toBeGreaterThan(0);
   });
 });
 
 describe('mockRealTimeDecisionSupportResponse', () => {
-  it('returns a valid priority and a non-empty action plan', () => {
+  it('returns a valid priority and every structured plan section', () => {
     const response = mockRealTimeDecisionSupportResponse();
     expect(['normal', 'elevated', 'critical']).toContain(response.priority);
-    expect(response.actionPlan.length).toBeGreaterThan(0);
+    expect(response.immediateActions.length).toBeGreaterThan(0);
+    expect(response.teamsToNotify.length).toBeGreaterThan(0);
+    expect(response.escalationCriteria.length).toBeGreaterThan(0);
+  });
+});
+
+describe('mockScenarioPlanResponse', () => {
+  it('returns a full contingency plan', () => {
+    const response = mockScenarioPlanResponse();
+    expect(response.immediateActions.length).toBeGreaterThan(0);
+    expect(response.teamsToNotify.length).toBeGreaterThan(0);
+    expect(response.escalationCriteria.length).toBeGreaterThan(0);
   });
 });
 

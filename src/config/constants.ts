@@ -124,6 +124,18 @@ export const ANNOUNCEMENT_FEED_INTERVAL_MS = 40_000;
 /** Most recent announcements kept on screen; older ones scroll off like a real PA board. */
 export const ANNOUNCEMENT_FEED_LIMIT = 6;
 
+/** How often the simulated occupancy sensors publish a fresh set of readings. */
+export const DENSITY_REFRESH_INTERVAL_MS = 5_000;
+
+/** Busiest zones shown in the Crowd Management watchlist. */
+export const CROWD_WATCHLIST_COUNT = 8;
+
+/** How often the simulated incident feed reports a new incident. */
+export const INCIDENT_FEED_INTERVAL_MS = 30_000;
+
+/** Most recent incidents kept in the feed. */
+export const INCIDENT_FEED_LIMIT = 8;
+
 /** Gemini model requested through the serverless proxy — never called directly from the client. */
 export const GEMINI_MODEL = 'gemini-1.5-flash';
 

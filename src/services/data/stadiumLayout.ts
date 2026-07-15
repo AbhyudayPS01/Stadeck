@@ -104,3 +104,13 @@ export const AMENITIES: readonly Amenity[] = AMENITY_DEFINITIONS.map((definition
   sectionId: `sec-${definition.sectionLabel}`,
   angle: definition.angle,
 }));
+
+const ZONE_LABELS = new Map<string, string>([
+  ...SECTIONS.map((section) => [section.id, `Section ${section.label}`] as const),
+  ...GATES.map((gate) => [gate.id, gate.label] as const),
+]);
+
+/** Human-readable name for a sensor zone id, e.g. "sec-118" → "Section 118", "gate-a" → "Gate A". */
+export function findZoneLabel(zoneId: string): string {
+  return ZONE_LABELS.get(zoneId) ?? zoneId;
+}

@@ -33,9 +33,15 @@ export function mockNavigationResponse(): NavigationResponse {
 export function mockCrowdManagementResponse(): CrowdManagementResponse {
   return {
     summary:
-      'Gate C and the east concourse are approaching capacity; other gates are flowing normally.',
-    recommendation: 'Route incoming fans toward Gates A, B, and F until east-side density eases.',
-    hotZones: ['Gate C', 'East Concourse', 'Section 130'],
+      'Gate C and the surrounding east-side sections are approaching capacity; the rest of the venue is flowing normally.',
+    gatesToOpen: ['Gate A', 'Gate B', 'Gate F'],
+    stewardRedeployment: [
+      'Move two steward teams from the west concourse to Gate C to manage the queue.',
+      'Post one team at Sections 128-132 to keep the east stairwells clear.',
+      'Hold one mobile team near Gate E in case rail arrivals surge.',
+    ],
+    congestionForecast:
+      'East-side pressure should peak within 15 minutes as rail arrivals land, then ease once Gates A and B absorb the redirected flow.',
   };
 }
 
@@ -119,11 +125,36 @@ export function mockOperationalIntelligenceResponse(): OperationalIntelligenceRe
 
 export function mockRealTimeDecisionSupportResponse(): RealTimeDecisionSupportResponse {
   return {
-    summary: 'Dispatch a response team and monitor the situation until it is resolved.',
-    actionPlan: [
-      'Notify the nearest response team of the incident location.',
-      'Redirect fan flow away from the affected area if needed.',
-      'Confirm resolution and update the incident status.',
+    summary:
+      'Contain the incident locally, keep fan flow moving around it, and reassess in 10 minutes.',
+    immediateActions: [
+      'Dispatch the nearest response team to the reported location.',
+      'Cordon the immediate area and redirect fan flow around it.',
+      'Confirm resolution with the on-scene lead and update the incident status.',
+    ],
+    teamsToNotify: ['Venue response team', 'Security control room', 'Guest Services desk 103'],
+    escalationCriteria: [
+      'No on-scene confirmation within 10 minutes.',
+      'The affected area starts blocking an egress route.',
+    ],
+    priority: 'elevated',
+  };
+}
+
+/** Deterministic contingency plan for the organizer "what-if" scenario tool. */
+export function mockScenarioPlanResponse(): RealTimeDecisionSupportResponse {
+  return {
+    summary:
+      'Stage resources before the scenario can develop, keep fans informed early, and hold a clear escalation trigger.',
+    immediateActions: [
+      'Brief zone leads on the scenario and their first move.',
+      'Pre-position steward teams at the gates and concourses the scenario would stress.',
+      'Queue a multilingual fan announcement so messaging is ready to publish.',
+    ],
+    teamsToNotify: ['Operations control room', 'Steward coordinators', 'Transportation liaison'],
+    escalationCriteria: [
+      'Any zone sustains critical density for more than 5 minutes.',
+      'The scenario begins to affect more than one gate at once.',
     ],
     priority: 'elevated',
   };

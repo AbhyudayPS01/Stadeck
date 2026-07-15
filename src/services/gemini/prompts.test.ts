@@ -7,6 +7,7 @@ import {
   buildNavigationPrompt,
   buildOperationalIntelligencePrompt,
   buildRealTimeDecisionSupportPrompt,
+  buildScenarioPrompt,
   buildSustainabilityPrompt,
   buildTransportationPrompt,
 } from './prompts';
@@ -60,14 +61,30 @@ describe('query-based prompt builders', () => {
 });
 
 describe('data-based prompt builders', () => {
-  it('buildCrowdManagementPrompt embeds the density readings as JSON', () => {
+  it('buildCrowdManagementPrompt embeds aggregated readings with the hottest zones', () => {
     const readings = [
       { zoneId: 'gate-a', level: 'critical' as const, percentOfCapacity: 99, updatedAt: 'now' },
+      { zoneId: 'sec-101', level: 'normal' as const, percentOfCapacity: 41, updatedAt: 'now' },
     ];
     const prompt = buildCrowdManagementPrompt({ readings });
     expect(prompt).toContain('"zoneId":"gate-a"');
+    expect(prompt).toContain('"criticalZones":1');
+    expect(prompt).toContain('"averagePercentOfCapacity":70');
     expect(prompt).toContain(JSON_INSTRUCTION);
-    expect(prompt).toContain('"hotZones"');
+    expect(prompt).toContain('"gatesToOpen"');
+    expect(prompt).toContain('"stewardRedeployment"');
+    expect(prompt).toContain('"congestionForecast"');
+  });
+
+  it('buildCrowdManagementPrompt keeps a full 104-zone sweep under the proxy payload cap', () => {
+    const readings = Array.from({ length: 104 }, (_, index) => ({
+      zoneId: `sec-${101 + index}`,
+      level: 'elevated' as const,
+      percentOfCapacity: 85,
+      updatedAt: new Date().toISOString(),
+    }));
+    const prompt = buildCrowdManagementPrompt({ readings });
+    expect(prompt.length).toBeLessThan(8_000);
   });
 
   it('buildTransportationPrompt embeds transit options and wraps the destination', () => {
@@ -118,7 +135,7 @@ describe('data-based prompt builders', () => {
     expect(prompt).toContain('"alerts"');
   });
 
-  it('buildRealTimeDecisionSupportPrompt embeds the incident and requests a priority field', () => {
+  it('buildRealTimeDecisionSupportPrompt embeds the incident and requests the structured plan', () => {
     const incident = {
       id: 'incident-1',
       category: 'medical' as const,
@@ -130,7 +147,17 @@ describe('data-based prompt builders', () => {
     };
     const prompt = buildRealTimeDecisionSupportPrompt({ incident });
     expect(prompt).toContain('"id":"incident-1"');
-    expect(prompt).toContain('"actionPlan"');
+    expect(prompt).toContain('"immediateActions"');
+    expect(prompt).toContain('"teamsToNotify"');
+    expect(prompt).toContain('"escalationCriteria"');
     expect(prompt).toContain('"priority"');
+  });
+
+  it('buildScenarioPrompt wraps the organizer scenario as untrusted data', () => {
+    const prompt = buildScenarioPrompt({ scenario: 'Rail line goes down at halftime' });
+    expect(prompt).toContain('###USER_DATA###');
+    expect(prompt).toContain('Rail line goes down at halftime');
+    expect(prompt).toContain('"immediateActions"');
+    expect(prompt).toContain(JSON_INSTRUCTION);
   });
 });
