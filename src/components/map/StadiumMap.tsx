@@ -3,7 +3,6 @@ import { STADIUM_NAME } from '../../config/constants';
 import { AMENITIES, GATES, SECTIONS, TIER_NAMES } from '../../services/data/stadiumLayout';
 import type { SectionTier, StadiumSection } from '../../types/stadium';
 import { cx } from '../../utils/cx';
-import { AmenityMarker, GateMarker, PitchField } from './markers';
 import {
   MAP_SIZE,
   sectionHitPath,
@@ -11,6 +10,7 @@ import {
   sectionLabelVisibility,
   sectionPath,
 } from './mapGeometry';
+import { AmenityMarker, GateMarker, PitchField } from './markers';
 
 export interface StadiumMapProps {
   /**

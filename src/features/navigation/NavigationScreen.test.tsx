@@ -49,9 +49,7 @@ describe('NavigationScreen', () => {
 
     await user.selectOptions(screen.getByLabelText('Your seating section'), 'sec-118');
 
-    expect(
-      screen.getByRole('heading', { name: 'Closest to Section 118' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Closest to Section 118' })).toBeInTheDocument();
     expect(screen.getByText('Nearest restroom')).toBeInTheDocument();
     expect(screen.getByText('Nearest food')).toBeInTheDocument();
     expect(screen.getByText('Closest exit')).toBeInTheDocument();

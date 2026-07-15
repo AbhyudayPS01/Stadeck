@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { GATES, SECTIONS } from '../data/stadiumLayout';
+import { findGate, findSection } from '../../test/stadiumFixtures';
 import {
   buildAccessibilityPrompt,
   buildAnnouncementTranslationPrompt,
@@ -16,22 +16,6 @@ import {
 } from './prompts';
 
 const JSON_INSTRUCTION = 'Respond with JSON only';
-
-function findGate(id: string) {
-  const gate = GATES.find((candidate) => candidate.id === id);
-  if (!gate) {
-    throw new Error(`missing test gate ${id}`);
-  }
-  return gate;
-}
-
-function findSection(id: string) {
-  const section = SECTIONS.find((candidate) => candidate.id === id);
-  if (!section) {
-    throw new Error(`missing test section ${id}`);
-  }
-  return section;
-}
 
 describe('query-based prompt builders', () => {
   it('buildNavigationPrompt grounds the route in the chosen gate, section, and nearby landmarks', () => {

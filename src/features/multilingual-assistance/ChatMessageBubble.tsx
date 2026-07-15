@@ -1,5 +1,5 @@
-import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { useProgressiveText } from '../../hooks/useProgressiveText';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
 import type { ChatMessage } from '../../types/chat';
 import { cx } from '../../utils/cx';
 import { isRtlLanguage } from '../../utils/detectLanguage';

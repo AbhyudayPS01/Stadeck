@@ -26,10 +26,10 @@ export const TIER_RINGS: Record<SectionTier, { inner: number; outer: number }> =
 };
 
 /** Amenity markers sit on the concourse gap between the lower and club rings. */
-export const AMENITY_RADIUS = 160;
+const AMENITY_RADIUS = 160;
 
 /** Gate markers sit outside the upper ring, at their compass angles. */
-export const GATE_RADIUS = 281;
+const GATE_RADIUS = 281;
 
 /** Degrees trimmed from each side of a section so neighbours read as separate blocks. */
 const SECTION_GAP_DEGREES = 0.75;

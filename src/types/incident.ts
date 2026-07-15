@@ -8,7 +8,7 @@ export type IncidentCategory =
 
 export type IncidentSeverity = 'normal' | 'elevated' | 'critical';
 
-export type IncidentStatus = 'open' | 'monitoring' | 'resolved';
+type IncidentStatus = 'open' | 'monitoring' | 'resolved';
 
 /** A single reported operational incident, as shown in the live incident feed. */
 export interface Incident {

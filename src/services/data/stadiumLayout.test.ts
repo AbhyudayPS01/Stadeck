@@ -1,21 +1,15 @@
 import { describe, expect, it } from 'vitest';
+import { findSection } from '../../test/stadiumFixtures';
 import {
   AMENITIES,
   findZoneLabel,
   GATES,
   nearestAmenity,
   nearestGate,
-  SECTIONS,
   sectionMidAngle,
+  sectionNumber,
+  SECTIONS,
 } from './stadiumLayout';
-
-function getSection(id: string) {
-  const section = SECTIONS.find((candidate) => candidate.id === id);
-  if (!section) {
-    throw new Error(`missing test section ${id}`);
-  }
-  return section;
-}
 
 describe('SECTIONS', () => {
   it('generates 96 sections across the three tiers', () => {
@@ -64,26 +58,32 @@ describe('findZoneLabel', () => {
   });
 });
 
+describe('sectionNumber', () => {
+  it('strips the section id prefix', () => {
+    expect(sectionNumber('sec-118')).toBe('118');
+  });
+});
+
 describe('sectionMidAngle', () => {
   it('returns the center bearing of a section arc', () => {
-    expect(sectionMidAngle(getSection('sec-101'))).toBe(4.5);
+    expect(sectionMidAngle(findSection('sec-101'))).toBe(4.5);
   });
 });
 
 describe('nearestAmenity', () => {
   it('finds the restroom with the smallest walk around the ring', () => {
-    expect(nearestAmenity(getSection('sec-101'), 'restroom').sectionId).toBe('sec-105');
+    expect(nearestAmenity(findSection('sec-101'), 'restroom').sectionId).toBe('sec-105');
   });
 
   it('takes the short way across the 0° seam', () => {
-    expect(nearestAmenity(getSection('sec-101'), 'food').sectionId).toBe('sec-138');
+    expect(nearestAmenity(findSection('sec-101'), 'food').sectionId).toBe('sec-138');
   });
 });
 
 describe('nearestGate', () => {
   it('returns the gate closest to the section bearing', () => {
-    expect(nearestGate(getSection('sec-101')).id).toBe('gate-a');
-    expect(nearestGate(getSection('sec-130')).id).toBe('gate-g');
+    expect(nearestGate(findSection('sec-101')).id).toBe('gate-a');
+    expect(nearestGate(findSection('sec-130')).id).toBe('gate-g');
   });
 });
 

@@ -3,7 +3,8 @@ import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { DemoDataBadge } from '../../components/ui/DemoDataBadge';
 import { ErrorState } from '../../components/ui/ErrorState';
-import { Spinner } from '../../components/ui/Spinner';
+import { LoadingRow } from '../../components/ui/LoadingRow';
+import { StepList } from '../../components/ui/StepList';
 import { MAX_USER_INPUT_LENGTH } from '../../config/constants';
 import { useGemini } from '../../hooks/useGemini';
 import { getTransportationRecommendation } from '../../services/gemini';
@@ -21,8 +22,9 @@ interface EgressPlan {
   options: TransitOption[];
 }
 
-interface StrategyResultProps extends EgressPlannerProps {
+interface StrategyResultProps {
   plan: EgressPlan;
+  onRecommendation: (optionId: string | null) => void;
 }
 
 function StrategyResult({ plan, onRecommendation }: StrategyResultProps) {
@@ -37,14 +39,7 @@ function StrategyResult({ plan, onRecommendation }: StrategyResultProps) {
   }, [data, onRecommendation]);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center gap-3 py-4 text-pitch-deep">
-        <Spinner label="Planning your departure" size="md" />
-        <span aria-hidden="true" className="text-body-sm text-fan-muted">
-          Planning your departure…
-        </span>
-      </div>
-    );
+    return <LoadingRow label="Planning your departure" />;
   }
 
   if (error !== null || data === null) {
@@ -70,17 +65,7 @@ function StrategyResult({ plan, onRecommendation }: StrategyResultProps) {
         <p className="mt-2 rounded-md bg-pitch-tint px-3 py-2 text-body-sm font-semibold text-pitch-darker">
           {data.departureWindow}
         </p>
-        <ol className="mt-3 flex flex-col gap-2">
-          {data.steps.map((step, index) => (
-            <li key={step} className="flex gap-2.5 text-body-sm text-fan-ink">
-              <span
-                aria-hidden="true"
-                className="shrink-0 font-mono font-bold text-pitch-deep"
-              >{`${index + 1}.`}</span>
-              {step}
-            </li>
-          ))}
-        </ol>
+        <StepList items={data.steps} ordered />
       </div>
     </div>
   );
@@ -121,9 +106,7 @@ export function EgressPlanner({ options, onRecommendation }: EgressPlannerProps)
           Plan my exit
         </Button>
       </form>
-      {plan ? (
-        <StrategyResult onRecommendation={onRecommendation} options={options} plan={plan} />
-      ) : null}
+      {plan ? <StrategyResult onRecommendation={onRecommendation} plan={plan} /> : null}
     </Card>
   );
 }

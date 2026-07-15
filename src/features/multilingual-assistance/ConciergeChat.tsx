@@ -47,6 +47,9 @@ export function ConciergeChat() {
   const listRef = useRef<HTMLUListElement>(null);
 
   const debouncedDraft = useDebouncedValue(draft, CHAT_INPUT_DEBOUNCE_MS);
+  // Memoized so detection runs once per debounced draft, not on the frequent
+  // unrelated re-renders (keystrokes, streaming ticks) — the debounce would
+  // otherwise be defeated.
   const detectedLanguage = useMemo(() => {
     const trimmed = debouncedDraft.trim();
     if (trimmed.length === 0) {

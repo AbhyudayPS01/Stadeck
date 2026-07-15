@@ -1,4 +1,4 @@
-export type SpinnerSize = 'sm' | 'md' | 'lg';
+type SpinnerSize = 'sm' | 'md' | 'lg';
 
 export interface SpinnerProps {
   /** Announced to screen readers; defaults to "Loading". */

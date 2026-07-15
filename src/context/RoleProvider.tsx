@@ -15,6 +15,8 @@ export function RoleProvider({ children, initialRole = null }: RoleProviderProps
   const enterRole = useCallback((next: Role) => setRole(next), []);
   const leaveRole = useCallback(() => setRole(null), []);
 
+  // Stable context identity: without it every provider render would re-render
+  // all consumers, and this provider wraps the entire app.
   const value = useMemo<RoleContextValue>(
     () => ({ role, enterRole, leaveRole }),
     [role, enterRole, leaveRole],

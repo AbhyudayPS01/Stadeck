@@ -1,5 +1,5 @@
-import type { KpiSnapshot } from '../../types/operational';
 import { STADIUM_CAPACITY } from '../../config/constants';
+import type { KpiSnapshot } from '../../types/operational';
 import { randomInt } from './random';
 
 /** Organizer-facing operational snapshot, refreshed on an interval by useMockStream. */

@@ -17,6 +17,4 @@ export interface DisplayPreferencesContextValue {
  * Accessibility module's story. Session-only by design — like the role gate,
  * nothing is persisted, so every demo run starts from the same state.
  */
-export const DisplayPreferencesContext = createContext<DisplayPreferencesContextValue | null>(
-  null,
-);
+export const DisplayPreferencesContext = createContext<DisplayPreferencesContextValue | null>(null);

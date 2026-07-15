@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { StadiumMap } from '../../components/map/StadiumMap';
 import { RouteOverlayLayer } from '../../components/map/RouteOverlayLayer';
 import { Card } from '../../components/ui/Card';
@@ -26,10 +26,7 @@ export default function NavigationScreen() {
   const [sectionId, setSectionId] = useState('');
   const [plan, setPlan] = useState<RoutePlan | null>(null);
 
-  const selectedSection = useMemo(
-    () => SECTIONS.find((section) => section.id === sectionId) ?? null,
-    [sectionId],
-  );
+  const selectedSection = SECTIONS.find((section) => section.id === sectionId) ?? null;
 
   const submitPlan = (): void => {
     const gate = GATES.find((candidate) => candidate.id === gateId);

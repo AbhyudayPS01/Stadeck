@@ -1,5 +1,5 @@
 import { EXPECTED_FINAL_WHISTLE } from '../../config/constants';
-import { nearestAmenity, nearestGate, TIER_NAMES } from '../data/stadiumLayout';
+import { nearestAmenity, nearestGate, sectionNumber, TIER_NAMES } from '../data/stadiumLayout';
 import type { DensityReading } from '../../types/crowd';
 import type { Incident } from '../../types/incident';
 import type { KpiSnapshot } from '../../types/operational';
@@ -27,7 +27,7 @@ export function buildNavigationPrompt(params: { gate: Gate; section: StadiumSect
   const { gate, section } = params;
   const describeNearest = (type: 'restroom' | 'food'): string => {
     const amenity = nearestAmenity(section, type);
-    return `${amenity.label} near Section ${amenity.sectionId.replace('sec-', '')}`;
+    return `${amenity.label} near Section ${sectionNumber(amenity.sectionId)}`;
   };
   const landmarks = [
     describeNearest('restroom'),

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { RouteOverlayLayer } from '../../components/map/RouteOverlayLayer';
 import { StadiumMap } from '../../components/map/StadiumMap';
 import { Card } from '../../components/ui/Card';
@@ -32,10 +32,7 @@ export default function AccessibilityScreen() {
   const [sectionId, setSectionId] = useState(ACCESSIBLE_SECTIONS[0]?.id ?? '');
   const [plan, setPlan] = useState<RoutePlan | null>(null);
 
-  const selectedSection = useMemo(
-    () => ACCESSIBLE_SECTIONS.find((section) => section.id === sectionId) ?? null,
-    [sectionId],
-  );
+  const selectedSection = ACCESSIBLE_SECTIONS.find((section) => section.id === sectionId) ?? null;
 
   const submitPlan = (): void => {
     const gate = GATES.find((candidate) => candidate.id === gateId);

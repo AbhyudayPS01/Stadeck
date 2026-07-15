@@ -4,7 +4,6 @@ import type { GatedRole, RoleOption } from '../types/role';
 
 /** Demo venue for all mock data: the FIFA World Cup 2026 Final host. */
 export const STADIUM_NAME = 'MetLife Stadium';
-export const STADIUM_ID = 'metlife-2026-final';
 export const STADIUM_CAPACITY = 82_500;
 
 /**

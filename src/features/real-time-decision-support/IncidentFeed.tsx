@@ -1,8 +1,8 @@
 import { Badge } from '../../components/ui/Badge';
 import { Card } from '../../components/ui/Card';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { cx } from '../../utils/cx';
 import type { Incident } from '../../types/incident';
+import { cx } from '../../utils/cx';
 
 interface IncidentFeedProps {
   incidents: Incident[];

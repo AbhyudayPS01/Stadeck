@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { AMENITIES, GATES, SECTIONS } from '../../services/data/stadiumLayout';
+import { findGate, findSection } from '../../test/stadiumFixtures';
 import { polarToCartesian } from '../../utils/geometry';
 import {
   amenityPoint,
@@ -14,22 +15,6 @@ import {
   sectionPath,
   TIER_RINGS,
 } from './mapGeometry';
-
-function findGate(id: string) {
-  const gate = GATES.find((candidate) => candidate.id === id);
-  if (!gate) {
-    throw new Error(`missing test gate ${id}`);
-  }
-  return gate;
-}
-
-function findSection(id: string) {
-  const section = SECTIONS.find((candidate) => candidate.id === id);
-  if (!section) {
-    throw new Error(`missing test section ${id}`);
-  }
-  return section;
-}
 
 function distanceFromCenter(point: { x: number; y: number }): number {
   return Math.hypot(point.x - MAP_CENTER, point.y - MAP_CENTER);

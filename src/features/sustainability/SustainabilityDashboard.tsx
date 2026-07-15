@@ -39,7 +39,11 @@ export function SustainabilityDashboard({ metrics }: SustainabilityDashboardProp
           label="Renewable energy"
           value={`${energyPercent}%`}
         />
-        <StatTile caption="so far today" label="Water used" value={`${formatCount(waterLiters)} L`} />
+        <StatTile
+          caption="so far today"
+          label="Water used"
+          value={`${formatCount(waterLiters)} L`}
+        />
         <StatTile
           caption="purchased for this match"
           label="Carbon offset"

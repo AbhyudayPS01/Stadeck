@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { Card } from '../../components/ui/Card';
 import { ErrorState } from '../../components/ui/ErrorState';
-import { Spinner } from '../../components/ui/Spinner';
+import { LoadingRow } from '../../components/ui/LoadingRow';
 import { useGemini } from '../../hooks/useGemini';
 import { getRealTimeDecisionSupport } from '../../services/gemini';
 import type { Incident } from '../../types/incident';
@@ -28,12 +28,7 @@ export function ActionPlanPanel({ incident }: ActionPlanPanelProps) {
       </p>
       <div className="mt-4">
         {isLoading ? (
-          <div className="flex items-center gap-3 py-6 text-glow">
-            <Spinner label="Generating action plan" size="md" />
-            <span aria-hidden="true" className="text-body-sm text-ops-muted">
-              Generating action plan…
-            </span>
-          </div>
+          <LoadingRow label="Generating action plan" theme="ops" />
         ) : error !== null || data === null || source === null ? (
           <ErrorState
             message="The action plan could not be generated."

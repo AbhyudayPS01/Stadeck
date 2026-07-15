@@ -24,7 +24,10 @@ import type {
  * Parameterized on the fan's actual gate/section choices so the offline demo
  * never shows directions that contradict the highlighted route on the map.
  */
-export function mockNavigationResponse(gateLabel = 'Gate C', sectionLabel = '118'): NavigationResponse {
+export function mockNavigationResponse(
+  gateLabel = 'Gate C',
+  sectionLabel = '118',
+): NavigationResponse {
   return {
     summary: `Enter at ${gateLabel} and follow the concourse to Section ${sectionLabel}.`,
     steps: [

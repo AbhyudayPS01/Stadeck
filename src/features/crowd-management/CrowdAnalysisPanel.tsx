@@ -4,7 +4,7 @@ import { Card } from '../../components/ui/Card';
 import { DemoDataBadge } from '../../components/ui/DemoDataBadge';
 import { ErrorState } from '../../components/ui/ErrorState';
 import { InsightCard } from '../../components/ui/InsightCard';
-import { Spinner } from '../../components/ui/Spinner';
+import { LoadingRow } from '../../components/ui/LoadingRow';
 import { useGemini } from '../../hooks/useGemini';
 import { getCrowdManagementSummary } from '../../services/gemini';
 import type { DensityReading } from '../../types/crowd';
@@ -23,14 +23,7 @@ function AnalysisResult({ snapshot, onReanalyze }: AnalysisResultProps) {
   const { data, source, isLoading, error, refetch } = useGemini(fetcher);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center gap-3 py-6 text-glow">
-        <Spinner label="Analyzing crowd state" size="md" />
-        <span aria-hidden="true" className="text-body-sm text-ops-muted">
-          Analyzing crowd state…
-        </span>
-      </div>
-    );
+    return <LoadingRow label="Analyzing crowd state" theme="ops" />;
   }
 
   if (error !== null || data === null) {

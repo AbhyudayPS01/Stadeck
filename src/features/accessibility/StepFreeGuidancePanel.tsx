@@ -1,7 +1,8 @@
 import { useCallback } from 'react';
 import { DemoDataBadge } from '../../components/ui/DemoDataBadge';
 import { ErrorState } from '../../components/ui/ErrorState';
-import { Spinner } from '../../components/ui/Spinner';
+import { LoadingRow } from '../../components/ui/LoadingRow';
+import { StepList } from '../../components/ui/StepList';
 import { useGemini } from '../../hooks/useGemini';
 import { getStepFreeRoute } from '../../services/gemini';
 import type { Gate, StadiumSection } from '../../types/stadium';
@@ -17,14 +18,7 @@ export function StepFreeGuidancePanel({ gate, section }: StepFreeGuidancePanelPr
   const { data, source, isLoading, error, refetch } = useGemini(fetcher);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center gap-3 py-4 text-pitch-deep">
-        <Spinner label="Planning step-free route" size="md" />
-        <span aria-hidden="true" className="text-body-sm text-fan-muted">
-          Planning step-free route…
-        </span>
-      </div>
-    );
+    return <LoadingRow label="Planning step-free route" />;
   }
 
   if (error !== null || data === null) {
@@ -51,16 +45,7 @@ export function StepFreeGuidancePanel({ gate, section }: StepFreeGuidancePanelPr
           {data.recommendedRoute}
         </p>
         <h3 className="mt-3 font-display text-h3 text-fan-ink">At your seating area</h3>
-        <ul className="mt-2 flex flex-col gap-1.5">
-          {data.accommodations.map((accommodation) => (
-            <li key={accommodation} className="flex gap-2.5 text-body-sm text-fan-ink">
-              <span aria-hidden="true" className="shrink-0 font-mono font-bold text-pitch-deep">
-                ▸
-              </span>
-              {accommodation}
-            </li>
-          ))}
-        </ul>
+        <StepList items={data.accommodations} />
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import type { TextScale } from '../../context/displayPreferencesContext';
@@ -17,16 +18,17 @@ const TEXT_SCALE_OPTIONS: ReadonlyArray<{ value: TextScale; label: string }> = [
  */
 export function DisplayControls() {
   const { highContrast, toggleHighContrast, textScale, setTextScale } = useDisplayPreferences();
+  const contrastLabelId = useId();
 
   return (
     <Card accent="steel">
       <h2 className="font-display text-h2 text-fan-ink">Display</h2>
       <div className="mt-3 flex items-center justify-between gap-3">
-        <span className="text-body-sm text-fan-ink" id="high-contrast-label">
+        <span className="text-body-sm text-fan-ink" id={contrastLabelId}>
           High contrast
         </span>
         <Button
-          aria-labelledby="high-contrast-label"
+          aria-labelledby={contrastLabelId}
           aria-pressed={highContrast}
           onClick={toggleHighContrast}
           size="sm"

@@ -1,7 +1,7 @@
 import { Badge } from '../../components/ui/Badge';
 import { Card } from '../../components/ui/Card';
 import { StatTile } from '../../components/ui/StatTile';
-import type { KpiSnapshot, KpiTrend } from '../../types/operational';
+import type { KpiSeverity, KpiSnapshot, KpiTrend } from '../../types/operational';
 import { formatCount } from '../../utils/format';
 import { clamp } from '../../utils/numbers';
 
@@ -16,7 +16,7 @@ const TREND_WORDS: Record<KpiTrend, string> = {
   flat: '→ steady',
 };
 
-const SEVERITY_WORDS: Record<KpiSnapshot['severity'], string> = {
+const SEVERITY_WORDS: Record<KpiSeverity, string> = {
   normal: 'ok',
   elevated: 'watch',
   critical: 'critical',

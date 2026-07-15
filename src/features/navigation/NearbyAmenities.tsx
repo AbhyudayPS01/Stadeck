@@ -1,5 +1,5 @@
 import { Card } from '../../components/ui/Card';
-import { nearestAmenity, nearestGate } from '../../services/data/stadiumLayout';
+import { nearestAmenity, nearestGate, sectionNumber } from '../../services/data/stadiumLayout';
 import type { StadiumSection } from '../../types/stadium';
 
 export interface NearbyAmenitiesProps {
@@ -16,8 +16,8 @@ export function NearbyAmenities({ section }: NearbyAmenitiesProps) {
   const exit = nearestGate(section);
 
   const entries = [
-    { label: 'Nearest restroom', detail: `Near Section ${restroom.sectionId.replace('sec-', '')}` },
-    { label: 'Nearest food', detail: `Near Section ${food.sectionId.replace('sec-', '')}` },
+    { label: 'Nearest restroom', detail: `Near Section ${sectionNumber(restroom.sectionId)}` },
+    { label: 'Nearest food', detail: `Near Section ${sectionNumber(food.sectionId)}` },
     { label: 'Closest exit', detail: exit.label },
   ];
 

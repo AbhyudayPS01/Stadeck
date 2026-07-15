@@ -4,7 +4,7 @@ import { Card } from '../../components/ui/Card';
 import { DemoDataBadge } from '../../components/ui/DemoDataBadge';
 import { ErrorState } from '../../components/ui/ErrorState';
 import { InsightCard } from '../../components/ui/InsightCard';
-import { Spinner } from '../../components/ui/Spinner';
+import { LoadingRow } from '../../components/ui/LoadingRow';
 import { useGemini } from '../../hooks/useGemini';
 import { getOperationalIntelligenceSummary } from '../../services/gemini';
 import type { KpiSnapshot } from '../../types/operational';
@@ -18,14 +18,7 @@ function BriefingResult({ kpis, onRefresh }: { kpis: KpiSnapshot[]; onRefresh: (
   const { data, source, isLoading, error, refetch } = useGemini(fetcher);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center gap-3 py-6 text-glow">
-        <Spinner label="Writing executive briefing" size="md" />
-        <span aria-hidden="true" className="text-body-sm text-ops-muted">
-          Writing executive briefing…
-        </span>
-      </div>
-    );
+    return <LoadingRow label="Writing executive briefing" theme="ops" />;
   }
 
   if (error !== null || data === null) {

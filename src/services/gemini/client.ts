@@ -91,7 +91,11 @@ async function requestWithRetries(prompt: string): Promise<string> {
     try {
       return await attemptRequest(prompt);
     } catch (error) {
-      const clientError = error as GeminiClientError;
+      // attemptRequest wraps every failure, but never assume: anything else is non-retryable.
+      const clientError =
+        error instanceof GeminiClientError
+          ? error
+          : new GeminiClientError('network', 'Gemini proxy request failed', false);
       lastError = clientError;
       const hasRetriesLeft = attempt < GEMINI_MAX_RETRIES;
       if (!clientError.retryable || !hasRetriesLeft) {

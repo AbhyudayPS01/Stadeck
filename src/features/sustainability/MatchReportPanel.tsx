@@ -3,7 +3,8 @@ import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { DemoDataBadge } from '../../components/ui/DemoDataBadge';
 import { ErrorState } from '../../components/ui/ErrorState';
-import { Spinner } from '../../components/ui/Spinner';
+import { LoadingRow } from '../../components/ui/LoadingRow';
+import { StepList } from '../../components/ui/StepList';
 import { useGemini } from '../../hooks/useGemini';
 import { getSustainabilityReport } from '../../services/gemini';
 import type { SustainabilityMetrics } from '../../types/sustainability';
@@ -21,16 +22,7 @@ function ReportList({ title, items }: ReportListProps) {
   return (
     <section>
       <h3 className="font-display text-h3 text-fan-ink">{title}</h3>
-      <ul className="mt-2 flex flex-col gap-1.5">
-        {items.map((item) => (
-          <li key={item} className="flex gap-2.5 text-body-sm text-fan-ink">
-            <span aria-hidden="true" className="shrink-0 font-mono font-bold text-pitch-deep">
-              ▸
-            </span>
-            {item}
-          </li>
-        ))}
-      </ul>
+      <StepList items={items} />
     </section>
   );
 }
@@ -40,14 +32,7 @@ function ReportResult({ metrics }: MatchReportPanelProps) {
   const { data, source, isLoading, error, refetch } = useGemini(fetcher);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center gap-3 py-4 text-pitch-deep">
-        <Spinner label="Writing match report" size="md" />
-        <span aria-hidden="true" className="text-body-sm text-fan-muted">
-          Writing match report…
-        </span>
-      </div>
-    );
+    return <LoadingRow label="Writing match report" />;
   }
 
   if (error !== null || data === null) {

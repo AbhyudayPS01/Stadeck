@@ -5,8 +5,8 @@ vi.mock('./client', async (importOriginal) => {
   return { ...actual, requestGemini: vi.fn() };
 });
 
+import { findGate, findSection } from '../../test/stadiumFixtures';
 import { getInitialAnnouncements } from '../data/announcements';
-import { GATES, SECTIONS } from '../data/stadiumLayout';
 import { requestGemini } from './client';
 import {
   getAnnouncementTranslation,
@@ -33,11 +33,8 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-const TEST_GATE = GATES[0];
-const TEST_SECTION = SECTIONS[0];
-if (!TEST_GATE || !TEST_SECTION) {
-  throw new Error('stadium layout unexpectedly empty in test setup');
-}
+const TEST_GATE = findGate('gate-a');
+const TEST_SECTION = findSection('sec-101');
 
 describe('getNavigationDirections', () => {
   it('returns live data when Gemini responds with a valid shape', async () => {
@@ -182,7 +179,12 @@ describe('per-feature min-interval limiter', () => {
   it('serves mock without calling Gemini again when called within the interval', async () => {
     const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(1_000_000);
     requestGeminiMock.mockResolvedValue(
-      JSON.stringify({ recommendedOptionId: 'nj-transit-rail', summary: 'ok', departureWindow: 'Leave by 5:15 PM', steps: [] }),
+      JSON.stringify({
+        recommendedOptionId: 'nj-transit-rail',
+        summary: 'ok',
+        departureWindow: 'Leave by 5:15 PM',
+        steps: [],
+      }),
     );
 
     await getTransportationRecommendation([], 'Gate A');
@@ -199,7 +201,12 @@ describe('per-feature min-interval limiter', () => {
     const nowSpy = vi.spyOn(Date, 'now');
     nowSpy.mockReturnValue(2_000_000);
     requestGeminiMock.mockResolvedValue(
-      JSON.stringify({ recommendedOptionId: 'nj-transit-rail', summary: 'ok', departureWindow: 'Leave by 5:15 PM', steps: [] }),
+      JSON.stringify({
+        recommendedOptionId: 'nj-transit-rail',
+        summary: 'ok',
+        departureWindow: 'Leave by 5:15 PM',
+        steps: [],
+      }),
     );
 
     await getTransportationRecommendation([], 'Gate A');

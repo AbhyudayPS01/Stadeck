@@ -1,4 +1,4 @@
-export type ChatRole = 'user' | 'assistant';
+type ChatRole = 'user' | 'assistant';
 
 /** One message in the multilingual assistance chat thread. */
 export interface ChatMessage {

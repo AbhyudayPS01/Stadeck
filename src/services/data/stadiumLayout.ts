@@ -123,6 +123,11 @@ export function findZoneLabel(zoneId: string): string {
   return ZONE_LABELS.get(zoneId) ?? zoneId;
 }
 
+/** Bare section number from a section id, e.g. "sec-118" → "118". */
+export function sectionNumber(sectionId: string): string {
+  return sectionId.replace('sec-', '');
+}
+
 /** Compass bearing of a section's center, matching the angle convention of gates and amenities. */
 export function sectionMidAngle(section: StadiumSection): number {
   return (section.angleStart + section.angleEnd) / 2;

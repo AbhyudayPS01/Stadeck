@@ -1,4 +1,5 @@
 import type { KeyboardEvent } from 'react';
+import { sectionNumber } from '../../services/data/stadiumLayout';
 import type { Amenity, AmenityType, CompassPoint, Gate } from '../../types/stadium';
 import { amenityPoint, gatePoint, MAP_CENTER } from './mapGeometry';
 
@@ -122,11 +123,10 @@ interface AmenityMarkerProps {
  */
 export function AmenityMarker({ amenity }: AmenityMarkerProps) {
   const point = amenityPoint(amenity);
-  const sectionNumber = amenity.sectionId.replace('sec-', '');
 
   return (
     <g
-      aria-label={`${amenity.label}, near section ${sectionNumber}`}
+      aria-label={`${amenity.label}, near section ${sectionNumber(amenity.sectionId)}`}
       className="pointer-events-none"
       role="img"
     >

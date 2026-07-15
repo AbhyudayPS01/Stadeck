@@ -3,7 +3,8 @@ import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { DemoDataBadge } from '../../components/ui/DemoDataBadge';
 import { ErrorState } from '../../components/ui/ErrorState';
-import { Spinner } from '../../components/ui/Spinner';
+import { LoadingRow } from '../../components/ui/LoadingRow';
+import { StepList } from '../../components/ui/StepList';
 import { useGemini } from '../../hooks/useGemini';
 import { getSustainabilityTips } from '../../services/gemini';
 import type { SustainabilityMetrics } from '../../types/sustainability';
@@ -17,14 +18,7 @@ function ActionsResult({ metrics }: EcoActionsPanelProps) {
   const { data, source, isLoading, error, refetch } = useGemini(fetcher);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center gap-3 py-4 text-pitch-deep">
-        <Spinner label="Finding eco actions" size="md" />
-        <span aria-hidden="true" className="text-body-sm text-fan-muted">
-          Finding eco actions…
-        </span>
-      </div>
-    );
+    return <LoadingRow label="Finding eco actions" />;
   }
 
   if (error !== null || data === null) {
@@ -47,16 +41,7 @@ function ActionsResult({ metrics }: EcoActionsPanelProps) {
       {/* AI response region per CLAUDE.md accessibility rules */}
       <div aria-live="polite">
         <p className="text-body-sm text-fan-ink">{data.summary}</p>
-        <ul className="mt-3 flex flex-col gap-1.5">
-          {data.tips.map((tip) => (
-            <li key={tip} className="flex gap-2.5 text-body-sm text-fan-ink">
-              <span aria-hidden="true" className="shrink-0 font-mono font-bold text-pitch-deep">
-                ▸
-              </span>
-              {tip}
-            </li>
-          ))}
-        </ul>
+        <StepList items={data.tips} />
       </div>
     </div>
   );

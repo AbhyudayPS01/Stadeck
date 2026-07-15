@@ -17,6 +17,8 @@ export function LanguageProvider({
 
   const setLanguage = useCallback((code: string) => setLanguageState(code), []);
 
+  // Stable context identity: without it every provider render would re-render
+  // all consumers, and this provider wraps the entire app.
   const value = useMemo<LanguageContextValue>(
     () => ({ language, setLanguage }),
     [language, setLanguage],

@@ -2,9 +2,9 @@ import type { ButtonHTMLAttributes } from 'react';
 import { cx } from '../../utils/cx';
 
 /** Visual weight per DESIGN.md §4. State is never color-only — every button carries a text label. */
-export type ButtonVariant = 'primary' | 'accent' | 'secondary' | 'destructive';
+type ButtonVariant = 'primary' | 'accent' | 'secondary' | 'destructive';
 
-export type ButtonSize = 'md' | 'sm';
+type ButtonSize = 'md' | 'sm';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Defaults to primary (pitch green, white text). */

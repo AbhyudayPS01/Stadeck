@@ -1,15 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { render } from '@testing-library/react';
-import { GATES, SECTIONS } from '../../services/data/stadiumLayout';
+import { findGate, findSection } from '../../test/stadiumFixtures';
 import { RouteOverlayLayer } from './RouteOverlayLayer';
 
 function getFixtures() {
-  const gate = GATES.find((candidate) => candidate.id === 'gate-c');
-  const section = SECTIONS.find((candidate) => candidate.id === 'sec-118');
-  if (!gate || !section) {
-    throw new Error('missing map fixtures for route overlay test');
-  }
-  return { gate, section };
+  return { gate: findGate('gate-c'), section: findSection('sec-118') };
 }
 
 describe('RouteOverlayLayer', () => {

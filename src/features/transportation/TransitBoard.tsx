@@ -2,8 +2,8 @@ import { Badge, type BadgeSeverity } from '../../components/ui/Badge';
 import { Card } from '../../components/ui/Card';
 import { TRANSIT_MAX_ETA_MINUTES } from '../../config/constants';
 import type { TransitMode, TransitOption, TransitStatus } from '../../types/transportation';
-import { clamp } from '../../utils/numbers';
 import { cx } from '../../utils/cx';
+import { clamp } from '../../utils/numbers';
 
 export interface TransitBoardProps {
   options: TransitOption[];
@@ -85,4 +85,3 @@ export function TransitBoard({ options, recommendedOptionId }: TransitBoardProps
     </Card>
   );
 }
-

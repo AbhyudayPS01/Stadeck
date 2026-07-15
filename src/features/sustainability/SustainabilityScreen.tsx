@@ -20,8 +20,7 @@ export default function SustainabilityScreen() {
     <main className="min-h-screen bg-fan-bg px-gutter py-section md:px-page">
       <h1 className="font-display text-h1 text-fan-ink">Sustainability</h1>
       <p className="mt-2 max-w-2xl text-body text-fan-muted">
-        How the venue is performing right now — and what you can do to lower the matchday
-        footprint.
+        How the venue is performing right now — and what you can do to lower the matchday footprint.
       </p>
       <div className="mt-section grid grid-cols-1 items-start gap-gutter xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
         <SustainabilityDashboard metrics={metrics} />

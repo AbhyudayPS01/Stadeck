@@ -1,5 +1,5 @@
-import type { CardTheme } from './Card';
 import { cx } from '../../utils/cx';
+import type { CardTheme } from './Card';
 
 export interface DemoDataBadgeProps {
   /** Defaults to the light fan theme. */

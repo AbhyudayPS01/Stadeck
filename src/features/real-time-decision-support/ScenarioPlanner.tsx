@@ -2,7 +2,7 @@ import { useCallback, useId, useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { ErrorState } from '../../components/ui/ErrorState';
-import { Spinner } from '../../components/ui/Spinner';
+import { LoadingRow } from '../../components/ui/LoadingRow';
 import { MAX_USER_INPUT_LENGTH } from '../../config/constants';
 import { useGemini } from '../../hooks/useGemini';
 import { getScenarioPlan } from '../../services/gemini';
@@ -13,14 +13,7 @@ function ScenarioResult({ scenario }: { scenario: string }) {
   const { data, source, isLoading, error, refetch } = useGemini(fetcher);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center gap-3 py-6 text-glow">
-        <Spinner label="Planning scenario" size="md" />
-        <span aria-hidden="true" className="text-body-sm text-ops-muted">
-          Planning scenario…
-        </span>
-      </div>
-    );
+    return <LoadingRow label="Planning scenario" theme="ops" />;
   }
   if (error !== null || data === null || source === null) {
     return (

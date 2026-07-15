@@ -10,6 +10,8 @@ const WORD_REVEAL_INTERVAL_MS = 45;
  * cleared on completion, on text change, and on unmount.
  */
 export function useProgressiveText(text: string, enabled: boolean): string {
+  // Memoized because this hook re-renders every 45ms while streaming — the
+  // split should run once per text, not once per revealed word.
   const words = useMemo(() => text.split(' '), [text]);
   const [visibleCount, setVisibleCount] = useState(enabled ? 1 : words.length);
 

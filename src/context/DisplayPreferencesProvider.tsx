@@ -43,6 +43,8 @@ export function DisplayPreferencesProvider({ children }: DisplayPreferencesProvi
   const toggleHighContrast = useCallback(() => setHighContrast((previous) => !previous), []);
   const setTextScale = useCallback((scale: TextScale) => setTextScaleState(scale), []);
 
+  // Stable context identity: without it every provider render would re-render
+  // all consumers, and this provider wraps the entire app.
   const value = useMemo<DisplayPreferencesContextValue>(
     () => ({ highContrast, toggleHighContrast, textScale, setTextScale }),
     [highContrast, toggleHighContrast, textScale, setTextScale],
