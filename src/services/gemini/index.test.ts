@@ -5,9 +5,12 @@ vi.mock('./client', async (importOriginal) => {
   return { ...actual, requestGemini: vi.fn() };
 });
 
+import { getInitialAnnouncements } from '../data/announcements';
 import { requestGemini } from './client';
 import {
   getAccessibilityGuidance,
+  getAnnouncementTranslation,
+  getMultilingualReply,
   getNavigationGuidance,
   getSustainabilityTips,
   getTransportationRecommendation,
@@ -71,6 +74,58 @@ describe('getSustainabilityTips', () => {
 
     expect(result.source).toBe('mock');
     expect(result.data).toEqual(mockSustainabilityResponse());
+  });
+});
+
+describe('getMultilingualReply', () => {
+  it('grounds the prompt in the stadium facts and lets the model pick the language', async () => {
+    requestGeminiMock.mockResolvedValueOnce(
+      JSON.stringify({ reply: 'La Puerta C está en el lado este.', language: 'es' }),
+    );
+
+    const result = await getMultilingualReply('¿Dónde está la Puerta C?');
+
+    expect(result.source).toBe('live');
+    expect(result.data.language).toBe('es');
+    const prompt = requestGeminiMock.mock.calls[0]?.[0] ?? '';
+    expect(prompt).toContain('Detect the language');
+    expect(prompt).toContain('First aid stations'); // stadium facts context embedded
+  });
+
+  it('serves a mock reply in the detected language when the proxy is unreachable', async () => {
+    requestGeminiMock.mockRejectedValueOnce(new Error('network down'));
+
+    const result = await getMultilingualReply('अगला ट्रेन कब है? गेट कहाँ है?');
+
+    expect(result.source).toBe('mock');
+    expect(result.data.language).toBe('hi');
+  });
+});
+
+describe('getAnnouncementTranslation', () => {
+  const announcement = getInitialAnnouncements()[0];
+  if (!announcement) {
+    throw new Error('announcement feed unexpectedly empty in test setup');
+  }
+
+  it('returns the live translation when Gemini responds with a valid shape', async () => {
+    requestGeminiMock.mockResolvedValueOnce(
+      JSON.stringify({ translation: 'O jogo começa às 15h.', language: 'pt' }),
+    );
+
+    const result = await getAnnouncementTranslation(announcement, 'pt');
+
+    expect(result.source).toBe('live');
+    expect(result.data.language).toBe('pt');
+  });
+
+  it('serves the canned translation when the proxy is unreachable', async () => {
+    requestGeminiMock.mockRejectedValueOnce(new Error('network down'));
+
+    const result = await getAnnouncementTranslation(announcement, 'fr');
+
+    expect(result.source).toBe('mock');
+    expect(result.data.translation).toBe(announcement.translations['fr']);
   });
 });
 

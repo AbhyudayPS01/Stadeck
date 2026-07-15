@@ -106,12 +106,23 @@ export const SUPPORTED_LANGUAGES: readonly LanguageOption[] = [
   { code: 'es', label: 'Spanish', nativeLabel: 'Español' },
   { code: 'fr', label: 'French', nativeLabel: 'Français' },
   { code: 'pt', label: 'Portuguese', nativeLabel: 'Português' },
+  { code: 'de', label: 'German', nativeLabel: 'Deutsch' },
+  { code: 'hi', label: 'Hindi', nativeLabel: 'हिन्दी' },
   { code: 'ar', label: 'Arabic', nativeLabel: 'العربية' },
   { code: 'ja', label: 'Japanese', nativeLabel: '日本語' },
 ];
 
 /** Default AI content language until the visitor picks another. */
 export const DEFAULT_LANGUAGE = 'en';
+
+/** Delay before the chat input's language-detection hint recomputes (CLAUDE.md: debounce chat inputs). */
+export const CHAT_INPUT_DEBOUNCE_MS = 300;
+
+/** How often the simulated venue announcement feed emits a new item. */
+export const ANNOUNCEMENT_FEED_INTERVAL_MS = 40_000;
+
+/** Most recent announcements kept on screen; older ones scroll off like a real PA board. */
+export const ANNOUNCEMENT_FEED_LIMIT = 6;
 
 /** Gemini model requested through the serverless proxy — never called directly from the client. */
 export const GEMINI_MODEL = 'gemini-1.5-flash';

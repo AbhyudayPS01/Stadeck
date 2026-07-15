@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import { SUPPORTED_LANGUAGES } from '../../config/constants';
+import { getInitialAnnouncements } from '../data/announcements';
 import {
   mockAccessibilityResponse,
+  mockAnnouncementTranslationResponse,
   mockCrowdManagementResponse,
   mockMultilingualAssistanceResponse,
   mockNavigationResponse,
@@ -51,9 +54,46 @@ describe('mockRealTimeDecisionSupportResponse', () => {
 });
 
 describe('mockMultilingualAssistanceResponse', () => {
-  it('returns a reply and a language code', () => {
+  it('defaults to English', () => {
     const response = mockMultilingualAssistanceResponse();
+    expect(response.language).toBe('en');
     expect(response.reply.length).toBeGreaterThan(0);
-    expect(response.language.length).toBeGreaterThan(0);
+  });
+
+  it.each(SUPPORTED_LANGUAGES.map((option) => option.code))(
+    'replies in %s when that language is detected',
+    (code) => {
+      const response = mockMultilingualAssistanceResponse(code);
+      expect(response.language).toBe(code);
+      expect(response.reply.length).toBeGreaterThan(0);
+    },
+  );
+
+  it('falls back to English for an unsupported language code', () => {
+    const response = mockMultilingualAssistanceResponse('xx');
+    expect(response.language).toBe('en');
+  });
+});
+
+describe('mockAnnouncementTranslationResponse', () => {
+  const announcement = getInitialAnnouncements()[0];
+  if (!announcement) {
+    throw new Error('announcement feed unexpectedly empty in test setup');
+  }
+
+  it('serves the canned translation for a supported language', () => {
+    const response = mockAnnouncementTranslationResponse(announcement, 'es');
+    expect(response.language).toBe('es');
+    expect(response.translation).toBe(announcement.translations['es']);
+  });
+
+  it('returns the English source when English is requested', () => {
+    const response = mockAnnouncementTranslationResponse(announcement, 'en');
+    expect(response).toEqual({ translation: announcement.message, language: 'en' });
+  });
+
+  it('falls back to the labelled English source for an unknown language', () => {
+    const response = mockAnnouncementTranslationResponse(announcement, 'xx');
+    expect(response).toEqual({ translation: announcement.message, language: 'en' });
   });
 });

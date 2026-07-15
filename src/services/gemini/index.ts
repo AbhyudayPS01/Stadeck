@@ -1,13 +1,17 @@
 import { GEMINI_MIN_REQUEST_INTERVAL_MS } from '../../config/constants';
+import { getStadiumFactsContext } from '../data/stadiumFacts';
+import type { Announcement } from '../../types/announcement';
 import type { DensityReading } from '../../types/crowd';
 import type { Incident } from '../../types/incident';
 import type { KpiSnapshot } from '../../types/operational';
 import type { SustainabilityMetrics } from '../../types/sustainability';
 import type { TransitOption } from '../../types/transportation';
+import { detectLanguage } from '../../utils/detectLanguage';
 import { hasShape, isNumber, isOneOf, isString, isStringArray } from '../../utils/validate';
 import { parseJsonResponse, requestGemini } from './client';
 import {
   mockAccessibilityResponse,
+  mockAnnouncementTranslationResponse,
   mockCrowdManagementResponse,
   mockMultilingualAssistanceResponse,
   mockNavigationResponse,
@@ -18,6 +22,7 @@ import {
 } from './mock';
 import {
   buildAccessibilityPrompt,
+  buildAnnouncementTranslationPrompt,
   buildCrowdManagementPrompt,
   buildMultilingualAssistancePrompt,
   buildNavigationPrompt,
@@ -26,6 +31,7 @@ import {
   buildSustainabilityPrompt,
   buildTransportationPrompt,
   type AccessibilityResponse,
+  type AnnouncementTranslationResponse,
   type CrowdManagementResponse,
   type FeatureId,
   type MultilingualAssistanceResponse,
@@ -42,9 +48,16 @@ export interface GeminiResult<T> {
   source: 'live' | 'mock';
 }
 
-const lastCalledAt = new Map<FeatureId, number>();
+/**
+ * Announcement translation gets its own limiter key so translating an
+ * announcement never rate-limits the concierge chat (both live on the
+ * Multilingual Assistance screen and are used back-to-back).
+ */
+type LimiterKey = FeatureId | 'announcement-translation';
 
-function isWithinMinInterval(feature: FeatureId): boolean {
+const lastCalledAt = new Map<LimiterKey, number>();
+
+function isWithinMinInterval(feature: LimiterKey): boolean {
   const last = lastCalledAt.get(feature);
   return last !== undefined && Date.now() - last < GEMINI_MIN_REQUEST_INTERVAL_MS;
 }
@@ -56,7 +69,7 @@ function isWithinMinInterval(feature: FeatureId): boolean {
  * on any failure so the app never shows an error state for AI content.
  */
 async function callFeature<T>(
-  feature: FeatureId,
+  feature: LimiterKey,
   prompt: string,
   isValidResponse: (value: unknown) => value is T,
   mockResponse: () => T,
@@ -168,15 +181,38 @@ const isMultilingualAssistanceResponse = (
 ): value is MultilingualAssistanceResponse =>
   hasShape<MultilingualAssistanceResponse>(value, { reply: isString, language: isString });
 
+/**
+ * Concierge chat: the model detects the fan's language and answers in it,
+ * grounded in the local stadium facts. On the mock path, the client-side
+ * heuristic picks the reply language so offline detection still works.
+ */
 export async function getMultilingualReply(
   message: string,
-  targetLanguage: string,
 ): Promise<GeminiResult<MultilingualAssistanceResponse>> {
+  const detected = detectLanguage(message);
   return callFeature(
     'multilingual-assistance',
-    buildMultilingualAssistancePrompt({ message, targetLanguage }),
+    buildMultilingualAssistancePrompt({ message, facts: getStadiumFactsContext() }),
     isMultilingualAssistanceResponse,
-    mockMultilingualAssistanceResponse,
+    () => mockMultilingualAssistanceResponse(detected),
+  );
+}
+
+const isAnnouncementTranslationResponse = (
+  value: unknown,
+): value is AnnouncementTranslationResponse =>
+  hasShape<AnnouncementTranslationResponse>(value, { translation: isString, language: isString });
+
+/** One-click translation of a venue announcement into the fan's chosen language. */
+export async function getAnnouncementTranslation(
+  announcement: Announcement,
+  targetLanguage: string,
+): Promise<GeminiResult<AnnouncementTranslationResponse>> {
+  return callFeature(
+    'announcement-translation',
+    buildAnnouncementTranslationPrompt({ message: announcement.message, targetLanguage }),
+    isAnnouncementTranslationResponse,
+    () => mockAnnouncementTranslationResponse(announcement, targetLanguage),
   );
 }
 

@@ -40,6 +40,13 @@ export interface SustainabilityResponse {
 
 export interface MultilingualAssistanceResponse {
   reply: string;
+  /** BCP-47 code of the reply — the model detects the fan's language and reports it here. */
+  language: string;
+}
+
+export interface AnnouncementTranslationResponse {
+  translation: string;
+  /** BCP-47 code of the translation. */
   language: string;
 }
 
@@ -110,13 +117,28 @@ export function buildSustainabilityPrompt(params: { metrics: SustainabilityMetri
 
 export function buildMultilingualAssistancePrompt(params: {
   message: string;
+  facts: string;
+}): string {
+  return [
+    "You are Stadeck's multilingual concierge for fans at MetLife Stadium.",
+    'Detect the language of the fan message and reply in that same language. Report its BCP-47 code in the "language" field.',
+    `Answer using only these verified stadium facts:\n${params.facts}`,
+    "If the facts do not cover the question, say so in the fan's language and point them to Guest Services at sections 103 or 123.",
+    `A fan's message:\n${wrapUntrustedInput(params.message)}`,
+    jsonOnlyInstruction('{ "reply": string, "language": string }'),
+  ].join('\n\n');
+}
+
+export function buildAnnouncementTranslationPrompt(params: {
+  message: string;
   targetLanguage: string;
 }): string {
   return [
-    "You are Stadeck's multilingual assistant for fans at MetLife Stadium.",
-    `Reply in this BCP-47 language code: ${params.targetLanguage}`,
-    `A fan's message:\n${wrapUntrustedInput(params.message)}`,
-    jsonOnlyInstruction('{ "reply": string, "language": string }'),
+    "You are Stadeck's announcement translator for fans at MetLife Stadium.",
+    `Translate the venue announcement below into this BCP-47 language code: ${params.targetLanguage}. Keep gate letters and section numbers unchanged.`,
+    // The announcement arrives over the (simulated) venue feed — external data, wrapped like user input.
+    `The announcement:\n${wrapUntrustedInput(params.message)}`,
+    jsonOnlyInstruction('{ "translation": string, "language": string }'),
   ].join('\n\n');
 }
 

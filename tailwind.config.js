@@ -94,9 +94,24 @@ export default {
           '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
           '50%': { transform: 'translateY(-16px) rotate(12deg)' },
         },
+        msgIn: {
+          from: { opacity: '0', transform: 'translateY(8px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        typingBounce: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-5px)' },
+        },
+        blink: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.35' },
+        },
       },
       animation: {
         'float-ball': 'floatBall 6s ease-in-out infinite',
+        'msg-in': 'msgIn 0.35s ease-out',
+        'typing-bounce': 'typingBounce 1.1s ease-in-out infinite',
+        blink: 'blink 1.6s ease-in-out infinite',
       },
       boxShadow: {
         card: '0 1px 2px rgba(20,24,31,0.04)',

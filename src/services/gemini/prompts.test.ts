@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildAccessibilityPrompt,
+  buildAnnouncementTranslationPrompt,
   buildCrowdManagementPrompt,
   buildMultilingualAssistancePrompt,
   buildNavigationPrompt,
@@ -28,13 +29,26 @@ describe('query-based prompt builders', () => {
     expect(prompt).toContain('"accommodations"');
   });
 
-  it('buildMultilingualAssistancePrompt includes the target language and wraps the message', () => {
+  it('buildMultilingualAssistancePrompt asks for language auto-detection and grounds in the facts', () => {
     const prompt = buildMultilingualAssistancePrompt({
       message: 'Hola, necesito ayuda',
-      targetLanguage: 'es',
+      facts: '- entry: Gates open 3 hours before kickoff.',
     });
-    expect(prompt).toContain('es');
+    expect(prompt).toContain('Detect the language');
+    expect(prompt).toContain('Gates open 3 hours before kickoff.');
     expect(prompt).toContain('###USER_DATA###');
+    expect(prompt).toContain(JSON_INSTRUCTION);
+  });
+
+  it('buildAnnouncementTranslationPrompt includes the target language and wraps the feed text as untrusted', () => {
+    const prompt = buildAnnouncementTranslationPrompt({
+      message: 'Gates are open.',
+      targetLanguage: 'pt',
+    });
+    expect(prompt).toContain('pt');
+    expect(prompt).toContain('###USER_DATA###');
+    expect(prompt).toContain('Gates are open.');
+    expect(prompt).toContain('"translation"');
     expect(prompt).toContain(JSON_INSTRUCTION);
   });
 

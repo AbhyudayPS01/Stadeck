@@ -1,5 +1,7 @@
+import type { Announcement } from '../../types/announcement';
 import type {
   AccessibilityResponse,
+  AnnouncementTranslationResponse,
   CrowdManagementResponse,
   MultilingualAssistanceResponse,
   NavigationResponse,
@@ -64,11 +66,48 @@ export function mockSustainabilityResponse(): SustainabilityResponse {
   };
 }
 
-export function mockMultilingualAssistanceResponse(): MultilingualAssistanceResponse {
-  return {
-    reply: 'Thanks for your message — a member of our team will help you shortly.',
-    language: 'en',
-  };
+const ENGLISH_CONCIERGE_REPLY =
+  'Happy to help! Gates open three hours before kickoff, first aid is next to sections 112 and 132, and Guest Services at sections 103 and 123 can assist in your language.';
+
+/**
+ * One canned concierge reply per supported language, all grounded in the same
+ * stadium facts, so the offline demo still auto-detects and answers in the
+ * fan's language (detection comes from utils/detectLanguage on this path).
+ */
+const CONCIERGE_REPLIES: Readonly<Record<string, string>> = {
+  en: ENGLISH_CONCIERGE_REPLY,
+  es: '¡Con gusto le ayudo! Las puertas abren tres horas antes del partido, los primeros auxilios están junto a las secciones 112 y 132, y Atención al Cliente (secciones 103 y 123) puede asistirle en su idioma.',
+  fr: "Avec plaisir ! Les portes ouvrent trois heures avant le coup d'envoi, les premiers secours se trouvent près des sections 112 et 132, et le Service Clients (sections 103 et 123) peut vous aider dans votre langue.",
+  pt: 'Claro, posso ajudar! Os portões abrem três horas antes do jogo, os primeiros socorros ficam ao lado das seções 112 e 132, e o Atendimento ao Torcedor (seções 103 e 123) pode ajudar no seu idioma.',
+  de: 'Gern helfen wir Ihnen! Die Tore öffnen drei Stunden vor Anpfiff, Erste Hilfe finden Sie neben den Blöcken 112 und 132, und der Gästeservice (Blöcke 103 und 123) hilft Ihnen in Ihrer Sprache.',
+  hi: 'हम आपकी मदद के लिए तैयार हैं! गेट किक-ऑफ़ से तीन घंटे पहले खुलते हैं, प्राथमिक चिकित्सा सेक्शन 112 और 132 के पास है, और गेस्ट सर्विसेज़ (सेक्शन 103 और 123) आपकी भाषा में सहायता कर सकती है।',
+  ar: 'يسعدنا مساعدتك! تُفتح البوابات قبل انطلاق المباراة بثلاث ساعات، وتوجد الإسعافات الأولية بجوار القسمين 112 و132، ويمكن لخدمات الضيوف (القسمان 103 و123) مساعدتك بلغتك.',
+  ja: '喜んでお手伝いします！ゲートはキックオフの3時間前に開き、応急手当所はセクション112と132の隣にあります。ゲストサービス（セクション103と123）では多言語でご案内できます。',
+};
+
+export function mockMultilingualAssistanceResponse(
+  language = 'en',
+): MultilingualAssistanceResponse {
+  const reply = CONCIERGE_REPLIES[language];
+  return reply ? { reply, language } : { reply: ENGLISH_CONCIERGE_REPLY, language: 'en' };
+}
+
+/**
+ * Serves the announcement's canned translation; unknown languages fall back
+ * to the English source text (correctly labelled "en" so `lang`/RTL handling
+ * stays truthful).
+ */
+export function mockAnnouncementTranslationResponse(
+  announcement: Announcement,
+  targetLanguage: string,
+): AnnouncementTranslationResponse {
+  if (targetLanguage === 'en') {
+    return { translation: announcement.message, language: 'en' };
+  }
+  const translation = announcement.translations[targetLanguage];
+  return translation
+    ? { translation, language: targetLanguage }
+    : { translation: announcement.message, language: 'en' };
 }
 
 export function mockOperationalIntelligenceResponse(): OperationalIntelligenceResponse {
