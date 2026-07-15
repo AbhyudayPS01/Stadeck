@@ -79,4 +79,56 @@ describe('StadiumMap', () => {
 
     expect(screen.getByTestId('overlay-dot')).toBeInTheDocument();
   });
+
+  it('scales through the viewBox with no fixed pixel dimensions', () => {
+    render(<StadiumMap />);
+
+    const svg = screen.getByRole('group', { name: /Schematic seating map/ });
+    expect(svg).toHaveAttribute('viewBox', '0 0 600 600');
+    expect(svg).toHaveAttribute('preserveAspectRatio', 'xMidYMid meet');
+    expect(svg).not.toHaveAttribute('width');
+    expect(svg).not.toHaveAttribute('height');
+  });
+
+  it('gives every section an expanded touch target that selects it', async () => {
+    const user = userEvent.setup();
+    const onSelectSection = vi.fn();
+    const { container } = render(<StadiumMap onSelectSection={onSelectSection} />);
+
+    const hitPaths = container.querySelectorAll('.map-section-hit');
+    expect(hitPaths).toHaveLength(SECTIONS.length);
+    await user.click(hitPaths[0] as Element);
+    expect(onSelectSection).toHaveBeenCalledWith('sec-101');
+  });
+
+  it('gives every gate an enlarged touch circle that selects it', async () => {
+    const user = userEvent.setup();
+    const onSelectGate = vi.fn();
+    const { container } = render(<StadiumMap onSelectGate={onSelectGate} />);
+
+    const hitCircles = container.querySelectorAll('.map-gate-hit');
+    expect(hitCircles).toHaveLength(8);
+    await user.click(hitCircles[0] as Element);
+    expect(onSelectGate).toHaveBeenCalledWith('gate-a');
+  });
+
+  it('lets taps pass through amenity markers to the section beneath', () => {
+    render(<StadiumMap />);
+
+    expect(screen.getByRole('img', { name: 'First Aid, near section 112' })).toHaveClass(
+      'pointer-events-none',
+    );
+  });
+
+  it('reduces label density instead of shrinking text: minors classed or dropped', () => {
+    const { container } = render(<StadiumMap />);
+
+    const labels = [...container.querySelectorAll('.map-section-label')];
+    const labelText = labels.map((label) => label.textContent);
+    expect(labelText).toContain('105'); // every 5th: always labeled
+    expect(labelText).toContain('203'); // club tier: always labeled
+    expect(labelText).not.toContain('102'); // lower-bowl minor: never rendered
+    const upperMinor = labels.find((label) => label.textContent === '302');
+    expect(upperMinor).toHaveClass('map-label-wide'); // upper minor: wide maps only
+  });
 });

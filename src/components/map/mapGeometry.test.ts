@@ -1,12 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { AMENITIES, GATES, SECTIONS } from '../../services/data/stadiumLayout';
+import { polarToCartesian } from '../../utils/geometry';
 import {
   amenityPoint,
   gatePoint,
+  HIT_RINGS,
   MAP_CENTER,
   MAP_SIZE,
   routePath,
+  sectionHitPath,
   sectionLabelPoint,
+  sectionLabelVisibility,
   sectionPath,
   TIER_RINGS,
 } from './mapGeometry';
@@ -58,6 +62,34 @@ describe('mapGeometry', () => {
     const point = gatePoint(gateA as (typeof GATES)[number]);
     expect(point.x).toBe(MAP_CENTER);
     expect(point.y).toBeLessThan(MAP_CENTER);
+  });
+
+  it('leaves no radial dead zone between adjacent tier hit bands', () => {
+    expect(HIT_RINGS.lower.outer).toBe(HIT_RINGS.club.inner);
+    expect(HIT_RINGS.club.outer).toBe(HIT_RINGS.upper.inner);
+    for (const tier of ['lower', 'club', 'upper'] as const) {
+      expect(HIT_RINGS[tier].inner).toBeLessThanOrEqual(TIER_RINGS[tier].inner);
+      expect(HIT_RINGS[tier].outer).toBeGreaterThanOrEqual(TIER_RINGS[tier].outer);
+    }
+  });
+
+  it('builds hit paths across the full arc, without the visual gap trim', () => {
+    const section = findSection('sec-101'); // spans 0°–9°; the visible wedge is trimmed 0.75°
+    const hitStart = polarToCartesian(MAP_CENTER, MAP_CENTER, HIT_RINGS.lower.outer, 0);
+
+    expect(sectionHitPath(section).startsWith(`M ${hitStart.x} ${hitStart.y}`)).toBe(true);
+    expect(sectionHitPath(section)).not.toBe(sectionPath(section));
+  });
+
+  it('labels every 5th section and all club sections at every size', () => {
+    expect(sectionLabelVisibility(findSection('sec-105'))).toBe('always');
+    expect(sectionLabelVisibility(findSection('sec-310'))).toBe('always');
+    expect(sectionLabelVisibility(findSection('sec-203'))).toBe('always'); // club: only 16 labels
+  });
+
+  it('defers upper-bowl minors to wide maps and drops lower-bowl minors', () => {
+    expect(sectionLabelVisibility(findSection('sec-302'))).toBe('wide');
+    expect(sectionLabelVisibility(findSection('sec-102'))).toBe('never');
   });
 
   it('routes from the gate, along the concourse, out to the section center', () => {

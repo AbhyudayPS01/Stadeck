@@ -34,6 +34,18 @@ export const GATE_RADIUS = 281;
 /** Degrees trimmed from each side of a section so neighbours read as separate blocks. */
 const SECTION_GAP_DEGREES = 0.75;
 
+/**
+ * Expanded hit-area band per tier for touch input. Each band reaches the
+ * midpoint of the neighbouring concourse gap (and a little past the outer
+ * edge), so a fingertip landing between rings or in a visual gap still
+ * selects the nearest section — there are no dead zones inside the bowl.
+ */
+export const HIT_RINGS: Record<SectionTier, { inner: number; outer: number }> = {
+  lower: { inner: 87.5, outer: 160 },
+  club: { inner: 160, outer: 204 },
+  upper: { inner: 204, outer: 272 },
+};
+
 /** Closed SVG path for one seating section's ring-sector shape. */
 export function sectionPath(section: StadiumSection): string {
   const ring = TIER_RINGS[section.tier];
@@ -45,6 +57,42 @@ export function sectionPath(section: StadiumSection): string {
     section.angleStart + SECTION_GAP_DEGREES,
     section.angleEnd - SECTION_GAP_DEGREES,
   );
+}
+
+/**
+ * Invisible touch target for one section: the full arc (no visual gap trim)
+ * across the expanded HIT_RINGS band, maximizing the effective tap area on
+ * phones. Angular width is bounded by the neighbouring section — wedges are
+ * adjacent — so the radial band carries the expansion.
+ */
+export function sectionHitPath(section: StadiumSection): string {
+  const ring = HIT_RINGS[section.tier];
+  return annularSectorPath(
+    MAP_CENTER,
+    MAP_CENTER,
+    ring.inner,
+    ring.outer,
+    section.angleStart,
+    section.angleEnd,
+  );
+}
+
+export type SectionLabelVisibility = 'always' | 'wide' | 'never';
+
+/**
+ * Label density policy: at phone widths the map renders ~290px wide, where a
+ * label on every 9° wedge cannot stay at DESIGN.md's 12px minimum without
+ * colliding — so density drops instead of size. Every 5th section number and
+ * the 16 club sections are always labeled; upper-bowl minors appear only on
+ * wide maps ("wide" pairs with the .map-label-wide CSS class); lower-bowl
+ * minors never fit legibly (the tightest ring) and are not rendered — the
+ * wedges themselves keep their accessible names and stay selectable.
+ */
+export function sectionLabelVisibility(section: StadiumSection): SectionLabelVisibility {
+  if (section.tier === 'club' || Number(section.label) % 5 === 0) {
+    return 'always';
+  }
+  return section.tier === 'upper' ? 'wide' : 'never';
 }
 
 /** Center of a section's ring band — where its number label renders. */

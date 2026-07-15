@@ -48,4 +48,73 @@
     transform-box: fill-box;
     transform-origin: center;
   }
+
+  /*
+   * Responsive stadium-map sizing. The SVG scales with its container
+   * (viewBox 600), so rendered size = SVG units × (map width ÷ 600). The map
+   * is narrowest at THREE points: phones, md (the sidebar appears), and xl
+   * (the screen grids split two-column). Map width at each band's minimum:
+   *
+   *   band  viewport  map px  scale
+   *   base    375      ~291    .49
+   *   sm      640      ~556    .93
+   *   md      768      ~384    .64   (sidebar takes 256px)
+   *   lg     1024      ~640   1.07
+   *   xl     1280      ~462    .77   (26rem panel column splits off)
+   *   2xl    1536      ~718   1.20
+   *
+   * Units below are chosen so text renders ≥12px (DESIGN.md minimum) and the
+   * gate hit circle ≥44px diameter at every band minimum. Label DENSITY, not
+   * size, absorbs the squeeze — see sectionLabelVisibility in mapGeometry.
+   */
+  .map-section-hit {
+    @apply cursor-pointer;
+  }
+  .map-section-label {
+    font-size: 26px;
+  }
+  .map-label-wide {
+    visibility: hidden;
+  }
+  .map-gate-label {
+    font-size: 24px;
+  }
+  .map-gate-ring {
+    r: 26px;
+  }
+  .map-gate-hit {
+    @apply cursor-pointer;
+    r: 46px;
+  }
+  @media (min-width: 640px) {
+    .map-section-label { font-size: 16px; }
+    .map-gate-label { font-size: 15px; }
+    .map-gate-ring { r: 17px; }
+    .map-gate-hit { r: 24px; }
+  }
+  @media (min-width: 768px) {
+    .map-section-label { font-size: 19px; }
+    .map-gate-label { font-size: 19px; }
+    .map-gate-ring { r: 21px; }
+    .map-gate-hit { r: 35px; }
+  }
+  @media (min-width: 1024px) {
+    .map-section-label { font-size: 12px; }
+    .map-label-wide { visibility: visible; }
+    .map-gate-label { font-size: 12px; }
+    .map-gate-ring { r: 13px; }
+    .map-gate-hit { r: 21px; }
+  }
+  @media (min-width: 1280px) {
+    .map-section-label { font-size: 16px; }
+    .map-gate-label { font-size: 15px; }
+    .map-gate-ring { r: 17px; }
+    .map-gate-hit { r: 29px; }
+  }
+  @media (min-width: 1536px) {
+    .map-section-label { font-size: 10px; }
+    .map-gate-label { font-size: 10px; }
+    .map-gate-ring { r: 12px; }
+    .map-gate-hit { r: 19px; }
+  }
 }

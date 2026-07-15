@@ -67,9 +67,21 @@ export function GateMarker({ gate, onSelect }: GateMarkerProps) {
 
   return (
     <g>
+      {/* Invisible touch target behind the visible marker — its radius is set
+          per breakpoint in index.css so the effective hit area stays ≥44px on
+          touch screens. The visible circle remains the keyboard/AT surface. */}
+      <circle
+        aria-hidden="true"
+        className="map-gate-hit"
+        cx={point.x}
+        cy={point.y}
+        fill="transparent"
+        onClick={activate}
+        r="24"
+      />
       <circle
         aria-label={`${gate.label}, ${COMPASS_NAMES[gate.compassPoint]} entrance`}
-        className="map-focusable"
+        className="map-focusable map-gate-ring"
         cx={point.x}
         cy={point.y}
         fill="#106634"
@@ -83,7 +95,7 @@ export function GateMarker({ gate, onSelect }: GateMarkerProps) {
       />
       <text
         aria-hidden="true"
-        className="pointer-events-none select-none"
+        className="map-gate-label pointer-events-none select-none"
         dominantBaseline="central"
         fill="#FFFFFF"
         fontFamily="JetBrains Mono, monospace"
@@ -103,13 +115,21 @@ interface AmenityMarkerProps {
   amenity: Amenity;
 }
 
-/** Amenity marker on the concourse ring; named for assistive tech, not a tab stop. */
+/**
+ * Amenity marker on the concourse ring; named for assistive tech, not a tab
+ * stop. Pointer-transparent so a fingertip landing on the tiny glyph falls
+ * through to the section touch target beneath it.
+ */
 export function AmenityMarker({ amenity }: AmenityMarkerProps) {
   const point = amenityPoint(amenity);
   const sectionNumber = amenity.sectionId.replace('sec-', '');
 
   return (
-    <g aria-label={`${amenity.label}, near section ${sectionNumber}`} role="img">
+    <g
+      aria-label={`${amenity.label}, near section ${sectionNumber}`}
+      className="pointer-events-none"
+      role="img"
+    >
       <circle cx={point.x} cy={point.y} fill="#FFFFFF" r="7.5" stroke="#106634" strokeWidth="1.5" />
       <text
         aria-hidden="true"

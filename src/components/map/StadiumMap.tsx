@@ -4,7 +4,13 @@ import { AMENITIES, GATES, SECTIONS, TIER_NAMES } from '../../services/data/stad
 import type { SectionTier, StadiumSection } from '../../types/stadium';
 import { cx } from '../../utils/cx';
 import { AmenityMarker, GateMarker, PitchField } from './markers';
-import { MAP_SIZE, sectionLabelPoint, sectionPath } from './mapGeometry';
+import {
+  MAP_SIZE,
+  sectionHitPath,
+  sectionLabelPoint,
+  sectionLabelVisibility,
+  sectionPath,
+} from './mapGeometry';
 
 export interface StadiumMapProps {
   /**
@@ -36,6 +42,7 @@ interface SectionShapeProps {
 /** One keyboard-focusable seating section with its number label. */
 function SectionShape({ section, selected, onSelect }: SectionShapeProps) {
   const labelPoint = sectionLabelPoint(section);
+  const labelVisibility = sectionLabelVisibility(section);
   const activate = (): void => onSelect?.(section.id);
   const handleKeyDown = (event: KeyboardEvent<SVGPathElement>): void => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -59,20 +66,33 @@ function SectionShape({ section, selected, onSelect }: SectionShapeProps) {
         strokeWidth="1"
         tabIndex={0}
       />
-      <text
+      {/* Invisible expanded touch target (see HIT_RINGS) — the visible wedge
+          stays the keyboard/AT surface; this only widens where a tap lands. */}
+      <path
         aria-hidden="true"
-        className="pointer-events-none select-none"
-        dominantBaseline="central"
-        fill={selected ? '#FFFFFF' : '#5B6472'}
-        fontFamily="JetBrains Mono, monospace"
-        fontSize={section.tier === 'club' ? 10 : 9}
-        fontWeight="700"
-        textAnchor="middle"
-        x={labelPoint.x}
-        y={labelPoint.y}
-      >
-        {section.label}
-      </text>
+        className="map-section-hit"
+        d={sectionHitPath(section)}
+        fill="transparent"
+        onClick={activate}
+      />
+      {labelVisibility === 'never' ? null : (
+        <text
+          aria-hidden="true"
+          className={cx(
+            'map-section-label pointer-events-none select-none',
+            labelVisibility === 'wide' && 'map-label-wide',
+          )}
+          dominantBaseline="central"
+          fill={selected ? '#FFFFFF' : '#5B6472'}
+          fontFamily="JetBrains Mono, monospace"
+          fontWeight="700"
+          textAnchor="middle"
+          x={labelPoint.x}
+          y={labelPoint.y}
+        >
+          {section.label}
+        </text>
+      )}
     </g>
   );
 }
@@ -132,6 +152,7 @@ export function StadiumMap({
     <svg
       aria-label={`Schematic seating map of ${STADIUM_NAME}`}
       className={cx('h-auto w-full', className)}
+      preserveAspectRatio="xMidYMid meet"
       role="group"
       viewBox={`0 0 ${MAP_SIZE} ${MAP_SIZE}`}
     >
