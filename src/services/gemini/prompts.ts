@@ -1,3 +1,4 @@
+import { EXPECTED_FINAL_WHISTLE } from '../../config/constants';
 import { nearestAmenity, nearestGate, TIER_NAMES } from '../data/stadiumLayout';
 import type { DensityReading } from '../../types/crowd';
 import type { Incident } from '../../types/incident';
@@ -35,8 +36,12 @@ export interface AccessibilityResponse {
 
 export interface TransportationResponse {
   summary: string;
+  /** Id of the recommended TransitOption — the transit board highlights it. */
   recommendedOptionId: string;
-  alternatives: string[];
+  /** Concrete departure window with clock times, e.g. "Leave between 5:05 and 5:20 PM". */
+  departureWindow: string;
+  /** Ordered strategy steps, each with a time and the crowd load to expect. */
+  steps: string[];
 }
 
 export interface SustainabilityResponse {
@@ -177,11 +182,13 @@ export function buildTransportationPrompt(params: {
   destination: string;
 }): string {
   return [
-    "You are Stadeck's transportation assistant for fans at MetLife Stadium.",
-    `Live transit options:\n${JSON.stringify(params.options)}`,
-    `A fan's destination:\n${wrapUntrustedInput(params.destination)}`,
+    "You are Stadeck's transportation assistant planning post-match egress for fans at MetLife Stadium.",
+    `The final whistle is expected around ${EXPECTED_FINAL_WHISTLE}; the heaviest crowd surge is the first 30 minutes after it.`,
+    `Live transit options (etaMinutes = time to boarding, crowdingLevel = current load):\n${JSON.stringify(params.options)}`,
+    `Where the fan is headed:\n${wrapUntrustedInput(params.destination)}`,
+    'Recommend one option by id and give a personalized departure strategy: a concrete departure window with clock times, then 3-4 ordered steps that each name a time and the crowd load to expect.',
     jsonOnlyInstruction(
-      '{ "summary": string, "recommendedOptionId": string, "alternatives": string[] }',
+      '{ "summary": string, "recommendedOptionId": string, "departureWindow": string, "steps": string[] }',
     ),
   ].join('\n\n');
 }

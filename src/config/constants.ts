@@ -127,6 +127,19 @@ export const ANNOUNCEMENT_FEED_LIMIT = 6;
 /** How often the simulated occupancy sensors publish a fresh set of readings. */
 export const DENSITY_REFRESH_INTERVAL_MS = 5_000;
 
+/** How often the simulated transit board refreshes ETAs and crowding. */
+export const TRANSIT_REFRESH_INTERVAL_MS = 15_000;
+
+/** Longest transit ETA the board will display — feed values are clamped to this (untrusted feed). */
+export const TRANSIT_MAX_ETA_MINUTES = 120;
+
+/**
+ * When the demo match is expected to end (3:00 PM kickoff per the announcement
+ * feed, plus regulation time and ceremony) — anchors the egress planner's
+ * departure-time reasoning.
+ */
+export const EXPECTED_FINAL_WHISTLE = '4:50 PM';
+
 /** Busiest zones shown in the Crowd Management watchlist. */
 export const CROWD_WATCHLIST_COUNT = 8;
 

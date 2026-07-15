@@ -84,9 +84,16 @@ export function mockPlainLanguageResponse(announcement: Announcement): PlainLang
 
 export function mockTransportationResponse(): TransportationResponse {
   return {
-    summary: 'Rail is currently the fastest way to reach the stadium.',
+    summary:
+      'Rail is your best post-match option: it clears the biggest share of the crowd and avoids the parking-lot surge.',
     recommendedOptionId: 'nj-transit-rail',
-    alternatives: ['coach-bus', 'rideshare-zone'],
+    departureWindow: 'Leave your seat between 5:05 and 5:15 PM',
+    steps: [
+      '4:50 PM — final whistle. Stay seated for the trophy ceremony; concourses are packed.',
+      '5:05 PM — head up the concourse toward Gates D and E; flow is busy but moving.',
+      '5:15 PM — follow the rail-platform signs; extra trains run every 10 minutes.',
+      '5:30 PM — board at Meadowlands Station; expect standing room until Secaucus.',
+    ],
   };
 }
 

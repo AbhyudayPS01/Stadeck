@@ -182,7 +182,7 @@ describe('per-feature min-interval limiter', () => {
   it('serves mock without calling Gemini again when called within the interval', async () => {
     const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(1_000_000);
     requestGeminiMock.mockResolvedValue(
-      JSON.stringify({ recommendedOptionId: 'nj-transit-rail', summary: 'ok', alternatives: [] }),
+      JSON.stringify({ recommendedOptionId: 'nj-transit-rail', summary: 'ok', departureWindow: 'Leave by 5:15 PM', steps: [] }),
     );
 
     await getTransportationRecommendation([], 'Gate A');
@@ -199,7 +199,7 @@ describe('per-feature min-interval limiter', () => {
     const nowSpy = vi.spyOn(Date, 'now');
     nowSpy.mockReturnValue(2_000_000);
     requestGeminiMock.mockResolvedValue(
-      JSON.stringify({ recommendedOptionId: 'nj-transit-rail', summary: 'ok', alternatives: [] }),
+      JSON.stringify({ recommendedOptionId: 'nj-transit-rail', summary: 'ok', departureWindow: 'Leave by 5:15 PM', steps: [] }),
     );
 
     await getTransportationRecommendation([], 'Gate A');

@@ -143,6 +143,8 @@ describe('data-based prompt builders', () => {
     expect(prompt).toContain('"id":"rail"');
     expect(prompt).toContain('###USER_DATA###');
     expect(prompt).toContain('Gate C');
+    expect(prompt).toContain('final whistle');
+    expect(prompt).toContain('"departureWindow"');
   });
 
   it('buildSustainabilityPrompt embeds the metrics as JSON', () => {

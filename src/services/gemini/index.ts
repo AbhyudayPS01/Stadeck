@@ -181,9 +181,11 @@ const isTransportationResponse = (value: unknown): value is TransportationRespon
   hasShape<TransportationResponse>(value, {
     summary: isString,
     recommendedOptionId: isString,
-    alternatives: isStringArray,
+    departureWindow: isString,
+    steps: isStringArray,
   });
 
+/** Personalized post-match departure strategy built from the live transit board. */
 export async function getTransportationRecommendation(
   options: TransitOption[],
   destination: string,
