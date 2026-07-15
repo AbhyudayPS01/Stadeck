@@ -6,6 +6,7 @@ import type {
   SectionTier,
   StadiumSection,
 } from '../../types/stadium';
+import { angularDistanceDegrees } from '../../utils/geometry';
 
 /**
  * Typed JSON config for the schematic stadium map — the map component maps
@@ -46,6 +47,13 @@ function buildSections(): StadiumSection[] {
 }
 
 export const SECTIONS: readonly StadiumSection[] = buildSections();
+
+/** Human-readable tier names, shared by map accessible labels and AI prompts. */
+export const TIER_NAMES: Record<SectionTier, string> = {
+  lower: 'lower bowl',
+  club: 'club level',
+  upper: 'upper bowl',
+};
 
 const GATE_DEFINITIONS: ReadonlyArray<{ label: string; compassPoint: CompassPoint }> = [
   { label: 'A', compassPoint: 'N' },
@@ -113,4 +121,37 @@ const ZONE_LABELS = new Map<string, string>([
 /** Human-readable name for a sensor zone id, e.g. "sec-118" → "Section 118", "gate-a" → "Gate A". */
 export function findZoneLabel(zoneId: string): string {
   return ZONE_LABELS.get(zoneId) ?? zoneId;
+}
+
+/** Compass bearing of a section's center, matching the angle convention of gates and amenities. */
+export function sectionMidAngle(section: StadiumSection): number {
+  return (section.angleStart + section.angleEnd) / 2;
+}
+
+function nearestByAngle<T>(items: readonly T[], angleOf: (item: T) => number, target: number): T {
+  const [first, ...rest] = items;
+  if (first === undefined) {
+    throw new Error('nearestByAngle requires at least one candidate');
+  }
+  return rest.reduce(
+    (best, item) =>
+      angularDistanceDegrees(angleOf(item), target) < angularDistanceDegrees(angleOf(best), target)
+        ? item
+        : best,
+    first,
+  );
+}
+
+/**
+ * The amenity of a given type with the smallest walk around the concourse
+ * ring from a section — powers the "nearest restroom / food" callouts.
+ */
+export function nearestAmenity(section: StadiumSection, type: AmenityType): Amenity {
+  const candidates = AMENITIES.filter((amenity) => amenity.type === type);
+  return nearestByAngle(candidates, (amenity) => amenity.angle, sectionMidAngle(section));
+}
+
+/** The gate closest around the ring to a section — the fan's quickest exit. */
+export function nearestGate(section: StadiumSection): Gate {
+  return nearestByAngle(GATES, (gate) => gate.angle, sectionMidAngle(section));
 }

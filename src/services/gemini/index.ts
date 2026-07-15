@@ -4,6 +4,7 @@ import type { Announcement } from '../../types/announcement';
 import type { DensityReading } from '../../types/crowd';
 import type { Incident } from '../../types/incident';
 import type { KpiSnapshot } from '../../types/operational';
+import type { Gate, StadiumSection } from '../../types/stadium';
 import type { SustainabilityMetrics } from '../../types/sustainability';
 import type { TransitOption } from '../../types/transportation';
 import { detectLanguage } from '../../utils/detectLanguage';
@@ -98,14 +99,16 @@ const isNavigationResponse = (value: unknown): value is NavigationResponse =>
     etaMinutes: isNumber,
   });
 
-export async function getNavigationGuidance(
-  query: string,
+/** Turn-by-turn walking directions from an entry gate to a seating section. */
+export async function getNavigationDirections(
+  gate: Gate,
+  section: StadiumSection,
 ): Promise<GeminiResult<NavigationResponse>> {
   return callFeature(
     'navigation',
-    buildNavigationPrompt({ query }),
+    buildNavigationPrompt({ gate, section }),
     isNavigationResponse,
-    mockNavigationResponse,
+    () => mockNavigationResponse(gate.label, section.label),
   );
 }
 

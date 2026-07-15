@@ -1,7 +1,9 @@
+import { nearestAmenity, nearestGate, TIER_NAMES } from '../data/stadiumLayout';
 import type { DensityReading } from '../../types/crowd';
 import type { Incident } from '../../types/incident';
 import type { ModuleId } from '../../types/module';
 import type { KpiSnapshot } from '../../types/operational';
+import type { Gate, StadiumSection } from '../../types/stadium';
 import type { SustainabilityMetrics } from '../../types/sustainability';
 import type { TransitOption } from '../../types/transportation';
 import { wrapUntrustedInput } from './guard';
@@ -74,10 +76,27 @@ function jsonOnlyInstruction(shapeDescription: string): string {
   return `Respond with JSON only — no prose, no markdown code fences — matching exactly this shape: ${shapeDescription}`;
 }
 
-export function buildNavigationPrompt(params: { query: string }): string {
+/**
+ * Both endpoints come from the map config's pickers (never free text), so the
+ * prompt can be fully structured and grounded in real venue landmarks —
+ * the model writes directions, it does not invent geography.
+ */
+export function buildNavigationPrompt(params: { gate: Gate; section: StadiumSection }): string {
+  const { gate, section } = params;
+  const describeNearest = (type: 'restroom' | 'food'): string => {
+    const amenity = nearestAmenity(section, type);
+    return `${amenity.label} near Section ${amenity.sectionId.replace('sec-', '')}`;
+  };
+  const landmarks = [
+    describeNearest('restroom'),
+    describeNearest('food'),
+    `closest exit ${nearestGate(section).label}`,
+  ];
   return [
     "You are Stadeck's navigation assistant for fans at MetLife Stadium.",
-    `A fan asked for wayfinding help:\n${wrapUntrustedInput(params.query)}`,
+    `A fan is entering at ${gate.label} (${gate.compassPoint} side) and needs turn-by-turn walking directions to Section ${section.label} in the ${TIER_NAMES[section.tier]}.`,
+    `Landmarks near that section the steps may reference: ${landmarks.join('; ')}.`,
+    'Give 3-5 short imperative steps along the concourse and a realistic in-stadium walking time.',
     jsonOnlyInstruction('{ "summary": string, "steps": string[], "etaMinutes": number }'),
   ].join('\n\n');
 }

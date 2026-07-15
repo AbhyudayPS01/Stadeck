@@ -18,13 +18,17 @@ import type {
  * with zero API key.
  */
 
-export function mockNavigationResponse(): NavigationResponse {
+/**
+ * Parameterized on the fan's actual gate/section choices so the offline demo
+ * never shows directions that contradict the highlighted route on the map.
+ */
+export function mockNavigationResponse(gateLabel = 'Gate C', sectionLabel = '118'): NavigationResponse {
   return {
-    summary: 'Head to Gate C, then follow the lower bowl concourse to Section 118.',
+    summary: `Enter at ${gateLabel} and follow the concourse to Section ${sectionLabel}.`,
     steps: [
-      'Enter through Gate C on the east concourse.',
-      'Follow signage toward Sections 110-125.',
-      'Section 118 is the third entrance past the merchandise stand.',
+      `Enter through ${gateLabel} and clear the security check.`,
+      'Follow the main concourse — overhead signs list the section ranges ahead.',
+      `Turn in at the entrance marked Section ${sectionLabel}; stewards there can point out your row.`,
     ],
     etaMinutes: 6,
   };

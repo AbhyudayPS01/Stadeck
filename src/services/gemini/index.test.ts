@@ -6,12 +6,13 @@ vi.mock('./client', async (importOriginal) => {
 });
 
 import { getInitialAnnouncements } from '../data/announcements';
+import { GATES, SECTIONS } from '../data/stadiumLayout';
 import { requestGemini } from './client';
 import {
   getAccessibilityGuidance,
   getAnnouncementTranslation,
   getMultilingualReply,
-  getNavigationGuidance,
+  getNavigationDirections,
   getSustainabilityTips,
   getTransportationRecommendation,
 } from './index';
@@ -27,16 +28,32 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('getNavigationGuidance', () => {
+const TEST_GATE = GATES[0];
+const TEST_SECTION = SECTIONS[0];
+if (!TEST_GATE || !TEST_SECTION) {
+  throw new Error('stadium layout unexpectedly empty in test setup');
+}
+
+describe('getNavigationDirections', () => {
   it('returns live data when Gemini responds with a valid shape', async () => {
     requestGeminiMock.mockResolvedValueOnce(
       JSON.stringify({ summary: 'Go left', steps: ['Step 1'], etaMinutes: 4 }),
     );
 
-    const result = await getNavigationGuidance('Where is Gate A?');
+    const result = await getNavigationDirections(TEST_GATE, TEST_SECTION);
 
     expect(result.source).toBe('live');
     expect(result.data).toEqual({ summary: 'Go left', steps: ['Step 1'], etaMinutes: 4 });
+  });
+
+  it('serves a mock grounded in the chosen gate and section when the proxy is unreachable', async () => {
+    requestGeminiMock.mockRejectedValueOnce(new Error('network down'));
+
+    const result = await getNavigationDirections(TEST_GATE, TEST_SECTION);
+
+    expect(result.source).toBe('mock');
+    expect(result.data.summary).toContain(TEST_GATE.label);
+    expect(result.data.summary).toContain(`Section ${TEST_SECTION.label}`);
   });
 });
 

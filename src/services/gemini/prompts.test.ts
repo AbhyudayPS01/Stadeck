@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { GATES, SECTIONS } from '../data/stadiumLayout';
 import {
   buildAccessibilityPrompt,
   buildAnnouncementTranslationPrompt,
@@ -14,11 +15,33 @@ import {
 
 const JSON_INSTRUCTION = 'Respond with JSON only';
 
+function findGate(id: string) {
+  const gate = GATES.find((candidate) => candidate.id === id);
+  if (!gate) {
+    throw new Error(`missing test gate ${id}`);
+  }
+  return gate;
+}
+
+function findSection(id: string) {
+  const section = SECTIONS.find((candidate) => candidate.id === id);
+  if (!section) {
+    throw new Error(`missing test section ${id}`);
+  }
+  return section;
+}
+
 describe('query-based prompt builders', () => {
-  it('buildNavigationPrompt wraps the query as untrusted data and requests JSON', () => {
-    const prompt = buildNavigationPrompt({ query: 'Where is Section 118?' });
-    expect(prompt).toContain('###USER_DATA###');
-    expect(prompt).toContain('Where is Section 118?');
+  it('buildNavigationPrompt grounds the route in the chosen gate, section, and nearby landmarks', () => {
+    const prompt = buildNavigationPrompt({
+      gate: findGate('gate-c'),
+      section: findSection('sec-118'),
+    });
+    expect(prompt).toContain('Gate C');
+    expect(prompt).toContain('Section 118');
+    expect(prompt).toContain('lower bowl');
+    expect(prompt).toContain('Restroom near Section');
+    expect(prompt).toContain('closest exit Gate');
     expect(prompt).toContain(JSON_INSTRUCTION);
     expect(prompt).toContain('"steps"');
   });
@@ -53,8 +76,11 @@ describe('query-based prompt builders', () => {
     expect(prompt).toContain(JSON_INSTRUCTION);
   });
 
-  it('sanitizes control characters out of a query before embedding it', () => {
-    const prompt = buildNavigationPrompt({ query: `bad${String.fromCharCode(0)}input` });
+  it('sanitizes control characters out of user text before embedding it', () => {
+    const prompt = buildTransportationPrompt({
+      options: [],
+      destination: `bad${String.fromCharCode(0)}input`,
+    });
     expect(prompt).not.toContain(String.fromCharCode(0));
     expect(prompt).toContain('badinput');
   });

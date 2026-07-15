@@ -39,6 +39,13 @@ describe('mockNavigationResponse', () => {
     expect(response.steps.length).toBeGreaterThan(0);
     expect(response.etaMinutes).toBeGreaterThan(0);
   });
+
+  it('embeds the chosen gate and section so offline directions match the map route', () => {
+    const response = mockNavigationResponse('Gate H', '312');
+    expect(response.summary).toContain('Gate H');
+    expect(response.summary).toContain('Section 312');
+    expect(response.steps.join(' ')).toContain('Gate H');
+  });
 });
 
 describe('mockCrowdManagementResponse', () => {

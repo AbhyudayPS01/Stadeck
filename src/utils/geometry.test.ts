@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { annularSectorPath, polarToCartesian } from './geometry';
+import {
+  angularDistanceDegrees,
+  annularSectorPath,
+  polarToCartesian,
+  signedAngularDeltaDegrees,
+} from './geometry';
 
 describe('polarToCartesian', () => {
   it('maps 0° to straight up (North)', () => {
@@ -21,6 +26,43 @@ describe('polarToCartesian', () => {
   it('rounds coordinates to 2 decimals', () => {
     const point = polarToCartesian(0, 0, 100, 45);
     expect(point).toEqual({ x: 70.71, y: -70.71 });
+  });
+});
+
+describe('angularDistanceDegrees', () => {
+  it('returns the plain difference for nearby bearings', () => {
+    expect(angularDistanceDegrees(10, 40)).toBe(30);
+  });
+
+  it('takes the short way around the ring across 0°', () => {
+    expect(angularDistanceDegrees(350, 10)).toBe(20);
+  });
+
+  it('is symmetric', () => {
+    expect(angularDistanceDegrees(80, 300)).toBe(angularDistanceDegrees(300, 80));
+  });
+
+  it('caps at 180° for opposite bearings', () => {
+    expect(angularDistanceDegrees(0, 180)).toBe(180);
+  });
+});
+
+describe('signedAngularDeltaDegrees', () => {
+  it('is positive for a clockwise rotation', () => {
+    expect(signedAngularDeltaDegrees(0, 90)).toBe(90);
+  });
+
+  it('is negative for a counter-clockwise rotation', () => {
+    expect(signedAngularDeltaDegrees(90, 0)).toBe(-90);
+  });
+
+  it('takes the short way around the ring across 0°', () => {
+    expect(signedAngularDeltaDegrees(350, 10)).toBe(20);
+    expect(signedAngularDeltaDegrees(10, 350)).toBe(-20);
+  });
+
+  it('resolves the 180° tie clockwise', () => {
+    expect(signedAngularDeltaDegrees(0, 180)).toBe(180);
   });
 });
 

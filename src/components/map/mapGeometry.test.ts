@@ -5,10 +5,27 @@ import {
   gatePoint,
   MAP_CENTER,
   MAP_SIZE,
+  routePath,
   sectionLabelPoint,
   sectionPath,
   TIER_RINGS,
 } from './mapGeometry';
+
+function findGate(id: string) {
+  const gate = GATES.find((candidate) => candidate.id === id);
+  if (!gate) {
+    throw new Error(`missing test gate ${id}`);
+  }
+  return gate;
+}
+
+function findSection(id: string) {
+  const section = SECTIONS.find((candidate) => candidate.id === id);
+  if (!section) {
+    throw new Error(`missing test section ${id}`);
+  }
+  return section;
+}
 
 function distanceFromCenter(point: { x: number; y: number }): number {
   return Math.hypot(point.x - MAP_CENTER, point.y - MAP_CENTER);
@@ -41,6 +58,26 @@ describe('mapGeometry', () => {
     const point = gatePoint(gateA as (typeof GATES)[number]);
     expect(point.x).toBe(MAP_CENTER);
     expect(point.y).toBeLessThan(MAP_CENTER);
+  });
+
+  it('routes from the gate, along the concourse, out to the section center', () => {
+    const gate = findGate('gate-a');
+    const section = findSection('sec-110'); // mid-angle 85.5° — clockwise from Gate A at 0°
+
+    const path = routePath(gate, section);
+    const start = gatePoint(gate);
+    const end = sectionLabelPoint(section);
+
+    expect(path.startsWith(`M ${start.x} ${start.y}`)).toBe(true);
+    expect(path.endsWith(`L ${end.x} ${end.y}`)).toBe(true);
+    expect(path).toContain(' A 160 160 0 0 1 '); // clockwise sweep along the concourse ring
+  });
+
+  it('arcs counter-clockwise when that is the shorter way around', () => {
+    const gate = findGate('gate-a');
+    const section = findSection('sec-135'); // mid-angle 310.5° — counter-clockwise from 0°
+
+    expect(routePath(gate, section)).toContain(' A 160 160 0 0 0 ');
   });
 
   it('keeps every gate and amenity marker inside the viewBox', () => {

@@ -1,5 +1,11 @@
+import { sectionMidAngle } from '../../services/data/stadiumLayout';
 import type { Amenity, Gate, SectionTier, StadiumSection } from '../../types/stadium';
-import { annularSectorPath, polarToCartesian, type Point } from '../../utils/geometry';
+import {
+  annularSectorPath,
+  polarToCartesian,
+  signedAngularDeltaDegrees,
+  type Point,
+} from '../../utils/geometry';
 
 /**
  * Presentation geometry for the schematic stadium map. The layout itself
@@ -56,4 +62,27 @@ export function gatePoint(gate: Gate): Point {
 /** Marker position for an amenity. */
 export function amenityPoint(amenity: Amenity): Point {
   return polarToCartesian(MAP_CENTER, MAP_CENTER, AMENITY_RADIUS, amenity.angle);
+}
+
+/**
+ * Walking-route path from a gate to a section: radially in from the gate to
+ * the concourse ring, the short way around the concourse, then out to the
+ * section's center. A schematic of how fans actually move — enter, walk the
+ * concourse, turn in at their block — not a straight line through the bowl.
+ */
+export function routePath(gate: Gate, section: StadiumSection): string {
+  const targetAngle = sectionMidAngle(section);
+  const start = gatePoint(gate);
+  const concourseEntry = polarToCartesian(MAP_CENTER, MAP_CENTER, AMENITY_RADIUS, gate.angle);
+  const concourseExit = polarToCartesian(MAP_CENTER, MAP_CENTER, AMENITY_RADIUS, targetAngle);
+  const end = sectionLabelPoint(section);
+  const delta = signedAngularDeltaDegrees(gate.angle, targetAngle);
+  const sweep = delta >= 0 ? 1 : 0; // clockwise SVG arc when the short way around is clockwise
+
+  return [
+    `M ${start.x} ${start.y}`,
+    `L ${concourseEntry.x} ${concourseEntry.y}`,
+    `A ${AMENITY_RADIUS} ${AMENITY_RADIUS} 0 0 ${sweep} ${concourseExit.x} ${concourseExit.y}`,
+    `L ${end.x} ${end.y}`,
+  ].join(' ');
 }

@@ -1,6 +1,6 @@
 import { memo, type KeyboardEvent, type ReactNode } from 'react';
 import { STADIUM_NAME } from '../../config/constants';
-import { AMENITIES, GATES, SECTIONS } from '../../services/data/stadiumLayout';
+import { AMENITIES, GATES, SECTIONS, TIER_NAMES } from '../../services/data/stadiumLayout';
 import type { SectionTier, StadiumSection } from '../../types/stadium';
 import { cx } from '../../utils/cx';
 import { AmenityMarker, GateMarker, PitchField } from './markers';
@@ -25,12 +25,6 @@ const TIER_FILLS: Record<SectionTier, string> = {
   lower: '#E7F5EC',
   club: '#FDF3E1',
   upper: '#F0EEE6',
-};
-
-const TIER_NAMES: Record<SectionTier, string> = {
-  lower: 'lower bowl',
-  club: 'club level',
-  upper: 'upper bowl',
 };
 
 interface SectionShapeProps {
