@@ -20,6 +20,7 @@ import {
   mockPlainLanguageResponse,
   mockRealTimeDecisionSupportResponse,
   mockScenarioPlanResponse,
+  mockSustainabilityReportResponse,
   mockSustainabilityResponse,
   mockTransportationResponse,
 } from './mock';
@@ -34,6 +35,7 @@ import {
   buildRealTimeDecisionSupportPrompt,
   buildScenarioPrompt,
   buildSustainabilityPrompt,
+  buildSustainabilityReportPrompt,
   buildTransportationPrompt,
   type AccessibilityResponse,
   type AnnouncementTranslationResponse,
@@ -44,6 +46,7 @@ import {
   type OperationalIntelligenceResponse,
   type PlainLanguageResponse,
   type RealTimeDecisionSupportResponse,
+  type SustainabilityReportResponse,
   type SustainabilityResponse,
   type TransportationResponse,
 } from './prompts';
@@ -63,7 +66,8 @@ type LimiterKey =
   | FeatureId
   | 'announcement-translation'
   | 'scenario-planning'
-  | 'plain-language';
+  | 'plain-language'
+  | 'sustainability-report';
 
 const lastCalledAt = new Map<LimiterKey, number>();
 
@@ -201,6 +205,7 @@ export async function getTransportationRecommendation(
 const isSustainabilityResponse = (value: unknown): value is SustainabilityResponse =>
   hasShape<SustainabilityResponse>(value, { summary: isString, tips: isStringArray });
 
+/** Per-fan eco-actions grounded in the live venue metrics. */
 export async function getSustainabilityTips(
   metrics: SustainabilityMetrics,
 ): Promise<GeminiResult<SustainabilityResponse>> {
@@ -209,6 +214,29 @@ export async function getSustainabilityTips(
     buildSustainabilityPrompt({ metrics }),
     isSustainabilityResponse,
     mockSustainabilityResponse,
+  );
+}
+
+const isSustainabilityReportResponse = (value: unknown): value is SustainabilityReportResponse =>
+  hasShape<SustainabilityReportResponse>(value, {
+    headline: isString,
+    highlights: isStringArray,
+    recommendations: isStringArray,
+  });
+
+/**
+ * Organizer match report over the same metrics. Own limiter key so generating
+ * the report never rate-limits the fan eco-actions (both live on the
+ * Sustainability screen and are used back-to-back).
+ */
+export async function getSustainabilityReport(
+  metrics: SustainabilityMetrics,
+): Promise<GeminiResult<SustainabilityReportResponse>> {
+  return callFeature(
+    'sustainability-report',
+    buildSustainabilityReportPrompt({ metrics }),
+    isSustainabilityReportResponse,
+    mockSustainabilityReportResponse,
   );
 }
 

@@ -11,6 +11,7 @@ import {
   buildRealTimeDecisionSupportPrompt,
   buildScenarioPrompt,
   buildSustainabilityPrompt,
+  buildSustainabilityReportPrompt,
   buildTransportationPrompt,
 } from './prompts';
 
@@ -159,6 +160,23 @@ describe('data-based prompt builders', () => {
     const prompt = buildSustainabilityPrompt({ metrics });
     expect(prompt).toContain('"wasteDivertedPercent":70');
     expect(prompt).toContain('"tips"');
+  });
+
+  it('buildSustainabilityReportPrompt asks for the organizer match report shape', () => {
+    const metrics = {
+      timestamp: 'now',
+      wasteDivertedPercent: 70,
+      renewableEnergyPercent: 50,
+      waterUsageLiters: 200_000,
+      carbonOffsetKg: 15_000,
+      transitModeSharePercent: 75,
+    };
+    const prompt = buildSustainabilityReportPrompt({ metrics });
+    expect(prompt).toContain('organizers');
+    expect(prompt).toContain('"headline"');
+    expect(prompt).toContain('"highlights"');
+    expect(prompt).toContain('"recommendations"');
+    expect(prompt).toContain(JSON_INSTRUCTION);
   });
 
   it('buildOperationalIntelligencePrompt embeds the KPI snapshot as JSON', () => {

@@ -11,6 +11,7 @@ import {
   mockPlainLanguageResponse,
   mockRealTimeDecisionSupportResponse,
   mockScenarioPlanResponse,
+  mockSustainabilityReportResponse,
   mockSustainabilityResponse,
   mockTransportationResponse,
 } from './mock';
@@ -21,6 +22,7 @@ const MOCK_FNS: ReadonlyArray<[string, () => unknown]> = [
   ['mockAccessibilityResponse', mockAccessibilityResponse],
   ['mockTransportationResponse', mockTransportationResponse],
   ['mockSustainabilityResponse', mockSustainabilityResponse],
+  ['mockSustainabilityReportResponse', mockSustainabilityReportResponse],
   ['mockMultilingualAssistanceResponse', mockMultilingualAssistanceResponse],
   ['mockOperationalIntelligenceResponse', mockOperationalIntelligenceResponse],
   ['mockRealTimeDecisionSupportResponse', mockRealTimeDecisionSupportResponse],

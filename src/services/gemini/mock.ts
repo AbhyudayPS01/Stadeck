@@ -8,6 +8,7 @@ import type {
   OperationalIntelligenceResponse,
   PlainLanguageResponse,
   RealTimeDecisionSupportResponse,
+  SustainabilityReportResponse,
   SustainabilityResponse,
   TransportationResponse,
 } from './prompts';
@@ -104,6 +105,22 @@ export function mockSustainabilityResponse(): SustainabilityResponse {
       'Use the marked recycling and compost stations on every concourse.',
       'Refill a reusable bottle at a hydration station instead of buying a new one.',
       'Take rail or a shuttle to cut your matchday carbon footprint.',
+    ],
+  };
+}
+
+export function mockSustainabilityReportResponse(): SustainabilityReportResponse {
+  return {
+    headline: 'A strong sustainability matchday: diversion and transit share both beat target.',
+    highlights: [
+      'Waste diversion held above the 60% tournament target through the full match window.',
+      'Most fans arrived by rail or shuttle, keeping the crowd carbon estimate well below an all-car baseline.',
+      'Hydration stations cut single-use bottle sales on every concourse.',
+    ],
+    recommendations: [
+      'Add compost stations near the east concessions, where landfill volume peaked.',
+      'Extend post-match shuttle frequency to hold the transit mode share through egress.',
+      'Shift concourse lighting to the renewable block earlier in the afternoon.',
     ],
   };
 }

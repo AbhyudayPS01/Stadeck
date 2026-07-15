@@ -12,5 +12,6 @@ A generative AI application for controlling stadium operations and making fan in
 | Accessibility | accessibility | Step-free route planner to accessible seating with a map overlay, "Access Companion" plain-language rewrites of announcements, and app-wide high-contrast + text-size controls. |
 | Crowd Management | crowd management | Live density heatmap from simulated sensors across 96 sections and 8 gates, busiest-zone watchlist, AI gate/steward recommendations with a congestion forecast. |
 | Multilingual Assistance | multilingual assistance | Fact-grounded concierge chat that auto-detects the fan's language, plus one-click AI translation of live venue announcements. |
+| Sustainability | sustainability | Live venue dashboard (waste diverted, energy, water, transit share, crowd carbon estimate) with AI per-fan eco-actions and an organizer-only AI match report. |
 | Transportation | transportation | Live (simulated) post-match transit board with clamped feed values, plus an AI departure strategy with concrete times and expected crowd loads; the AI's pick is highlighted on the board. |
 | Real-Time Decision Support | real-time decision support | Simulated incident feed with AI structured action plans (immediate actions, teams to notify, escalation criteria) and an organizer what-if scenario planner. |

@@ -197,8 +197,31 @@ export function buildSustainabilityPrompt(params: { metrics: SustainabilityMetri
   return [
     "You are Stadeck's sustainability assistant for fans at MetLife Stadium.",
     `Current matchday sustainability metrics:\n${JSON.stringify(params.metrics)}`,
-    'Summarize venue sustainability performance and suggest fan-facing tips.',
+    'Summarize venue sustainability performance in one sentence, then give 3-4 concrete eco-actions an individual fan can take right now at the stadium.',
     jsonOnlyInstruction('{ "summary": string, "tips": string[] }'),
+  ].join('\n\n');
+}
+
+export interface SustainabilityReportResponse {
+  /** One-line verdict on the matchday's sustainability performance. */
+  headline: string;
+  /** What went well, tied to the metrics. */
+  highlights: string[];
+  /** What organizers should improve for the next match. */
+  recommendations: string[];
+}
+
+/** Organizer-facing match report over the same metrics the fan dashboard shows. */
+export function buildSustainabilityReportPrompt(params: {
+  metrics: SustainabilityMetrics;
+}): string {
+  return [
+    "You are Stadeck's sustainability analyst reporting to organizers at MetLife Stadium.",
+    `Matchday sustainability metrics:\n${JSON.stringify(params.metrics)}`,
+    'Write a match report: a one-line headline verdict, the highlights that went well, and concrete recommendations for the next match.',
+    jsonOnlyInstruction(
+      '{ "headline": string, "highlights": string[], "recommendations": string[] }',
+    ),
   ].join('\n\n');
 }
 
