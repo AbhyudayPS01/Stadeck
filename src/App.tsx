@@ -4,6 +4,7 @@ import { ModuleGate } from './components/layout/ModuleGate';
 import { RequireRole } from './components/layout/RequireRole';
 import { Shell } from './components/layout/Shell';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
+import { DisplayPreferencesProvider } from './context/DisplayPreferencesProvider';
 import { LanguageProvider } from './context/LanguageProvider';
 import { RoleProvider } from './context/RoleProvider';
 import { MODULES } from './config/constants';
@@ -43,30 +44,32 @@ export default function App() {
   return (
     <RoleProvider>
       <LanguageProvider>
-        <ErrorBoundary>
-          <Routes>
-            <Route element={<LandingScreen />} path="/" />
-            <Route element={<RequireRole />}>
-              <Route element={<Shell />}>
-                {MODULES.map((module) => {
-                  const Screen = screens[module.id];
-                  return (
-                    <Route
-                      key={module.id}
-                      element={
-                        <ModuleGate module={module}>
-                          <Screen />
-                        </ModuleGate>
-                      }
-                      path={module.path}
-                    />
-                  );
-                })}
+        <DisplayPreferencesProvider>
+          <ErrorBoundary>
+            <Routes>
+              <Route element={<LandingScreen />} path="/" />
+              <Route element={<RequireRole />}>
+                <Route element={<Shell />}>
+                  {MODULES.map((module) => {
+                    const Screen = screens[module.id];
+                    return (
+                      <Route
+                        key={module.id}
+                        element={
+                          <ModuleGate module={module}>
+                            <Screen />
+                          </ModuleGate>
+                        }
+                        path={module.path}
+                      />
+                    );
+                  })}
+                </Route>
               </Route>
-            </Route>
-            <Route element={<Navigate replace to="/" />} path="*" />
-          </Routes>
-        </ErrorBoundary>
+              <Route element={<Navigate replace to="/" />} path="*" />
+            </Routes>
+          </ErrorBoundary>
+        </DisplayPreferencesProvider>
       </LanguageProvider>
     </RoleProvider>
   );

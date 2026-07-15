@@ -6,6 +6,27 @@
   body {
     @apply bg-fan-bg font-body text-fan-ink;
   }
+
+  /*
+   * App-wide high-contrast mode, toggled from the Accessibility module by
+   * adding .high-contrast to <html> (see DisplayPreferencesProvider). It
+   * promotes the mid-contrast text tokens to full-ink and strengthens hairline
+   * borders — the tokens that sit closest to the WCAG AA threshold.
+   */
+  .high-contrast .text-fan-muted,
+  .high-contrast .text-fan-faint {
+    color: #14181f;
+  }
+  .high-contrast .text-ops-muted,
+  .high-contrast .text-ops-faint {
+    color: #e7ecf5;
+  }
+  .high-contrast .border-fan-border {
+    border-color: #5b6472;
+  }
+  .high-contrast .border-ops-border {
+    border-color: rgba(183, 194, 214, 0.6);
+  }
 }
 
 @layer components {

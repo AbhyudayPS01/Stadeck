@@ -6,6 +6,7 @@ import type {
   MultilingualAssistanceResponse,
   NavigationResponse,
   OperationalIntelligenceResponse,
+  PlainLanguageResponse,
   RealTimeDecisionSupportResponse,
   SustainabilityResponse,
   TransportationResponse,
@@ -49,12 +50,36 @@ export function mockCrowdManagementResponse(): CrowdManagementResponse {
   };
 }
 
-export function mockAccessibilityResponse(): AccessibilityResponse {
+/** Parameterized on the fan's choices so the offline demo matches the highlighted map route. */
+export function mockAccessibilityResponse(
+  gateLabel = 'Gate A',
+  sectionLabel = '101',
+): AccessibilityResponse {
   return {
-    summary: 'Accessible seating and a step-free route are available near Section 101.',
-    recommendedRoute: 'Enter through Gate A, take the accessible ramp to the lower bowl concourse.',
+    summary: `A fully step-free route runs from ${gateLabel} to the accessible seating at Section ${sectionLabel}.`,
+    recommendedRoute: `Enter through ${gateLabel}, take the accessible ramp to the level concourse, and follow it to the Section ${sectionLabel} entrance — no stairs at any point.`,
     accommodations: ['Wheelchair-accessible seating', 'Companion seating', 'Elevator access'],
   };
+}
+
+/**
+ * Canned plain-language rewrite per announcement category — deterministic,
+ * and category-matched so the offline rewrite still relates to the
+ * announcement the fan picked.
+ */
+const PLAIN_REWRITES: Readonly<Record<Announcement['category'], string>> = {
+  match:
+    'The game starts at 3:00 PM. The doors are open now. The security check can take time. Please arrive early.',
+  transit:
+    'After the game, extra trains leave from Meadowlands Station. They run for 90 minutes. Go to Gate D or Gate E and follow the train signs.',
+  services:
+    'Free drinking water is on every level. First aid is next to Section 112 and Section 132.',
+  safety:
+    'Bad weather may be coming. If the game is delayed, listen to the staff. Stay in the covered walkways.',
+};
+
+export function mockPlainLanguageResponse(announcement: Announcement): PlainLanguageResponse {
+  return { rewrite: PLAIN_REWRITES[announcement.category] };
 }
 
 export function mockTransportationResponse(): TransportationResponse {

@@ -60,16 +60,20 @@ export default {
         body: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
         mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
       },
+      // Type tokens are rem (px ÷ 16) so the Accessibility module's text-size
+      // control can scale ALL app text by setting the root font-size —
+      // px-based tokens would ignore it. Spacing stays px: layout should not
+      // grow with the text scale.
       fontSize: {
-        display: ['46px', { lineHeight: '1.04' }],
-        h1: ['30px', { lineHeight: '1.05' }],
-        h2: ['20px', { lineHeight: '1.2' }],
-        h3: ['17px', { lineHeight: '1.25' }],
-        body: ['15px', { lineHeight: '1.6' }],
-        'body-sm': ['13.5px', { lineHeight: '1.5' }],
-        label: ['12px', { lineHeight: '1.4' }],
-        'mono-stat': ['28px', { lineHeight: '1' }],
-        'mono-tag': ['12px', { lineHeight: '1', letterSpacing: '0.12em' }],
+        display: ['2.875rem', { lineHeight: '1.04' }],
+        h1: ['1.875rem', { lineHeight: '1.05' }],
+        h2: ['1.25rem', { lineHeight: '1.2' }],
+        h3: ['1.0625rem', { lineHeight: '1.25' }],
+        body: ['0.9375rem', { lineHeight: '1.6' }],
+        'body-sm': ['0.84375rem', { lineHeight: '1.5' }],
+        label: ['0.75rem', { lineHeight: '1.4' }],
+        'mono-stat': ['1.75rem', { lineHeight: '1' }],
+        'mono-tag': ['0.75rem', { lineHeight: '1', letterSpacing: '0.12em' }],
       },
       spacing: {
         card: '24px',

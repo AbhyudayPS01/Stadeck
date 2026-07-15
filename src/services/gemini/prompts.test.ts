@@ -7,6 +7,7 @@ import {
   buildMultilingualAssistancePrompt,
   buildNavigationPrompt,
   buildOperationalIntelligencePrompt,
+  buildPlainLanguagePrompt,
   buildRealTimeDecisionSupportPrompt,
   buildScenarioPrompt,
   buildSustainabilityPrompt,
@@ -46,11 +47,25 @@ describe('query-based prompt builders', () => {
     expect(prompt).toContain('"steps"');
   });
 
-  it('buildAccessibilityPrompt wraps the query as untrusted data and requests JSON', () => {
-    const prompt = buildAccessibilityPrompt({ query: 'I use a wheelchair, where should I sit?' });
-    expect(prompt).toContain('###USER_DATA###');
+  it('buildAccessibilityPrompt asks for a step-free route between the chosen endpoints', () => {
+    const prompt = buildAccessibilityPrompt({
+      gate: findGate('gate-a'),
+      section: findSection('sec-101'),
+    });
+    expect(prompt).toContain('Gate A');
+    expect(prompt).toContain('Section 101');
+    expect(prompt).toContain('step-free');
     expect(prompt).toContain(JSON_INSTRUCTION);
     expect(prompt).toContain('"accommodations"');
+  });
+
+  it('buildPlainLanguagePrompt wraps the announcement feed text as untrusted data', () => {
+    const prompt = buildPlainLanguagePrompt({ message: 'Gates are open.' });
+    expect(prompt).toContain('###USER_DATA###');
+    expect(prompt).toContain('Gates are open.');
+    expect(prompt).toContain('plain language');
+    expect(prompt).toContain('"rewrite"');
+    expect(prompt).toContain(JSON_INSTRUCTION);
   });
 
   it('buildMultilingualAssistancePrompt asks for language auto-detection and grounds in the facts', () => {

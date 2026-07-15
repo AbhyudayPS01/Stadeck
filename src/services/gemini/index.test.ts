@@ -9,14 +9,19 @@ import { getInitialAnnouncements } from '../data/announcements';
 import { GATES, SECTIONS } from '../data/stadiumLayout';
 import { requestGemini } from './client';
 import {
-  getAccessibilityGuidance,
   getAnnouncementTranslation,
   getMultilingualReply,
   getNavigationDirections,
+  getPlainLanguageRewrite,
+  getStepFreeRoute,
   getSustainabilityTips,
   getTransportationRecommendation,
 } from './index';
-import { mockAccessibilityResponse, mockSustainabilityResponse } from './mock';
+import {
+  mockAccessibilityResponse,
+  mockPlainLanguageResponse,
+  mockSustainabilityResponse,
+} from './mock';
 
 const requestGeminiMock = vi.mocked(requestGemini);
 
@@ -57,22 +62,49 @@ describe('getNavigationDirections', () => {
   });
 });
 
-describe('getAccessibilityGuidance', () => {
+describe('getStepFreeRoute', () => {
   it('falls back to mock when Gemini returns malformed JSON', async () => {
     requestGeminiMock.mockResolvedValueOnce('not valid json');
 
-    const result = await getAccessibilityGuidance('I need an accessible route');
+    const result = await getStepFreeRoute(TEST_GATE, TEST_SECTION);
 
     expect(result.source).toBe('mock');
-    expect(result.data).toEqual(mockAccessibilityResponse());
+    expect(result.data).toEqual(mockAccessibilityResponse(TEST_GATE.label, TEST_SECTION.label));
   });
 
   it('falls back to mock when Gemini returns a shape missing required fields', async () => {
     requestGeminiMock.mockResolvedValueOnce(JSON.stringify({ summary: 'ok' }));
 
-    const result = await getAccessibilityGuidance('I need an accessible route');
+    const result = await getStepFreeRoute(TEST_GATE, TEST_SECTION);
 
     expect(result.source).toBe('mock');
+  });
+});
+
+describe('getPlainLanguageRewrite', () => {
+  const announcement = getInitialAnnouncements()[0];
+  if (!announcement) {
+    throw new Error('announcement feed unexpectedly empty in test setup');
+  }
+
+  it('returns the live rewrite when Gemini responds with a valid shape', async () => {
+    requestGeminiMock.mockResolvedValueOnce(
+      JSON.stringify({ rewrite: 'The game starts at 3:00 PM.' }),
+    );
+
+    const result = await getPlainLanguageRewrite(announcement);
+
+    expect(result.source).toBe('live');
+    expect(result.data.rewrite).toBe('The game starts at 3:00 PM.');
+  });
+
+  it('serves the category-matched canned rewrite when the proxy is unreachable', async () => {
+    requestGeminiMock.mockRejectedValueOnce(new Error('network down'));
+
+    const result = await getPlainLanguageRewrite(announcement);
+
+    expect(result.source).toBe('mock');
+    expect(result.data).toEqual(mockPlainLanguageResponse(announcement));
   });
 });
 

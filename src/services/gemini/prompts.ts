@@ -138,13 +138,37 @@ export function buildCrowdManagementPrompt(params: { readings: DensityReading[] 
   ].join('\n\n');
 }
 
-export function buildAccessibilityPrompt(params: { query: string }): string {
+/**
+ * Step-free route planning. Like navigation, both endpoints come from
+ * config-driven pickers, so the prompt is fully structured — the model is
+ * asked for step-free specifics (ramps, elevators, level concourses), never
+ * invented geography.
+ */
+export function buildAccessibilityPrompt(params: { gate: Gate; section: StadiumSection }): string {
+  const { gate, section } = params;
   return [
     "You are Stadeck's accessibility assistant for fans at MetLife Stadium.",
-    `A fan asked for accessibility help:\n${wrapUntrustedInput(params.query)}`,
+    `A fan with access needs is entering at ${gate.label} (${gate.compassPoint} side) and needs a fully step-free route to the accessible seating at Section ${section.label} in the ${TIER_NAMES[section.tier]}.`,
+    'Describe the step-free route (ramps, elevators, level concourses — never stairs or escalators) and list the accommodations available at that seating area.',
     jsonOnlyInstruction(
       '{ "summary": string, "recommendedRoute": string, "accommodations": string[] }',
     ),
+  ].join('\n\n');
+}
+
+export interface PlainLanguageResponse {
+  /** The announcement rewritten in plain language. */
+  rewrite: string;
+}
+
+/** "Access Companion": rewrites a venue announcement into plain language. */
+export function buildPlainLanguagePrompt(params: { message: string }): string {
+  return [
+    "You are Stadeck's Access Companion for fans at MetLife Stadium who benefit from plain language.",
+    'Rewrite the venue announcement below in plain language: short sentences, everyday words, one idea per sentence. Keep every gate letter, section number, and time exactly as written.',
+    // The announcement arrives over the (simulated) venue feed — external data, wrapped like user input.
+    `The announcement:\n${wrapUntrustedInput(params.message)}`,
+    jsonOnlyInstruction('{ "rewrite": string }'),
   ].join('\n\n');
 }
 

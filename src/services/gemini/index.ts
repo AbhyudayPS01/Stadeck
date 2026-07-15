@@ -17,6 +17,7 @@ import {
   mockMultilingualAssistanceResponse,
   mockNavigationResponse,
   mockOperationalIntelligenceResponse,
+  mockPlainLanguageResponse,
   mockRealTimeDecisionSupportResponse,
   mockScenarioPlanResponse,
   mockSustainabilityResponse,
@@ -29,6 +30,7 @@ import {
   buildMultilingualAssistancePrompt,
   buildNavigationPrompt,
   buildOperationalIntelligencePrompt,
+  buildPlainLanguagePrompt,
   buildRealTimeDecisionSupportPrompt,
   buildScenarioPrompt,
   buildSustainabilityPrompt,
@@ -40,6 +42,7 @@ import {
   type MultilingualAssistanceResponse,
   type NavigationResponse,
   type OperationalIntelligenceResponse,
+  type PlainLanguageResponse,
   type RealTimeDecisionSupportResponse,
   type SustainabilityResponse,
   type TransportationResponse,
@@ -56,7 +59,11 @@ export interface GeminiResult<T> {
  * announcement never rate-limits the concierge chat (both live on the
  * Multilingual Assistance screen and are used back-to-back).
  */
-type LimiterKey = FeatureId | 'announcement-translation' | 'scenario-planning';
+type LimiterKey =
+  | FeatureId
+  | 'announcement-translation'
+  | 'scenario-planning'
+  | 'plain-language';
 
 const lastCalledAt = new Map<LimiterKey, number>();
 
@@ -138,14 +145,35 @@ const isAccessibilityResponse = (value: unknown): value is AccessibilityResponse
     accommodations: isStringArray,
   });
 
-export async function getAccessibilityGuidance(
-  query: string,
+/** Step-free route from an entry gate to an accessible seating section. */
+export async function getStepFreeRoute(
+  gate: Gate,
+  section: StadiumSection,
 ): Promise<GeminiResult<AccessibilityResponse>> {
   return callFeature(
     'accessibility',
-    buildAccessibilityPrompt({ query }),
+    buildAccessibilityPrompt({ gate, section }),
     isAccessibilityResponse,
-    mockAccessibilityResponse,
+    () => mockAccessibilityResponse(gate.label, section.label),
+  );
+}
+
+const isPlainLanguageResponse = (value: unknown): value is PlainLanguageResponse =>
+  hasShape<PlainLanguageResponse>(value, { rewrite: isString });
+
+/**
+ * "Access Companion": rewrites a venue announcement into plain language. Own
+ * limiter key so a rewrite never rate-limits the step-free planner (both live
+ * on the Accessibility screen and are used back-to-back).
+ */
+export async function getPlainLanguageRewrite(
+  announcement: Announcement,
+): Promise<GeminiResult<PlainLanguageResponse>> {
+  return callFeature(
+    'plain-language',
+    buildPlainLanguagePrompt({ message: announcement.message }),
+    isPlainLanguageResponse,
+    () => mockPlainLanguageResponse(announcement),
   );
 }
 

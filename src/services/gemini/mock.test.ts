@@ -8,6 +8,7 @@ import {
   mockMultilingualAssistanceResponse,
   mockNavigationResponse,
   mockOperationalIntelligenceResponse,
+  mockPlainLanguageResponse,
   mockRealTimeDecisionSupportResponse,
   mockScenarioPlanResponse,
   mockSustainabilityResponse,
@@ -45,6 +46,40 @@ describe('mockNavigationResponse', () => {
     expect(response.summary).toContain('Gate H');
     expect(response.summary).toContain('Section 312');
     expect(response.steps.join(' ')).toContain('Gate H');
+  });
+});
+
+describe('mockAccessibilityResponse', () => {
+  it('embeds the chosen gate and section so offline guidance matches the map route', () => {
+    const response = mockAccessibilityResponse('Gate G', '120');
+    expect(response.summary).toContain('Gate G');
+    expect(response.summary).toContain('Section 120');
+    expect(response.recommendedRoute).toContain('Gate G');
+    expect(response.accommodations.length).toBeGreaterThan(0);
+  });
+});
+
+describe('mockPlainLanguageResponse', () => {
+  it('serves a rewrite matched to the announcement category', () => {
+    const [match, transit] = getInitialAnnouncements().filter((announcement) =>
+      ['match', 'transit'].includes(announcement.category),
+    );
+    if (!match || !transit) {
+      throw new Error('announcement categories missing in test setup');
+    }
+    expect(mockPlainLanguageResponse(match).rewrite).not.toBe(
+      mockPlainLanguageResponse(transit).rewrite,
+    );
+  });
+
+  it('is deterministic for the same announcement', () => {
+    const announcement = getInitialAnnouncements()[0];
+    if (!announcement) {
+      throw new Error('announcement feed unexpectedly empty in test setup');
+    }
+    expect(mockPlainLanguageResponse(announcement)).toEqual(
+      mockPlainLanguageResponse(announcement),
+    );
   });
 });
 
