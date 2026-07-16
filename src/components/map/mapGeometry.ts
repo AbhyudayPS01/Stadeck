@@ -28,6 +28,14 @@ export const TIER_RINGS: Record<SectionTier, { inner: number; outer: number }> =
 /** Amenity markers sit on the concourse gap between the lower and club rings. */
 const AMENITY_RADIUS = 160;
 
+/**
+ * Emergency exits render on the upper concourse gap (between the club and
+ * upper rings) instead of the main one: the schematic reads them as bowl
+ * exits rather than concourse amenities, and the cardinal bearings on the
+ * main concourse are already crowded (First Aid sits exactly at 90°).
+ */
+const EMERGENCY_EXIT_RADIUS = 204;
+
 /** Gate markers sit outside the upper ring, at their compass angles. */
 const GATE_RADIUS = 281;
 
@@ -107,9 +115,10 @@ export function gatePoint(gate: Gate): Point {
   return polarToCartesian(MAP_CENTER, MAP_CENTER, GATE_RADIUS, gate.angle);
 }
 
-/** Marker position for an amenity. */
+/** Marker position for an amenity — emergency exits sit on the upper concourse ring. */
 export function amenityPoint(amenity: Amenity): Point {
-  return polarToCartesian(MAP_CENTER, MAP_CENTER, AMENITY_RADIUS, amenity.angle);
+  const radius = amenity.type === 'emergency-exit' ? EMERGENCY_EXIT_RADIUS : AMENITY_RADIUS;
+  return polarToCartesian(MAP_CENTER, MAP_CENTER, radius, amenity.angle);
 }
 
 /**

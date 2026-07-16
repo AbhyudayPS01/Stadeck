@@ -1,7 +1,8 @@
 import type { KeyboardEvent } from 'react';
 import { sectionNumber } from '../../services/data/stadiumLayout';
-import type { Amenity, AmenityType, CompassPoint, Gate } from '../../types/stadium';
+import type { Amenity, CompassPoint, Gate } from '../../types/stadium';
 import { amenityPoint, gatePoint, MAP_CENTER } from './mapGeometry';
+import { AMENITY_COLORS, AMENITY_GLYPHS } from './markerStyles';
 
 /** Full compass names for gate accessible labels. */
 const COMPASS_NAMES: Record<CompassPoint, string> = {
@@ -13,16 +14,6 @@ const COMPASS_NAMES: Record<CompassPoint, string> = {
   SW: 'southwest',
   W: 'west',
   NW: 'northwest',
-};
-
-/** Single-letter marker glyphs; the accessible name carries the full label. */
-const AMENITY_GLYPHS: Record<AmenityType, string> = {
-  restroom: 'R',
-  food: 'C',
-  'first-aid': '+',
-  'accessible-seating': 'A',
-  merchandise: 'M',
-  'guest-services': 'i',
 };
 
 /** The schematic pitch at the center of the map (decorative). */
@@ -128,6 +119,7 @@ interface AmenityMarkerProps {
  */
 export function AmenityMarker({ amenity, expanded, onToggle }: AmenityMarkerProps) {
   const point = amenityPoint(amenity);
+  const colors = AMENITY_COLORS[amenity.type];
   const activate = (): void => onToggle(amenity.id);
   const handleKeyDown = (event: KeyboardEvent<SVGCircleElement>): void => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -159,12 +151,12 @@ export function AmenityMarker({ amenity, expanded, onToggle }: AmenityMarkerProp
         className="map-focusable"
         cx={point.x}
         cy={point.y}
-        fill={expanded ? '#106634' : '#FFFFFF'}
+        fill={expanded ? colors.stroke : colors.fill}
         onClick={activate}
         onKeyDown={handleKeyDown}
         r="7.5"
         role="button"
-        stroke="#106634"
+        stroke={colors.stroke}
         strokeWidth="1.5"
         tabIndex={0}
       />
@@ -172,7 +164,7 @@ export function AmenityMarker({ amenity, expanded, onToggle }: AmenityMarkerProp
         aria-hidden="true"
         className="pointer-events-none select-none"
         dominantBaseline="central"
-        fill={expanded ? '#FFFFFF' : '#106634'}
+        fill={expanded ? '#FFFFFF' : colors.stroke}
         fontFamily="JetBrains Mono, monospace"
         fontSize="9"
         fontWeight="700"

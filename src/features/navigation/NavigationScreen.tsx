@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { MapLegend } from '../../components/map/MapLegend';
 import { StadiumMap } from '../../components/map/StadiumMap';
 import { RouteOverlayLayer } from '../../components/map/RouteOverlayLayer';
 import { Card } from '../../components/ui/Card';
@@ -52,6 +53,7 @@ export default function NavigationScreen() {
             overlays={plan ? <RouteOverlayLayer gate={plan.gate} section={plan.section} /> : null}
             selectedSectionId={sectionId === '' ? null : sectionId}
           />
+          <MapLegend />
         </Card>
         <div className="flex flex-col gap-gutter">
           <Card accent="gold">

@@ -106,6 +106,21 @@ describe('AMENITIES', () => {
       expect(amenity.description.length).toBeGreaterThan(0);
     }
   });
+
+  it('spreads 8 water refill stations around the concourse', () => {
+    const stations = AMENITIES.filter((amenity) => amenity.type === 'water');
+    expect(stations).toHaveLength(8);
+    expect(stations.every((station) => station.label === 'Water Refill Station')).toBe(true);
+  });
+
+  it('places emergency exits at the four cardinal bearings', () => {
+    const exits = AMENITIES.filter((amenity) => amenity.type === 'emergency-exit');
+    expect(exits.map((exit) => exit.angle)).toEqual([0, 90, 180, 270]);
+    for (const exit of exits) {
+      expect(exit.label).toBe('Emergency Exit');
+      expect(exit.description).toContain('Do not use during normal operations');
+    }
+  });
 });
 
 describe('amenityNearbySectionLabels', () => {

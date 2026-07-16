@@ -107,8 +107,15 @@ describe('mapGeometry', () => {
     }
     for (const amenity of AMENITIES) {
       const distance = distanceFromCenter(amenityPoint(amenity));
-      expect(distance).toBeLessThan(TIER_RINGS.club.inner);
-      expect(distance).toBeGreaterThan(TIER_RINGS.lower.outer);
+      if (amenity.type === 'emergency-exit') {
+        // Emergency exits sit on the upper concourse ring, between the club
+        // and upper tiers.
+        expect(distance).toBeLessThan(TIER_RINGS.upper.inner);
+        expect(distance).toBeGreaterThan(TIER_RINGS.club.outer);
+      } else {
+        expect(distance).toBeLessThan(TIER_RINGS.club.inner);
+        expect(distance).toBeGreaterThan(TIER_RINGS.lower.outer);
+      }
     }
   });
 });

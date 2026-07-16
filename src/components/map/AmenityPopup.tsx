@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { amenityNearbySectionLabels } from '../../services/data/stadiumLayout';
 import type { Amenity } from '../../types/stadium';
 import { amenityPoint, MAP_CENTER, MAP_SIZE } from './mapGeometry';
+import { AMENITY_COLORS } from './markerStyles';
 
 export interface AmenityPopupProps {
   amenity: Amenity;
@@ -64,7 +65,15 @@ export function AmenityPopup({ amenity, onDismiss }: AmenityPopupProps) {
         transform: opensDownward ? 'translate(-50%, 14px)' : 'translate(-50%, calc(-100% - 14px))',
       }}
     >
-      <p className="font-display text-body-sm font-semibold text-fan-ink">{amenity.label}</p>
+      {/* Header takes the marker's stroke color (AA on white for all types),
+          so the Emergency Exit card leads with the danger red — reinforced by
+          the X glyph and the word itself, never color alone. */}
+      <p
+        className="font-display text-body-sm font-semibold"
+        style={{ color: AMENITY_COLORS[amenity.type].stroke }}
+      >
+        {amenity.label}
+      </p>
       <p className="mt-1 text-label text-fan-muted">{amenity.description}</p>
       <p className="mt-2 font-mono text-label text-pitch-deep">
         Near sections {amenityNearbySectionLabels(amenity).join(' · ')}

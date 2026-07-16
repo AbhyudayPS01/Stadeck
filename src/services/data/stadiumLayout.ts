@@ -73,23 +73,28 @@ export const GATES: readonly Gate[] = GATE_DEFINITIONS.map((definition, index) =
   angle: index * 45,
 }));
 
-const AMENITY_LABELS: Record<AmenityType, string> = {
+/** Display name per amenity type, shared by markers, the detail popup, and the map legend. */
+export const AMENITY_LABELS: Record<AmenityType, string> = {
   restroom: 'Restroom',
   food: 'Concessions',
+  water: 'Water Refill Station',
   'first-aid': 'First Aid',
   'accessible-seating': 'Accessible Seating',
   merchandise: 'Merchandise',
   'guest-services': 'Guest Services',
+  'emergency-exit': 'Emergency Exit',
 };
 
 /** One-line fan-facing description per amenity type, shown in the map popup. */
 const AMENITY_DESCRIPTIONS: Record<AmenityType, string> = {
   restroom: 'Public restrooms on the main concourse.',
   food: 'Food and drink stands with local and international options.',
+  water: 'Free filtered water available.',
   'first-aid': 'Staffed medical station with trained personnel.',
   'accessible-seating': 'Wheelchair-accessible seating area with companion seats.',
   merchandise: 'Official tournament merchandise and souvenirs.',
   'guest-services': 'Help desk for tickets, lost and found, and general questions.',
+  'emergency-exit': 'Follow staff instructions. Do not use during normal operations.',
 };
 
 const AMENITY_DEFINITIONS: ReadonlyArray<{
@@ -113,6 +118,23 @@ const AMENITY_DEFINITIONS: ReadonlyArray<{
   { type: 'merchandise', sectionLabel: '130', angle: 260 },
   { type: 'guest-services', sectionLabel: '103', angle: 15 },
   { type: 'guest-services', sectionLabel: '123', angle: 195 },
+  // Water refill stations sit midway between the existing marker clusters so
+  // every eighth of the main concourse has one within a short walk.
+  { type: 'water', sectionLabel: '104', angle: 35 },
+  { type: 'water', sectionLabel: '108', angle: 65 },
+  { type: 'water', sectionLabel: '114', angle: 125 },
+  { type: 'water', sectionLabel: '118', angle: 155 },
+  { type: 'water', sectionLabel: '124', angle: 215 },
+  { type: 'water', sectionLabel: '128', angle: 245 },
+  { type: 'water', sectionLabel: '134', angle: 305 },
+  { type: 'water', sectionLabel: '138', angle: 335 },
+  // Emergency exits at the four cardinal bearings, anchored to the upper
+  // bowl: they render on the upper concourse ring, not the main one — see
+  // EMERGENCY_EXIT_RADIUS in mapGeometry for why.
+  { type: 'emergency-exit', sectionLabel: '301', angle: 0 },
+  { type: 'emergency-exit', sectionLabel: '311', angle: 90 },
+  { type: 'emergency-exit', sectionLabel: '321', angle: 180 },
+  { type: 'emergency-exit', sectionLabel: '331', angle: 270 },
 ];
 
 export const AMENITIES: readonly Amenity[] = AMENITY_DEFINITIONS.map((definition, index) => ({

@@ -1,3 +1,4 @@
+import { MapLegend } from '../../components/map/MapLegend';
 import { StadiumMap } from '../../components/map/StadiumMap';
 import { Card } from '../../components/ui/Card';
 import { DENSITY_REFRESH_INTERVAL_MS } from '../../config/constants';
@@ -29,6 +30,7 @@ export default function CrowdManagementScreen() {
           </div>
           <StadiumMap className="mt-4" overlays={<DensityHeatmapLayer readings={readings} />} />
           <HeatmapLegend />
+          <MapLegend theme="ops" />
         </Card>
         <div className="flex flex-col gap-gutter">
           <ZoneWatchlist readings={readings} />

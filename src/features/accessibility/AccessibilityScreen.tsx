@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { MapLegend } from '../../components/map/MapLegend';
 import { RouteOverlayLayer } from '../../components/map/RouteOverlayLayer';
 import { StadiumMap } from '../../components/map/StadiumMap';
 import { Card } from '../../components/ui/Card';
@@ -58,6 +59,7 @@ export default function AccessibilityScreen() {
               overlays={plan ? <RouteOverlayLayer gate={plan.gate} section={plan.section} /> : null}
               selectedSectionId={sectionId}
             />
+            <MapLegend />
           </Card>
           <AccessCompanion />
         </div>

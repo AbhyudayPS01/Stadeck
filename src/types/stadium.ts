@@ -26,10 +26,12 @@ export interface Gate {
 export type AmenityType =
   | 'restroom'
   | 'food'
+  | 'water'
   | 'first-aid'
   | 'accessible-seating'
   | 'merchandise'
-  | 'guest-services';
+  | 'guest-services'
+  | 'emergency-exit';
 
 /** A fixed venue amenity marker, anchored near a section on the map. */
 export interface Amenity {

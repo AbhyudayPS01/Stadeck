@@ -163,6 +163,17 @@ describe('StadiumMap', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
+  it('shows the emergency-exit warning with its Emergency header', async () => {
+    const user = userEvent.setup();
+    render(<StadiumMap />);
+
+    await user.click(screen.getByRole('button', { name: 'Emergency Exit, near section 311' }));
+
+    const popup = screen.getByRole('dialog', { name: 'Emergency Exit details' });
+    expect(popup).toHaveTextContent('Emergency Exit');
+    expect(popup).toHaveTextContent('Follow staff instructions. Do not use during normal operations.');
+  });
+
   it('gives every amenity an enlarged touch circle that opens its popup', async () => {
     const user = userEvent.setup();
     const { container } = render(<StadiumMap />);
