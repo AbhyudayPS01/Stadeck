@@ -36,6 +36,8 @@ export interface Amenity {
   id: string;
   type: AmenityType;
   label: string;
+  /** One-line fan-facing description, shown in the map's amenity popup. */
+  description: string;
   sectionId: string;
   /** Degrees, 0 = North, clockwise. */
   angle: number;

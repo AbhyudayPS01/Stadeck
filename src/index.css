@@ -86,6 +86,16 @@
     @apply cursor-pointer;
     r: 46px;
   }
+  /*
+   * Amenity hit circles follow the same per-band recomputation as gates, but
+   * target ≥24px effective diameter (WCAG 2.5.8) instead of 44px: amenity
+   * markers sit as close as 5° apart on the concourse ring, so gate-sized
+   * targets would overlap their neighbours and the section wedges beneath.
+   */
+  .map-amenity-hit {
+    @apply cursor-pointer;
+    r: 26px;
+  }
   @media (min-width: 640px) {
     .map-section-label {
       font-size: 16px;
@@ -98,6 +108,9 @@
     }
     .map-gate-hit {
       r: 24px;
+    }
+    .map-amenity-hit {
+      r: 14px;
     }
   }
   @media (min-width: 768px) {
@@ -112,6 +125,9 @@
     }
     .map-gate-hit {
       r: 35px;
+    }
+    .map-amenity-hit {
+      r: 20px;
     }
   }
   @media (min-width: 1024px) {
@@ -130,6 +146,9 @@
     .map-gate-hit {
       r: 21px;
     }
+    .map-amenity-hit {
+      r: 12px;
+    }
   }
   @media (min-width: 1280px) {
     .map-section-label {
@@ -144,6 +163,9 @@
     .map-gate-hit {
       r: 29px;
     }
+    .map-amenity-hit {
+      r: 16px;
+    }
   }
   @media (min-width: 1536px) {
     .map-section-label {
@@ -157,6 +179,9 @@
     }
     .map-gate-hit {
       r: 19px;
+    }
+    .map-amenity-hit {
+      r: 11px;
     }
   }
 }

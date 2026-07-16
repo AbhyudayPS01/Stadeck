@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { SECTIONS } from '../../services/data/stadiumLayout';
+import { AMENITIES, SECTIONS } from '../../services/data/stadiumLayout';
 import { StadiumMap } from './StadiumMap';
 
 describe('StadiumMap', () => {
@@ -30,12 +30,13 @@ describe('StadiumMap', () => {
     expect(screen.getByRole('button', { name: 'Gate E, south entrance' })).toBeInTheDocument();
   });
 
-  it('labels amenity markers without adding tab stops', () => {
+  it('makes every amenity marker a keyboard-focusable popup toggle', () => {
     render(<StadiumMap />);
 
-    expect(screen.getByRole('img', { name: 'First Aid, near section 112' })).not.toHaveAttribute(
-      'tabindex',
-    );
+    const marker = screen.getByRole('button', { name: 'First Aid, near section 112' });
+    expect(marker).toHaveAttribute('tabindex', '0');
+    expect(marker).toHaveAttribute('aria-expanded', 'false');
+    expect(marker).toHaveAttribute('aria-haspopup', 'dialog');
   });
 
   it('reports section selection from clicks and from the keyboard', async () => {
@@ -112,12 +113,64 @@ describe('StadiumMap', () => {
     expect(onSelectGate).toHaveBeenCalledWith('gate-a');
   });
 
-  it('lets taps pass through amenity markers to the section beneath', () => {
+  it('shows name, description, and nearby sections when an amenity is clicked', async () => {
+    const user = userEvent.setup();
     render(<StadiumMap />);
 
-    expect(screen.getByRole('img', { name: 'First Aid, near section 112' })).toHaveClass(
-      'pointer-events-none',
-    );
+    await user.click(screen.getByRole('button', { name: 'First Aid, near section 112' }));
+
+    const popup = screen.getByRole('dialog', { name: 'First Aid details' });
+    expect(popup).toHaveAttribute('aria-hidden', 'false');
+    expect(popup).toHaveTextContent('Staffed medical station with trained personnel.');
+    expect(popup).toHaveTextContent('Near sections 111 · 112 · 113');
+  });
+
+  it('opens the amenity popup with Enter and closes it with Escape', async () => {
+    const user = userEvent.setup();
+    render(<StadiumMap />);
+
+    const marker = screen.getByRole('button', { name: 'Restroom, near section 105' });
+    marker.focus();
+    await user.keyboard('{Enter}');
+    expect(marker).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByRole('dialog', { name: 'Restroom details' })).toBeInTheDocument();
+
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(marker).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('toggles the popup closed when its marker is clicked again', async () => {
+    const user = userEvent.setup();
+    render(<StadiumMap />);
+
+    const marker = screen.getByRole('button', { name: 'Concessions, near section 108' });
+    await user.click(marker);
+    expect(screen.getByRole('dialog', { name: 'Concessions details' })).toBeInTheDocument();
+
+    await user.click(marker);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('dismisses the amenity popup on a click outside it', async () => {
+    const user = userEvent.setup();
+    render(<StadiumMap />);
+
+    await user.click(screen.getByRole('button', { name: 'Merchandise, near section 110' }));
+    expect(screen.getByRole('dialog', { name: 'Merchandise details' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Section 101, lower bowl' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('gives every amenity an enlarged touch circle that opens its popup', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<StadiumMap />);
+
+    const hitCircles = container.querySelectorAll('.map-amenity-hit');
+    expect(hitCircles).toHaveLength(AMENITIES.length);
+    await user.click(hitCircles[0] as Element);
+    expect(screen.getByRole('dialog', { name: 'Restroom details' })).toBeInTheDocument();
   });
 
   it('reduces label density instead of shrinking text: minors classed or dropped', () => {

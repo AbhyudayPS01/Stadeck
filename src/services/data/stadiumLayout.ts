@@ -82,6 +82,16 @@ const AMENITY_LABELS: Record<AmenityType, string> = {
   'guest-services': 'Guest Services',
 };
 
+/** One-line fan-facing description per amenity type, shown in the map popup. */
+const AMENITY_DESCRIPTIONS: Record<AmenityType, string> = {
+  restroom: 'Public restrooms on the main concourse.',
+  food: 'Food and drink stands with local and international options.',
+  'first-aid': 'Staffed medical station with trained personnel.',
+  'accessible-seating': 'Wheelchair-accessible seating area with companion seats.',
+  merchandise: 'Official tournament merchandise and souvenirs.',
+  'guest-services': 'Help desk for tickets, lost and found, and general questions.',
+};
+
 const AMENITY_DEFINITIONS: ReadonlyArray<{
   type: AmenityType;
   sectionLabel: string;
@@ -109,6 +119,7 @@ export const AMENITIES: readonly Amenity[] = AMENITY_DEFINITIONS.map((definition
   id: `amenity-${definition.type}-${index + 1}`,
   type: definition.type,
   label: AMENITY_LABELS[definition.type],
+  description: AMENITY_DESCRIPTIONS[definition.type],
   sectionId: `sec-${definition.sectionLabel}`,
   angle: definition.angle,
 }));
@@ -159,4 +170,23 @@ export function nearestAmenity(section: StadiumSection, type: AmenityType): Amen
 /** The gate closest around the ring to a section — the fan's quickest exit. */
 export function nearestGate(section: StadiumSection): Gate {
   return nearestByAngle(GATES, (gate) => gate.angle, sectionMidAngle(section));
+}
+
+/**
+ * Section numbers nearest an amenity: its anchor section plus the ring
+ * neighbour on either side, wrapping across the tier's 0° seam — powers the
+ * "near sections" line in the map's amenity popup.
+ */
+export function amenityNearbySectionLabels(amenity: Amenity): string[] {
+  const anchor = SECTIONS.find((section) => section.id === amenity.sectionId);
+  if (anchor === undefined) {
+    return [sectionNumber(amenity.sectionId)];
+  }
+  const ring = SECTIONS.filter((section) => section.tier === anchor.tier);
+  const index = ring.indexOf(anchor);
+  // ?? anchor is unreachable (ring always contains anchor) but keeps index
+  // access total under strict checking.
+  const previous = ring[(index - 1 + ring.length) % ring.length] ?? anchor;
+  const next = ring[(index + 1) % ring.length] ?? anchor;
+  return [previous.label, anchor.label, next.label];
 }

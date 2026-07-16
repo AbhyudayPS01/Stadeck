@@ -1,8 +1,9 @@
-import { memo, type KeyboardEvent, type ReactNode } from 'react';
+import { memo, useCallback, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { STADIUM_NAME } from '../../config/constants';
 import { AMENITIES, GATES, SECTIONS, TIER_NAMES } from '../../services/data/stadiumLayout';
 import type { SectionTier, StadiumSection } from '../../types/stadium';
 import { cx } from '../../utils/cx';
+import { AmenityPopup } from './AmenityPopup';
 import {
   MAP_SIZE,
   sectionHitPath,
@@ -99,20 +100,24 @@ function SectionShape({ section, selected, onSelect }: SectionShapeProps) {
 
 interface StadiumMapBaseProps {
   selectedSectionId: string | null;
+  openAmenityId: string | null;
   onSelectSection?: (sectionId: string) => void;
   onSelectGate?: (gateId: string) => void;
+  onToggleAmenity: (amenityId: string) => void;
 }
 
 /**
  * The base map: pitch, 96 section arcs, amenities, gates — all derived from
  * the typed stadiumLayout config, never hand-drawn. Memoized so overlay
  * updates (which change on every simulated tick) never re-render these ~200
- * computed SVG nodes; only selection or handler changes do.
+ * computed SVG nodes; only selection, amenity-popup, or handler changes do.
  */
 const StadiumMapBase = memo(function StadiumMapBase({
   selectedSectionId,
+  openAmenityId,
   onSelectSection,
   onSelectGate,
+  onToggleAmenity,
 }: StadiumMapBaseProps) {
   return (
     <>
@@ -126,7 +131,12 @@ const StadiumMapBase = memo(function StadiumMapBase({
         />
       ))}
       {AMENITIES.map((amenity) => (
-        <AmenityMarker key={amenity.id} amenity={amenity} />
+        <AmenityMarker
+          key={amenity.id}
+          amenity={amenity}
+          expanded={amenity.id === openAmenityId}
+          onToggle={onToggleAmenity}
+        />
       ))}
       {GATES.map((gate) => (
         <GateMarker key={gate.id} gate={gate} onSelect={onSelectGate} />
@@ -138,8 +148,9 @@ const StadiumMapBase = memo(function StadiumMapBase({
 /**
  * Clean schematic map of the demo venue: concentric ring layout with labeled
  * section blocks (101–140 lower, 201–216 club, 301–340 upper), Gates A–H at
- * compass points, and amenity markers. Every section and gate is
- * keyboard-focusable with an accessible name (CLAUDE.md stadium map rules).
+ * compass points, and amenity markers that open a detail popup. Every
+ * section, gate, and amenity is keyboard-focusable with an accessible name
+ * (CLAUDE.md stadium map rules).
  */
 export function StadiumMap({
   overlays,
@@ -148,20 +159,36 @@ export function StadiumMap({
   onSelectGate,
   className,
 }: StadiumMapProps) {
+  const [openAmenityId, setOpenAmenityId] = useState<string | null>(null);
+  // Stable identities: both handlers reach StadiumMapBase, so a new function
+  // per render would defeat its memo and redraw all ~200 base SVG nodes.
+  const toggleAmenity = useCallback((amenityId: string): void => {
+    setOpenAmenityId((current) => (current === amenityId ? null : amenityId));
+  }, []);
+  const dismissAmenity = useCallback((): void => {
+    setOpenAmenityId(null);
+  }, []);
+  const openAmenity = AMENITIES.find((amenity) => amenity.id === openAmenityId);
+
   return (
-    <svg
-      aria-label={`Schematic seating map of ${STADIUM_NAME}`}
-      className={cx('h-auto w-full', className)}
-      preserveAspectRatio="xMidYMid meet"
-      role="group"
-      viewBox={`0 0 ${MAP_SIZE} ${MAP_SIZE}`}
-    >
-      <StadiumMapBase
-        onSelectGate={onSelectGate}
-        onSelectSection={onSelectSection}
-        selectedSectionId={selectedSectionId}
-      />
-      {overlays ? <g className="pointer-events-none">{overlays}</g> : null}
-    </svg>
+    <div className={cx('relative', className)}>
+      <svg
+        aria-label={`Schematic seating map of ${STADIUM_NAME}`}
+        className="h-auto w-full"
+        preserveAspectRatio="xMidYMid meet"
+        role="group"
+        viewBox={`0 0 ${MAP_SIZE} ${MAP_SIZE}`}
+      >
+        <StadiumMapBase
+          onSelectGate={onSelectGate}
+          onSelectSection={onSelectSection}
+          onToggleAmenity={toggleAmenity}
+          openAmenityId={openAmenityId}
+          selectedSectionId={selectedSectionId}
+        />
+        {overlays ? <g className="pointer-events-none">{overlays}</g> : null}
+      </svg>
+      {openAmenity ? <AmenityPopup amenity={openAmenity} onDismiss={dismissAmenity} /> : null}
+    </div>
   );
 }

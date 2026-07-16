@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { findSection } from '../../test/stadiumFixtures';
+import { findAmenity, findSection } from '../../test/stadiumFixtures';
 import {
   AMENITIES,
+  amenityNearbySectionLabels,
   findZoneLabel,
   GATES,
   nearestAmenity,
@@ -98,5 +99,34 @@ describe('AMENITIES', () => {
   it('has unique ids', () => {
     const ids = new Set(AMENITIES.map((amenity) => amenity.id));
     expect(ids.size).toBe(AMENITIES.length);
+  });
+
+  it('gives every amenity a fan-facing description for the map popup', () => {
+    for (const amenity of AMENITIES) {
+      expect(amenity.description.length).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe('amenityNearbySectionLabels', () => {
+  it('returns the anchor section with its ring neighbours', () => {
+    expect(amenityNearbySectionLabels(findAmenity('amenity-first-aid-9'))).toEqual([
+      '111',
+      '112',
+      '113',
+    ]);
+  });
+
+  it('wraps neighbours across the 0° seam of the tier ring', () => {
+    expect(amenityNearbySectionLabels(findAmenity('amenity-accessible-seating-11'))).toEqual([
+      '140',
+      '101',
+      '102',
+    ]);
+  });
+
+  it('falls back to the raw section number for an unknown anchor', () => {
+    const orphan = { ...findAmenity('amenity-restroom-1'), sectionId: 'sec-999' };
+    expect(amenityNearbySectionLabels(orphan)).toEqual(['999']);
   });
 });

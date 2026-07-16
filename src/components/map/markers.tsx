@@ -114,28 +114,65 @@ export function GateMarker({ gate, onSelect }: GateMarkerProps) {
 
 interface AmenityMarkerProps {
   amenity: Amenity;
+  /** True while this marker's detail popup is open. */
+  expanded: boolean;
+  onToggle: (amenityId: string) => void;
 }
 
 /**
- * Amenity marker on the concourse ring; named for assistive tech, not a tab
- * stop. Pointer-transparent so a fingertip landing on the tiny glyph falls
- * through to the section touch target beneath it.
+ * Keyboard-focusable amenity marker on the concourse ring. Activating it
+ * (click, Enter, or Space) toggles a detail popup rendered by StadiumMap.
+ * The data-amenity-marker attribute lets the popup's click-outside dismissal
+ * skip marker taps, so a second tap toggles closed instead of the popup
+ * closing on pointerdown and instantly reopening on click.
  */
-export function AmenityMarker({ amenity }: AmenityMarkerProps) {
+export function AmenityMarker({ amenity, expanded, onToggle }: AmenityMarkerProps) {
   const point = amenityPoint(amenity);
+  const activate = (): void => onToggle(amenity.id);
+  const handleKeyDown = (event: KeyboardEvent<SVGCircleElement>): void => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      activate();
+    }
+  };
 
   return (
-    <g
-      aria-label={`${amenity.label}, near section ${sectionNumber(amenity.sectionId)}`}
-      className="pointer-events-none"
-      role="img"
-    >
-      <circle cx={point.x} cy={point.y} fill="#FFFFFF" r="7.5" stroke="#106634" strokeWidth="1.5" />
+    <g data-amenity-marker="true">
+      {/* Invisible touch target behind the visible marker, radius set per
+          breakpoint in index.css. Amenity markers cluster as close as 5°
+          apart, so the ladder targets ≥24px (WCAG 2.5.8) instead of the 44px
+          gates get — anything larger would swallow neighbouring markers and
+          the section touch targets beneath. */}
+      <circle
+        aria-hidden="true"
+        className="map-amenity-hit"
+        cx={point.x}
+        cy={point.y}
+        fill="transparent"
+        onClick={activate}
+        r="20"
+      />
+      <circle
+        aria-expanded={expanded}
+        aria-haspopup="dialog"
+        aria-label={`${amenity.label}, near section ${sectionNumber(amenity.sectionId)}`}
+        className="map-focusable"
+        cx={point.x}
+        cy={point.y}
+        fill={expanded ? '#106634' : '#FFFFFF'}
+        onClick={activate}
+        onKeyDown={handleKeyDown}
+        r="7.5"
+        role="button"
+        stroke="#106634"
+        strokeWidth="1.5"
+        tabIndex={0}
+      />
       <text
         aria-hidden="true"
         className="pointer-events-none select-none"
         dominantBaseline="central"
-        fill="#106634"
+        fill={expanded ? '#FFFFFF' : '#106634'}
         fontFamily="JetBrains Mono, monospace"
         fontSize="9"
         fontWeight="700"
