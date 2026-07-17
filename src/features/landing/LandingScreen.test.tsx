@@ -70,7 +70,10 @@ describe('Landing role gate', () => {
     await user.type(form.getByLabelText('Demo access code'), 'NOT-A-REAL-CODE');
     await user.click(form.getByRole('button', { name: 'Enter with code' }));
 
-    expect(form.getByRole('alert')).toHaveTextContent(/does not unlock the Volunteer & Staff view/);
+    // The role name is bidi-isolated by formatUiString; '.' absorbs the marks.
+    expect(form.getByRole('alert')).toHaveTextContent(
+      /does not unlock the .Volunteer & Staff. view/,
+    );
     expect(screen.getByRole('heading', { name: 'Choose your view' })).toBeInTheDocument();
   });
 
@@ -82,6 +85,9 @@ describe('Landing role gate', () => {
     await user.type(form.getByLabelText('Demo access code'), DEMO_ACCESS_CODES.organizer);
     await user.click(form.getByRole('button', { name: 'Enter with code' }));
 
-    expect(form.getByRole('alert')).toHaveTextContent(/does not unlock the Volunteer & Staff view/);
+    // The role name is bidi-isolated by formatUiString; '.' absorbs the marks.
+    expect(form.getByRole('alert')).toHaveTextContent(
+      /does not unlock the .Volunteer & Staff. view/,
+    );
   });
 });

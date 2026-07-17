@@ -1,8 +1,10 @@
 import { useEffect, useRef } from 'react';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import { amenityNearbySectionLabels } from '../../services/data/stadiumLayout';
 import type { Amenity } from '../../types/stadium';
 import { amenityPoint, MAP_CENTER, MAP_SIZE } from './mapGeometry';
 import { AMENITY_COLORS } from './markerStyles';
+import { formatUiString } from '../../utils/uiText';
 
 export interface AmenityPopupProps {
   amenity: Amenity;
@@ -19,6 +21,7 @@ export interface AmenityPopupProps {
  * focus to trap or restore.
  */
 export function AmenityPopup({ amenity, onDismiss }: AmenityPopupProps) {
+  const strings = useUiStrings();
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -79,11 +82,16 @@ export function AmenityPopup({ amenity, onDismiss }: AmenityPopupProps) {
         className="font-display text-body-sm font-semibold"
         style={{ color: AMENITY_COLORS[amenity.type].stroke }}
       >
-        {amenity.label}
+        {strings[`amenity.${amenity.type}.label`]}
       </p>
-      <p className="mt-1 text-label text-fan-muted">{amenity.description}</p>
+      <p className="mt-1 text-label text-fan-muted">
+        {strings[`amenity.${amenity.type}.description`]}
+      </p>
       <p className="mt-2 font-mono text-label text-pitch-deep">
-        Near sections {amenityNearbySectionLabels(amenity).join(' · ')}
+        {/* Section numbers are wayfinding identifiers — injected verbatim (uiText.ts). */}
+        {formatUiString(strings['map.nearSections'], {
+          sections: amenityNearbySectionLabels(amenity).join(' · '),
+        })}
       </p>
     </div>
   );

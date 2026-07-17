@@ -6,6 +6,7 @@ import { ErrorState } from '../../components/ui/ErrorState';
 import { InsightCard } from '../../components/ui/InsightCard';
 import { LoadingRow } from '../../components/ui/LoadingRow';
 import { useGemini } from '../../hooks/useGemini';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import { getCrowdManagementSummary } from '../../services/gemini';
 import type { DensityReading } from '../../types/crowd';
 
@@ -21,19 +22,20 @@ interface AnalysisResultProps {
 function AnalysisResult({ snapshot, onReanalyze }: AnalysisResultProps) {
   const fetcher = useCallback(() => getCrowdManagementSummary(snapshot), [snapshot]);
   const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
+  const strings = useUiStrings();
 
   if (isLoading) {
-    return <LoadingRow label="Analyzing crowd state" theme="ops" />;
+    return <LoadingRow label={strings['crowd.analyzing']} theme="ops" />;
   }
 
   if (error !== null || data === null) {
     return (
       <div className="mt-3">
         <ErrorState
-          message="The crowd analysis could not be completed."
+          message={strings['crowd.analysisFailedMessage']}
           onRetry={refetch}
           theme="ops"
-          title="Analysis failed"
+          title={strings['crowd.analysisFailedTitle']}
         />
       </div>
     );
@@ -50,11 +52,11 @@ function AnalysisResult({ snapshot, onReanalyze }: AnalysisResultProps) {
       <p aria-live="polite" className="text-body-sm text-ops-body">
         {data.summary}
       </p>
-      <InsightCard items={data.gatesToOpen} title="Gates to open" />
-      <InsightCard items={data.stewardRedeployment} title="Steward redeployment" />
-      <InsightCard text={data.congestionForecast} title="Congestion forecast" />
+      <InsightCard items={data.gatesToOpen} title={strings['crowd.gatesToOpen']} />
+      <InsightCard items={data.stewardRedeployment} title={strings['crowd.stewardRedeployment']} />
+      <InsightCard text={data.congestionForecast} title={strings['crowd.congestionForecast']} />
       <Button className="self-start" onClick={onReanalyze} size="sm">
-        Re-analyze with latest readings
+        {strings['crowd.reanalyzeCta']}
       </Button>
     </div>
   );
@@ -66,18 +68,16 @@ function AnalysisResult({ snapshot, onReanalyze }: AnalysisResultProps) {
  * structured staff recommendations from the Gemini service.
  */
 export function CrowdAnalysisPanel({ readings }: CrowdAnalysisPanelProps) {
+  const strings = useUiStrings();
   const [snapshot, setSnapshot] = useState<DensityReading[] | null>(null);
 
   return (
     <Card theme="ops">
-      <h2 className="font-display text-h2 text-ops-ink">AI staff recommendations</h2>
+      <h2 className="font-display text-h2 text-ops-ink">{strings['crowd.aiRecommendations']}</h2>
       {snapshot === null ? (
         <div className="mt-3 flex flex-col items-start gap-3">
-          <p className="text-body-sm text-ops-muted">
-            Run an AI read of the live sensor sweep for gate openings, steward redeployment, and a
-            congestion forecast.
-          </p>
-          <Button onClick={() => setSnapshot(readings)}>Analyze current state</Button>
+          <p className="text-body-sm text-ops-muted">{strings['crowd.analyzeIntro']}</p>
+          <Button onClick={() => setSnapshot(readings)}>{strings['crowd.analyzeCta']}</Button>
         </div>
       ) : (
         <AnalysisResult onReanalyze={() => setSnapshot([...readings])} snapshot={snapshot} />

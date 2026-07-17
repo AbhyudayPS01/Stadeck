@@ -1,4 +1,4 @@
-import { AMENITY_LABELS } from '../../services/data/stadiumLayout';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import type { AmenityType } from '../../types/stadium';
 import { cx } from '../../utils/cx';
 import { AMENITY_COLORS, AMENITY_GLYPHS } from './markerStyles';
@@ -29,6 +29,7 @@ export interface MapLegendProps {
  * and red X are readable without color perception.
  */
 export function MapLegend({ theme = 'fan' }: MapLegendProps) {
+  const strings = useUiStrings();
   return (
     <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5">
       {LEGEND_ORDER.map((type) => {
@@ -63,7 +64,7 @@ export function MapLegend({ theme = 'fan' }: MapLegendProps) {
                 {AMENITY_GLYPHS[type]}
               </text>
             </svg>
-            {AMENITY_LABELS[type]}
+            {strings[`amenity.${type}.label`]}
           </li>
         );
       })}

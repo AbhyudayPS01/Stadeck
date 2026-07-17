@@ -17,19 +17,20 @@ export interface ExecutiveBriefingPanelProps {
 function BriefingResult({ kpis, onRefresh }: { kpis: KpiSnapshot[]; onRefresh: () => void }) {
   const fetcher = useCallback(() => getOperationalIntelligenceSummary(kpis), [kpis]);
   const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
+  const strings = useUiStrings();
 
   if (isLoading) {
-    return <LoadingRow label="Writing executive briefing" theme="ops" />;
+    return <LoadingRow label={strings['oi.writingBriefing']} theme="ops" />;
   }
 
   if (error !== null || data === null) {
     return (
       <div className="mt-3">
         <ErrorState
-          message="The executive briefing could not be generated."
+          message={strings['oi.briefingFailed']}
           onRetry={refetch}
           theme="ops"
-          title="Briefing failed"
+          title={strings['oi.briefingFailedTitle']}
         />
       </div>
     );
@@ -46,10 +47,10 @@ function BriefingResult({ kpis, onRefresh }: { kpis: KpiSnapshot[]; onRefresh: (
       <p aria-live="polite" className="text-body-sm text-ops-body">
         {data.summary}
       </p>
-      <InsightCard items={data.anomalies} title="Anomalies to act on" />
-      <InsightCard items={data.trends} title="Trends to watch" />
+      <InsightCard items={data.anomalies} title={strings['oi.anomalies']} />
+      <InsightCard items={data.trends} title={strings['oi.trends']} />
       <Button className="self-start" onClick={onRefresh} size="sm">
-        Re-brief with latest KPIs
+        {strings['oi.rebrief']}
       </Button>
     </div>
   );
@@ -66,13 +67,10 @@ export function ExecutiveBriefingPanel({ kpis }: ExecutiveBriefingPanelProps) {
 
   return (
     <Card theme="ops">
-      <h2 className="font-display text-h2 text-ops-ink">Executive briefing</h2>
+      <h2 className="font-display text-h2 text-ops-ink">{strings['oi.executiveBriefing']}</h2>
       {snapshot === null ? (
         <div className="mt-3 flex flex-col items-start gap-3">
-          <p className="text-body-sm text-ops-muted">
-            An AI state-of-venue read over the live KPI board: anomalies to act on and trends to
-            watch.
-          </p>
+          <p className="text-body-sm text-ops-muted">{strings['oi.briefingIntro']}</p>
           <Button onClick={() => setSnapshot(kpis)}>{strings['action.generateBriefing']}</Button>
         </div>
       ) : (

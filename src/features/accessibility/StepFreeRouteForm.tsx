@@ -2,7 +2,7 @@ import type { FormEvent } from 'react';
 import { Button } from '../../components/ui/Button';
 import { FormSelect } from '../../components/ui/FormSelect';
 import { useUiStrings } from '../../hooks/useUiStrings';
-import { GATES, TIER_NAMES } from '../../services/data/stadiumLayout';
+import { GATES } from '../../services/data/stadiumLayout';
 import type { StadiumSection } from '../../types/stadium';
 
 export interface StepFreeRouteFormProps {
@@ -32,17 +32,21 @@ export function StepFreeRouteForm({
 
   return (
     <form className="mt-3 flex flex-col gap-3" onSubmit={handleSubmit}>
-      <FormSelect label="Entry gate" onChange={onGateChange} value={gateId}>
+      <FormSelect label={strings['navigation.entryGate']} onChange={onGateChange} value={gateId}>
         {GATES.map((gate) => (
           <option key={gate.id} value={gate.id}>
             {gate.label} ({gate.compassPoint})
           </option>
         ))}
       </FormSelect>
-      <FormSelect label="Accessible seating area" onChange={onSectionChange} value={sectionId}>
+      <FormSelect
+        label={strings['accessibility.accessibleSeatingArea']}
+        onChange={onSectionChange}
+        value={sectionId}
+      >
         {destinations.map((section) => (
           <option key={section.id} value={section.id}>
-            Section {section.label} ({TIER_NAMES[section.tier]})
+            Section {section.label} ({strings[`tier.${section.tier}`]})
           </option>
         ))}
       </FormSelect>

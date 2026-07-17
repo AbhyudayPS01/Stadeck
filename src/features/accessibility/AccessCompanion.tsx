@@ -4,6 +4,7 @@ import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { DemoDataBadge } from '../../components/ui/DemoDataBadge';
 import { Spinner } from '../../components/ui/Spinner';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import { getInitialAnnouncements } from '../../services/data/announcements';
 import { getPlainLanguageRewrite, type MockReason } from '../../services/gemini';
 import type { Announcement } from '../../types/announcement';
@@ -19,6 +20,7 @@ type RewriteEntry =
  * live stream: rewrites should stay on screen, not scroll away.
  */
 export function AccessCompanion() {
+  const strings = useUiStrings();
   const [announcements] = useState<Announcement[]>(getInitialAnnouncements);
   const [rewrites, setRewrites] = useState<Record<string, RewriteEntry>>({});
 
@@ -39,9 +41,11 @@ export function AccessCompanion() {
 
   return (
     <Card accent="gold">
-      <h2 className="font-display text-h2 text-fan-ink">Access Companion</h2>
+      <h2 className="font-display text-h2 text-fan-ink">
+        {strings['accessibility.accessCompanion']}
+      </h2>
       <p className="mt-1.5 text-body-sm text-fan-muted">
-        Rewrites any announcement in plain language: short sentences, everyday words.
+        {strings['accessibility.accessCompanionIntro']}
       </p>
       <ul aria-label="Announcements to simplify" className="mt-4 flex flex-col gap-4">
         {announcements.map((announcement) => {
@@ -51,7 +55,9 @@ export function AccessCompanion() {
               key={announcement.id}
               className="border-b border-fan-border pb-4 last:border-b-0 last:pb-0"
             >
-              <Badge severity="info">{announcement.category}</Badge>
+              <Badge severity="info">
+                {strings[`announcementCategory.${announcement.category}`]}
+              </Badge>
               <p className="mt-2 text-body-sm text-fan-ink" lang="en">
                 {announcement.message}
               </p>
@@ -75,9 +81,9 @@ export function AccessCompanion() {
                   variant="secondary"
                 >
                   {entry?.status === 'loading' ? (
-                    <Spinner label="Rewriting" size="sm" />
+                    <Spinner label={strings['accessibility.rewriting']} size="sm" />
                   ) : (
-                    'Plain language'
+                    strings['accessibility.plainLanguage']
                   )}
                 </Button>
               )}

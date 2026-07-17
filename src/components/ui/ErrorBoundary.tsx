@@ -1,5 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { ErrorState } from './ErrorState';
+import { BoundaryFallback } from './BoundaryFallback';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -33,18 +33,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   override render(): ReactNode {
     if (this.state.hasError) {
-      const scope = this.props.scope ?? 'This part of Stadeck';
-      return (
-        <div className="flex min-h-[320px] w-full items-center justify-center px-gutter py-section">
-          <div className="w-full max-w-md">
-            <ErrorState
-              message={`${scope} ran into an unexpected error. The rest of the app is unaffected — try again, or switch to another module from the sidebar.`}
-              onRetry={this.handleRetry}
-              title="Something went wrong"
-            />
-          </div>
-        </div>
-      );
+      return <BoundaryFallback onRetry={this.handleRetry} scope={this.props.scope} />;
     }
 
     return this.props.children;

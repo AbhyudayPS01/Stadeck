@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { ignoringIsolates } from '../../test/textMatchers';
 import { RoleProvider } from '../../context/RoleProvider';
 import { LanguageProvider } from '../../context/LanguageProvider';
 import { MAX_USER_INPUT_LENGTH } from '../../config/constants';
@@ -105,7 +106,7 @@ describe('RealTimeDecisionSupportScreen', () => {
     expect(screen.getByRole('heading', { name: 'Immediate actions' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Teams to notify' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Escalation criteria' })).toBeInTheDocument();
-    expect(screen.getByText('elevated priority')).toBeInTheDocument();
+    expect(screen.getByText(ignoringIsolates('elevated priority'))).toBeInTheDocument();
     expect(getRealTimeDecisionSupportMock).toHaveBeenCalledWith(
       expect.objectContaining({ summary: 'Dense queue building at entry' }),
     );

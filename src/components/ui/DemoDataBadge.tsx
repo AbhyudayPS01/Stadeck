@@ -1,3 +1,4 @@
+import { useUiStrings } from '../../hooks/useUiStrings';
 import type { MockReason } from '../../services/gemini';
 import { cx } from '../../utils/cx';
 import type { CardTheme } from './Card';
@@ -24,6 +25,7 @@ const THEME_CLASSES: Record<CardTheme, string> = {
  * off as live (CLAUDE.md Gemini rules). Gold mono-tag styling per DESIGN.md §4.
  */
 export function DemoDataBadge({ theme = 'fan', reason = 'unavailable' }: DemoDataBadgeProps) {
+  const strings = useUiStrings();
   return (
     <span
       className={cx(
@@ -31,7 +33,7 @@ export function DemoDataBadge({ theme = 'fan', reason = 'unavailable' }: DemoDat
         THEME_CLASSES[theme],
       )}
     >
-      {reason === 'offline' ? 'Offline mode' : 'Demo data'}
+      {reason === 'offline' ? strings['common.offlineMode'] : strings['common.demoData']}
     </span>
   );
 }

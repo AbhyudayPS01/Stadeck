@@ -1,0 +1,158 @@
+import type { UiStringTable } from './uiStringsTypes';
+
+/** Navigation module: map card, route planner form, directions, and nearby amenities. */
+export type NavigationStringKey =
+  | 'navigation.stadiumMap'
+  | 'navigation.planYourRoute'
+  | 'navigation.entryGate'
+  | 'navigation.yourSeatingSection'
+  | 'navigation.chooseSection'
+  | 'action.getDirections'
+  | 'navigation.fetchingDirections'
+  | 'navigation.directionsUnavailable'
+  | 'navigation.directionsError'
+  | 'navigation.minWalk'
+  | 'navigation.closestTo'
+  | 'navigation.nearIdentifier'
+  | 'navigation.nearestRestroom'
+  | 'navigation.nearestFood'
+  | 'navigation.closestExit';
+
+export const NAVIGATION_STRINGS: UiStringTable<NavigationStringKey> = {
+  en: {
+    'navigation.stadiumMap': 'Stadium map',
+    'navigation.planYourRoute': 'Plan your route',
+    'navigation.entryGate': 'Entry gate',
+    'navigation.yourSeatingSection': 'Your seating section',
+    'navigation.chooseSection': 'Choose a section…',
+    'action.getDirections': 'Get directions',
+    'navigation.fetchingDirections': 'Fetching directions',
+    'navigation.directionsUnavailable': 'Directions unavailable',
+    'navigation.directionsError': 'Directions from {gate} to {section} could not be fetched.',
+    'navigation.minWalk': '~{minutes} min walk',
+    'navigation.closestTo': 'Closest to {id}',
+    'navigation.nearIdentifier': 'Near {id}',
+    'navigation.nearestRestroom': 'Nearest restroom',
+    'navigation.nearestFood': 'Nearest food',
+    'navigation.closestExit': 'Closest exit',
+  },
+  es: {
+    'navigation.stadiumMap': 'Mapa del estadio',
+    'navigation.planYourRoute': 'Planifica tu ruta',
+    'navigation.entryGate': 'Puerta de entrada',
+    'navigation.yourSeatingSection': 'Tu sección de asiento',
+    'navigation.chooseSection': 'Elige una sección…',
+    'action.getDirections': 'Obtener indicaciones',
+    'navigation.fetchingDirections': 'Buscando indicaciones',
+    'navigation.directionsUnavailable': 'Indicaciones no disponibles',
+    'navigation.directionsError': 'No se pudieron obtener las indicaciones de {gate} a {section}.',
+    'navigation.minWalk': '~{minutes} min a pie',
+    'navigation.closestTo': 'Lo más cercano a {id}',
+    'navigation.nearIdentifier': 'Cerca de {id}',
+    'navigation.nearestRestroom': 'Baño más cercano',
+    'navigation.nearestFood': 'Comida más cercana',
+    'navigation.closestExit': 'Salida más cercana',
+  },
+  fr: {
+    'navigation.stadiumMap': 'Plan du stade',
+    'navigation.planYourRoute': 'Planifiez votre itinéraire',
+    'navigation.entryGate': "Porte d'entrée",
+    'navigation.yourSeatingSection': 'Votre section',
+    'navigation.chooseSection': 'Choisissez une section…',
+    'action.getDirections': "Obtenir l'itinéraire",
+    'navigation.fetchingDirections': "Recherche de l'itinéraire",
+    'navigation.directionsUnavailable': 'Itinéraire indisponible',
+    'navigation.directionsError': "L'itinéraire de {gate} à {section} n'a pas pu être obtenu.",
+    'navigation.minWalk': '~{minutes} min à pied',
+    'navigation.closestTo': 'Au plus près de {id}',
+    'navigation.nearIdentifier': 'Près de {id}',
+    'navigation.nearestRestroom': 'Toilettes les plus proches',
+    'navigation.nearestFood': 'Restauration la plus proche',
+    'navigation.closestExit': 'Sortie la plus proche',
+  },
+  pt: {
+    'navigation.stadiumMap': 'Mapa do estádio',
+    'navigation.planYourRoute': 'Planeje sua rota',
+    'navigation.entryGate': 'Portão de entrada',
+    'navigation.yourSeatingSection': 'Sua seção de assento',
+    'navigation.chooseSection': 'Escolha uma seção…',
+    'action.getDirections': 'Obter direções',
+    'navigation.fetchingDirections': 'Buscando direções',
+    'navigation.directionsUnavailable': 'Direções indisponíveis',
+    'navigation.directionsError': 'Não foi possível obter as direções de {gate} até {section}.',
+    'navigation.minWalk': '~{minutes} min a pé',
+    'navigation.closestTo': 'Mais próximo de {id}',
+    'navigation.nearIdentifier': 'Perto de {id}',
+    'navigation.nearestRestroom': 'Banheiro mais próximo',
+    'navigation.nearestFood': 'Comida mais próxima',
+    'navigation.closestExit': 'Saída mais próxima',
+  },
+  de: {
+    'navigation.stadiumMap': 'Stadionplan',
+    'navigation.planYourRoute': 'Route planen',
+    'navigation.entryGate': 'Eingangstor',
+    'navigation.yourSeatingSection': 'Ihr Sitzblock',
+    'navigation.chooseSection': 'Block wählen…',
+    'action.getDirections': 'Route anzeigen',
+    'navigation.fetchingDirections': 'Route wird geladen',
+    'navigation.directionsUnavailable': 'Route nicht verfügbar',
+    'navigation.directionsError': 'Die Route von {gate} zu {section} konnte nicht geladen werden.',
+    'navigation.minWalk': '~{minutes} Min. zu Fuß',
+    'navigation.closestTo': 'Am nächsten zu {id}',
+    'navigation.nearIdentifier': 'Nahe {id}',
+    'navigation.nearestRestroom': 'Nächste Toilette',
+    'navigation.nearestFood': 'Nächste Verpflegung',
+    'navigation.closestExit': 'Nächster Ausgang',
+  },
+  hi: {
+    'navigation.stadiumMap': 'स्टेडियम का नक्शा',
+    'navigation.planYourRoute': 'अपना रास्ता चुनें',
+    'navigation.entryGate': 'प्रवेश गेट',
+    'navigation.yourSeatingSection': 'आपकी सीट का सेक्शन',
+    'navigation.chooseSection': 'सेक्शन चुनें…',
+    'action.getDirections': 'रास्ता देखें',
+    'navigation.fetchingDirections': 'रास्ता खोजा जा रहा है',
+    'navigation.directionsUnavailable': 'रास्ता उपलब्ध नहीं',
+    'navigation.directionsError': '{gate} से {section} तक का रास्ता नहीं मिल सका।',
+    'navigation.minWalk': 'पैदल ~{minutes} मिनट',
+    'navigation.closestTo': '{id} के सबसे पास',
+    'navigation.nearIdentifier': '{id} के पास',
+    'navigation.nearestRestroom': 'निकटतम शौचालय',
+    'navigation.nearestFood': 'निकटतम खान-पान',
+    'navigation.closestExit': 'निकटतम निकास',
+  },
+  ar: {
+    'navigation.stadiumMap': 'خريطة الملعب',
+    'navigation.planYourRoute': 'خطط مسارك',
+    'navigation.entryGate': 'بوابة الدخول',
+    'navigation.yourSeatingSection': 'قسم مقعدك',
+    'navigation.chooseSection': 'اختر قسمًا…',
+    'action.getDirections': 'عرض الاتجاهات',
+    'navigation.fetchingDirections': 'جارٍ جلب الاتجاهات',
+    'navigation.directionsUnavailable': 'الاتجاهات غير متاحة',
+    'navigation.directionsError': 'تعذّر جلب الاتجاهات من {gate} إلى {section}.',
+    'navigation.minWalk': 'نحو {minutes} دقيقة سيرًا',
+    'navigation.closestTo': 'الأقرب إلى {id}',
+    'navigation.nearIdentifier': 'قرب {id}',
+    'navigation.nearestRestroom': 'أقرب دورة مياه',
+    'navigation.nearestFood': 'أقرب مأكولات',
+    'navigation.closestExit': 'أقرب مخرج',
+  },
+  ja: {
+    'navigation.stadiumMap': 'スタジアムマップ',
+    'navigation.planYourRoute': 'ルートを計画',
+    'navigation.entryGate': '入場ゲート',
+    'navigation.yourSeatingSection': '座席セクション',
+    'navigation.chooseSection': 'セクションを選択…',
+    'action.getDirections': '道順を見る',
+    'navigation.fetchingDirections': '道順を取得中',
+    'navigation.directionsUnavailable': '道順を取得できません',
+    'navigation.directionsError': '{gate}から{section}までの道順を取得できませんでした。',
+    'navigation.minWalk': '徒歩約{minutes}分',
+    'navigation.closestTo': '{id}の最寄り',
+    'navigation.nearIdentifier': '{id}付近',
+    'navigation.nearestRestroom': '最寄りのトイレ',
+    'navigation.nearestFood': '最寄りの売店',
+    'navigation.closestExit': '最寄りの出口',
+  },
+};

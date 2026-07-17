@@ -23,22 +23,20 @@ export function IncidentFeed({ incidents, selectedId, onSelect }: IncidentFeedPr
   return (
     <Card theme="ops">
       <div className="flex items-center gap-2.5">
-        <h2 className="font-display text-h2 text-ops-ink">Incident feed</h2>
+        <h2 className="font-display text-h2 text-ops-ink">{strings['rtds.incidentFeed']}</h2>
         <span
           aria-hidden="true"
           className="h-2.5 w-2.5 animate-blink rounded-pill bg-ok motion-reduce:animate-none"
         />
       </div>
-      <p className="mt-1.5 text-body-sm text-ops-muted">
-        Select an incident to generate an AI action plan.
-      </p>
+      <p className="mt-1.5 text-body-sm text-ops-muted">{strings['rtds.selectHint']}</p>
       {incidents.length === 0 ? (
         <div className="mt-4">
           <EmptyState
             message={strings['empty.incidents']}
             showMascot={false}
             theme="ops"
-            title="No incidents reported"
+            title={strings['rtds.noIncidentsTitle']}
           />
         </div>
       ) : (
@@ -60,10 +58,10 @@ export function IncidentFeed({ incidents, selectedId, onSelect }: IncidentFeedPr
                 >
                   <div className="flex flex-wrap items-center gap-2.5">
                     <Badge severity={incident.severity} theme="ops">
-                      {incident.severity}
+                      {strings[`severity.${incident.severity}`]}
                     </Badge>
                     <span className="font-mono text-mono-tag font-bold uppercase text-ops-faint">
-                      {incident.category}
+                      {strings[`incidentCategory.${incident.category}`]}
                     </span>
                     <time
                       className="ml-auto text-label text-ops-faint"

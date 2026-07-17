@@ -3,12 +3,16 @@ import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import type { TextScale } from '../../context/displayPreferencesContext';
 import { useDisplayPreferences } from '../../hooks/useDisplayPreferences';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import { cx } from '../../utils/cx';
 
-const TEXT_SCALE_OPTIONS: ReadonlyArray<{ value: TextScale; label: string }> = [
-  { value: 'default', label: 'Default' },
-  { value: 'large', label: 'Large' },
-  { value: 'x-large', label: 'Extra large' },
+const TEXT_SCALE_OPTIONS: ReadonlyArray<{
+  value: TextScale;
+  labelKey: 'accessibility.textDefault' | 'accessibility.textLarge' | 'accessibility.textXLarge';
+}> = [
+  { value: 'default', labelKey: 'accessibility.textDefault' },
+  { value: 'large', labelKey: 'accessibility.textLarge' },
+  { value: 'x-large', labelKey: 'accessibility.textXLarge' },
 ];
 
 /**
@@ -17,15 +21,16 @@ const TEXT_SCALE_OPTIONS: ReadonlyArray<{ value: TextScale; label: string }> = [
  * not just this module.
  */
 export function DisplayControls() {
+  const strings = useUiStrings();
   const { highContrast, toggleHighContrast, textScale, setTextScale } = useDisplayPreferences();
   const contrastLabelId = useId();
 
   return (
     <Card accent="steel">
-      <h2 className="font-display text-h2 text-fan-ink">Display</h2>
+      <h2 className="font-display text-h2 text-fan-ink">{strings['accessibility.display']}</h2>
       <div className="mt-3 flex items-center justify-between gap-3">
         <span className="text-body-sm text-fan-ink" id={contrastLabelId}>
-          High contrast
+          {strings['accessibility.highContrast']}
         </span>
         <Button
           aria-labelledby={contrastLabelId}
@@ -34,11 +39,11 @@ export function DisplayControls() {
           size="sm"
           variant={highContrast ? 'primary' : 'secondary'}
         >
-          {highContrast ? 'On' : 'Off'}
+          {highContrast ? strings['accessibility.on'] : strings['accessibility.off']}
         </Button>
       </div>
       <fieldset className="mt-4">
-        <legend className="text-body-sm text-fan-ink">Text size</legend>
+        <legend className="text-body-sm text-fan-ink">{strings['accessibility.textSize']}</legend>
         <div className="mt-2 flex flex-wrap gap-2">
           {TEXT_SCALE_OPTIONS.map((option) => (
             <label
@@ -59,7 +64,7 @@ export function DisplayControls() {
                 type="radio"
                 value={option.value}
               />
-              {option.label}
+              {strings[option.labelKey]}
             </label>
           ))}
         </div>

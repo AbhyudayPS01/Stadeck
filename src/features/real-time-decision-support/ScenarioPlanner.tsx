@@ -10,19 +10,20 @@ import { getScenarioPlan } from '../../services/gemini';
 import { ActionPlanDetails } from './ActionPlanDetails';
 
 function ScenarioResult({ scenario }: { scenario: string }) {
+  const strings = useUiStrings();
   const fetcher = useCallback(() => getScenarioPlan(scenario), [scenario]);
   const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
 
   if (isLoading) {
-    return <LoadingRow label="Planning scenario" theme="ops" />;
+    return <LoadingRow label={strings['rtds.planningScenario']} theme="ops" />;
   }
   if (error !== null || data === null || source === null) {
     return (
       <ErrorState
-        message="The scenario plan could not be generated."
+        message={strings['rtds.scenarioFailed']}
         onRetry={refetch}
         theme="ops"
-        title="Plan failed"
+        title={strings['rtds.planFailedTitle']}
       />
     );
   }
@@ -43,7 +44,7 @@ export function ScenarioPlanner() {
 
   return (
     <Card theme="ops">
-      <h2 className="font-display text-h2 text-ops-ink">What-if scenario</h2>
+      <h2 className="font-display text-h2 text-ops-ink">{strings['rtds.whatIf']}</h2>
       <form
         className="mt-3 flex flex-col gap-3"
         onSubmit={(event) => {
@@ -55,7 +56,7 @@ export function ScenarioPlanner() {
         }}
       >
         <label className="text-label font-semibold text-ops-faint" htmlFor={textareaId}>
-          Describe a hypothetical situation to war-game
+          {strings['rtds.describeScenario']}
         </label>
         <textarea
           className="min-h-[84px] rounded-md border border-ops-border bg-ops-surface2 px-3 py-2.5 text-body-sm text-ops-body placeholder:text-ops-faint focus:border-glow focus:outline-none focus:shadow-inputfocus"

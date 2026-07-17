@@ -25,7 +25,7 @@ export default function CrowdManagementScreen() {
       <div className="mt-section grid grid-cols-1 items-start gap-gutter xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
         <Card theme="ops">
           <div className="flex items-center gap-2.5">
-            <h2 className="font-display text-h2 text-ops-ink">Density map</h2>
+            <h2 className="font-display text-h2 text-ops-ink">{strings['crowd.densityMap']}</h2>
             <span
               aria-hidden="true"
               className="h-2.5 w-2.5 animate-blink rounded-pill bg-ok motion-reduce:animate-none"

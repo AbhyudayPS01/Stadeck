@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useRole } from '../../hooks/useRole';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import type { Module } from '../../types/module';
 import { ErrorBoundary } from '../ui/ErrorBoundary';
 
@@ -17,10 +18,11 @@ interface ModuleGateProps {
  */
 export function ModuleGate({ module, children }: ModuleGateProps) {
   const { role } = useRole();
+  const strings = useUiStrings();
 
   if (role === null || !module.roles.includes(role)) {
     return <Navigate replace to="/" />;
   }
 
-  return <ErrorBoundary scope={module.label}>{children}</ErrorBoundary>;
+  return <ErrorBoundary scope={strings[`module.${module.id}.title`]}>{children}</ErrorBoundary>;
 }

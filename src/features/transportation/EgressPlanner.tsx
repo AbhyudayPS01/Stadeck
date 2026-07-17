@@ -29,6 +29,7 @@ interface StrategyResultProps {
 }
 
 function StrategyResult({ plan, onRecommendation }: StrategyResultProps) {
+  const strings = useUiStrings();
   const fetcher = useCallback(
     () => getTransportationRecommendation(plan.options, plan.destination),
     [plan],
@@ -40,15 +41,15 @@ function StrategyResult({ plan, onRecommendation }: StrategyResultProps) {
   }, [data, onRecommendation]);
 
   if (isLoading) {
-    return <LoadingRow label="Planning your departure" />;
+    return <LoadingRow label={strings['transportation.planningDeparture']} />;
   }
 
   if (error !== null || data === null) {
     return (
       <ErrorState
-        message="Your departure strategy could not be planned."
+        message={strings['transportation.plannerError']}
         onRetry={refetch}
-        title="Planner unavailable"
+        title={strings['transportation.plannerUnavailable']}
       />
     );
   }
@@ -91,10 +92,12 @@ export function EgressPlanner({ options, onRecommendation }: EgressPlannerProps)
 
   return (
     <Card accent="gold">
-      <h2 className="font-display text-h2 text-fan-ink">Departure strategy</h2>
+      <h2 className="font-display text-h2 text-fan-ink">
+        {strings['transportation.departureStrategy']}
+      </h2>
       <form className="mt-3 flex flex-col gap-3" onSubmit={handleSubmit}>
         <label className="block text-label font-semibold text-fan-muted">
-          Where are you headed after the match?
+          {strings['transportation.whereHeaded']}
           <input
             className="mt-1.5 w-full rounded-lg border border-fan-border bg-fan-surface px-3 py-2.5 text-body-sm text-fan-ink focus-visible:outline-none focus-visible:shadow-inputfocus"
             maxLength={MAX_USER_INPUT_LENGTH}

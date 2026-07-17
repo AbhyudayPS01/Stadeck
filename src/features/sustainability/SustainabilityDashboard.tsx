@@ -1,10 +1,12 @@
 import { Card } from '../../components/ui/Card';
 import { StatTile } from '../../components/ui/StatTile';
 import { STADIUM_CAPACITY } from '../../config/constants';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import type { SustainabilityMetrics } from '../../types/sustainability';
 import { estimateCrowdCarbonTonnes } from '../../utils/carbon';
 import { formatCount } from '../../utils/format';
 import { clamp } from '../../utils/numbers';
+import { formatUiString } from '../../utils/uiText';
 
 export interface SustainabilityDashboardProps {
   metrics: SustainabilityMetrics;
@@ -16,6 +18,7 @@ export interface SustainabilityDashboardProps {
  * non-negative before render.
  */
 export function SustainabilityDashboard({ metrics }: SustainabilityDashboardProps) {
+  const strings = useUiStrings();
   const wastePercent = clamp(metrics.wasteDivertedPercent, 0, 100);
   const energyPercent = clamp(metrics.renewableEnergyPercent, 0, 100);
   const transitPercent = clamp(metrics.transitModeSharePercent, 0, 100);
@@ -26,37 +29,45 @@ export function SustainabilityDashboard({ metrics }: SustainabilityDashboardProp
   return (
     <Card>
       <div className="flex items-center gap-2.5">
-        <h2 className="font-display text-h2 text-fan-ink">Venue dashboard</h2>
+        <h2 className="font-display text-h2 text-fan-ink">
+          {strings['sustainability.venueDashboard']}
+        </h2>
         <span
           aria-hidden="true"
           className="h-2.5 w-2.5 animate-blink rounded-pill bg-ok motion-reduce:animate-none"
         />
       </div>
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <StatTile caption="of matchday waste" label="Waste diverted" value={`${wastePercent}%`} />
         <StatTile
-          caption="of current venue draw"
-          label="Renewable energy"
+          caption={strings['sustainability.wasteCaption']}
+          label={strings['sustainability.wasteDiverted']}
+          value={`${wastePercent}%`}
+        />
+        <StatTile
+          caption={strings['sustainability.renewableCaption']}
+          label={strings['sustainability.renewableEnergy']}
           value={`${energyPercent}%`}
         />
         <StatTile
-          caption="so far today"
-          label="Water used"
+          caption={strings['sustainability.waterCaption']}
+          label={strings['sustainability.waterUsed']}
           value={`${formatCount(waterLiters)} L`}
         />
         <StatTile
-          caption="purchased for this match"
-          label="Carbon offset"
+          caption={strings['sustainability.carbonCaption']}
+          label={strings['sustainability.carbonOffset']}
           value={`${formatCount(offsetKg)} kg`}
         />
         <StatTile
-          caption="fans arriving by rail, bus, or shuttle"
-          label="Transit share"
+          caption={strings['sustainability.transitCaption']}
+          label={strings['sustainability.transitShare']}
           value={`${transitPercent}%`}
         />
         <StatTile
-          caption={`est. travel footprint for ${formatCount(STADIUM_CAPACITY)} fans`}
-          label="Crowd carbon"
+          caption={formatUiString(strings['sustainability.crowdCarbonCaption'], {
+            count: formatCount(STADIUM_CAPACITY),
+          })}
+          label={strings['sustainability.crowdCarbon']}
           value={`~${formatCount(crowdCarbonTonnes)} t`}
         />
       </div>

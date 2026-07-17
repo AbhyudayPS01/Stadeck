@@ -2,7 +2,7 @@ import type { FormEvent } from 'react';
 import { Button } from '../../components/ui/Button';
 import { FormSelect } from '../../components/ui/FormSelect';
 import { useUiStrings } from '../../hooks/useUiStrings';
-import { GATES, SECTIONS, TIER_NAMES } from '../../services/data/stadiumLayout';
+import { GATES, SECTIONS } from '../../services/data/stadiumLayout';
 import type { SectionTier } from '../../types/stadium';
 
 export interface RoutePlannerFormProps {
@@ -31,19 +31,23 @@ export function RoutePlannerForm({
 
   return (
     <form className="mt-3 flex flex-col gap-3" onSubmit={handleSubmit}>
-      <FormSelect label="Entry gate" onChange={onGateChange} value={gateId}>
+      <FormSelect label={strings['navigation.entryGate']} onChange={onGateChange} value={gateId}>
         {GATES.map((gate) => (
           <option key={gate.id} value={gate.id}>
             {gate.label} ({gate.compassPoint})
           </option>
         ))}
       </FormSelect>
-      <FormSelect label="Your seating section" onChange={onSectionChange} value={sectionId}>
+      <FormSelect
+        label={strings['navigation.yourSeatingSection']}
+        onChange={onSectionChange}
+        value={sectionId}
+      >
         <option disabled value="">
-          Choose a section…
+          {strings['navigation.chooseSection']}
         </option>
         {TIERS.map((tier) => (
-          <optgroup key={tier} label={TIER_NAMES[tier]}>
+          <optgroup key={tier} label={strings[`tier.${tier}`]}>
             {SECTIONS.filter((section) => section.tier === tier).map((section) => (
               <option key={section.id} value={section.id}>
                 Section {section.label}

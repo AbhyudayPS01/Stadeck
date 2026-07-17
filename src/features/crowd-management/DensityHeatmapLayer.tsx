@@ -1,4 +1,5 @@
 import { gatePoint, sectionPath } from '../../components/map/mapGeometry';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import { GATES, SECTIONS } from '../../services/data/stadiumLayout';
 import type { DensityReading } from '../../types/crowd';
 
@@ -10,19 +11,20 @@ const ELEVATED_FILL = 'rgba(232,169,59,0.55)';
 
 /** Labeled swatches for every heatmap treatment — the non-color channel for the map. */
 export function HeatmapLegend() {
+  const strings = useUiStrings();
   return (
     <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
       <li className="flex items-center gap-2 text-label text-ops-muted">
         <svg aria-hidden="true" height="14" width="14">
           <rect fill="#E7F5EC" height="13" stroke="#B7C2D6" width="13" x="0.5" y="0.5" />
         </svg>
-        Normal — base color
+        {strings['crowd.legendNormal']}
       </li>
       <li className="flex items-center gap-2 text-label text-ops-muted">
         <svg aria-hidden="true" height="14" width="14">
           <rect fill={ELEVATED_FILL} height="13" stroke="#E8A93B" width="13" x="0.5" y="0.5" />
         </svg>
-        Elevated — gold wash, dashed gate ring
+        {strings['crowd.legendElevated']}
       </li>
       <li className="flex items-center gap-2 text-label text-ops-muted">
         <svg aria-hidden="true" height="14" width="14">
@@ -47,7 +49,7 @@ export function HeatmapLegend() {
             y="0.5"
           />
         </svg>
-        Critical — hatch pattern, pulsing gate ring
+        {strings['crowd.legendCritical']}
       </li>
     </ul>
   );

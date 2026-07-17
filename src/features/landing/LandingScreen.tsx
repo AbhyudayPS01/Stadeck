@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Mascot } from '../../components/mascot/Mascot';
 import { MODULES, ROLES, STADIUM_NAME } from '../../config/constants';
 import { useRole } from '../../hooks/useRole';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import type { Role } from '../../types/role';
 import { RoleCard } from './RoleCard';
 
@@ -12,6 +13,7 @@ import { RoleCard } from './RoleCard';
  */
 export default function LandingScreen() {
   const { enterRole } = useRole();
+  const strings = useUiStrings();
   const navigate = useNavigate();
 
   const handleEnter = (role: Role): void => {
@@ -32,10 +34,7 @@ export default function LandingScreen() {
             <h1 className="mt-3 font-display text-h1 font-extrabold text-ops-ink md:text-display">
               Stadeck
             </h1>
-            <p className="mt-4 max-w-xl text-body text-ops-muted">
-              GenAI-powered stadium operations and fan experience — navigation, crowd management,
-              multilingual assistance, and real-time decision support for the 2026 Final.
-            </p>
+            <p className="mt-4 max-w-xl text-body text-ops-muted">{strings['landing.tagline']}</p>
           </div>
         </div>
       </header>
@@ -45,7 +44,7 @@ export default function LandingScreen() {
         className="mx-auto max-w-5xl px-gutter py-section md:px-page"
       >
         <h2 className="font-display text-h2 text-fan-ink" id="role-select-heading">
-          Choose your view
+          {strings['landing.chooseYourView']}
         </h2>
         <div className="mt-gutter grid grid-cols-1 gap-gutter md:grid-cols-3">
           {ROLES.map((option) => (

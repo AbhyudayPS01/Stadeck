@@ -88,7 +88,8 @@ describe('AnnouncementsPanel', () => {
 
     const translation = await screen.findByText('تبدأ المباراة في الساعة 3:00 مساءً.');
     expect(translation).toHaveAttribute('dir', 'rtl');
-    expect(screen.getByText('Demo data')).toBeInTheDocument();
+    // The badge follows the Arabic interface language.
+    expect(screen.getByText('بيانات تجريبية')).toBeInTheDocument();
   });
 
   it('offers no translate buttons for English and explains why', () => {

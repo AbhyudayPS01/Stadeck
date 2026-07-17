@@ -17,6 +17,7 @@ import { generateAnnouncement, getInitialAnnouncements } from '../../services/da
 import { getAnnouncementTranslation, type MockReason } from '../../services/gemini';
 import type { Announcement, AnnouncementCategory } from '../../types/announcement';
 import { isRtlLanguage } from '../../utils/detectLanguage';
+import { formatUiString } from '../../utils/uiText';
 
 const CATEGORY_SEVERITIES: Record<AnnouncementCategory, BadgeSeverity> = {
   safety: 'elevated',
@@ -78,7 +79,7 @@ export function AnnouncementsPanel() {
   return (
     <Card accent="gold" className="flex flex-col">
       <div className="flex items-center gap-2.5">
-        <h2 className="font-display text-h2 text-fan-ink">Live announcements</h2>
+        <h2 className="font-display text-h2 text-fan-ink">{strings['ml.liveAnnouncements']}</h2>
         <span
           aria-hidden="true"
           className="h-2.5 w-2.5 animate-blink rounded-pill bg-ok motion-reduce:animate-none"
@@ -86,13 +87,18 @@ export function AnnouncementsPanel() {
       </div>
       <p className="mt-1.5 text-body-sm text-fan-muted">
         {language === 'en'
-          ? 'Pick a language in the sidebar to translate announcements.'
-          : `One click translates into ${languageLabel?.label ?? language}.`}
+          ? strings['ml.pickLanguageHint']
+          : formatUiString(strings['ml.oneClickTranslates'], {
+              language: languageLabel?.nativeLabel ?? language,
+            })}
       </p>
 
       {announcements.length === 0 ? (
         <div className="mt-4">
-          <EmptyState message={strings['empty.announcements']} title="No announcements yet" />
+          <EmptyState
+            message={strings['empty.announcements']}
+            title={strings['ml.noAnnouncementsTitle']}
+          />
         </div>
       ) : (
         <ul aria-label="Announcements" aria-live="polite" className="mt-4 flex flex-col gap-4">
@@ -107,7 +113,7 @@ export function AnnouncementsPanel() {
               >
                 <div className="flex items-center gap-2.5">
                   <Badge severity={CATEGORY_SEVERITIES[announcement.category]}>
-                    {announcement.category}
+                    {strings[`announcementCategory.${announcement.category}`]}
                   </Badge>
                   <time className="text-label text-fan-faint" dateTime={announcement.issuedAt}>
                     {TIME_FORMAT.format(new Date(announcement.issuedAt))}
@@ -140,7 +146,7 @@ export function AnnouncementsPanel() {
                     variant="secondary"
                   >
                     {entry?.status === 'loading' ? (
-                      <Spinner label="Translating" size="sm" />
+                      <Spinner label={strings['ml.translating']} size="sm" />
                     ) : (
                       strings['action.translate']
                     )}

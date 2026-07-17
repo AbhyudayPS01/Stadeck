@@ -17,17 +17,18 @@ export interface EcoActionsPanelProps {
 function ActionsResult({ metrics }: EcoActionsPanelProps) {
   const fetcher = useCallback(() => getSustainabilityTips(metrics), [metrics]);
   const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
+  const strings = useUiStrings();
 
   if (isLoading) {
-    return <LoadingRow label="Finding eco actions" />;
+    return <LoadingRow label={strings['sustainability.findingActions']} />;
   }
 
   if (error !== null || data === null) {
     return (
       <ErrorState
-        message="Your eco actions could not be generated."
+        message={strings['sustainability.ecoError']}
         onRetry={refetch}
-        title="Eco actions unavailable"
+        title={strings['sustainability.ecoUnavailable']}
       />
     );
   }
@@ -59,13 +60,12 @@ export function EcoActionsPanel({ metrics }: EcoActionsPanelProps) {
 
   return (
     <Card accent="pitch">
-      <h2 className="font-display text-h2 text-fan-ink">Your eco actions</h2>
+      <h2 className="font-display text-h2 text-fan-ink">
+        {strings['sustainability.yourEcoActions']}
+      </h2>
       {snapshot === null ? (
         <div className="mt-3 flex flex-col items-start gap-3">
-          <p className="text-body-sm text-fan-muted">
-            Get 3-4 concrete actions you can take right now, based on today&apos;s live venue
-            metrics.
-          </p>
+          <p className="text-body-sm text-fan-muted">{strings['sustainability.ecoIntro']}</p>
           <Button onClick={() => setSnapshot(metrics)}>{strings['action.getEcoActions']}</Button>
         </div>
       ) : (

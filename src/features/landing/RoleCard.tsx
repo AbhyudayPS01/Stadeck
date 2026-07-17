@@ -2,9 +2,11 @@ import { useId, useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { Card, type CardAccent } from '../../components/ui/Card';
 import { DEMO_ACCESS_CODES } from '../../config/constants';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import type { Role, RoleOption } from '../../types/role';
 import { resolveAccessCode } from '../../utils/accessCode';
 import { cx } from '../../utils/cx';
+import { formatUiString } from '../../utils/uiText';
 
 /** Role accent colors per DESIGN.md §4: pitch / gold / steel. */
 const ROLE_ACCENTS: Record<Role, CardAccent> = {
@@ -19,10 +21,13 @@ interface RoleCardProps {
 }
 
 function RoleCardHeading({ option }: { option: RoleOption }) {
+  const strings = useUiStrings();
   return (
     <div>
-      <h3 className="font-display text-h3 text-fan-ink">{option.label}</h3>
-      <p className="mt-1.5 text-body-sm text-fan-muted">{option.description}</p>
+      <h3 className="font-display text-h3 text-fan-ink">{strings[`role.${option.id}.label`]}</h3>
+      <p className="mt-1.5 text-body-sm text-fan-muted">
+        {strings[`role.${option.id}.description`]}
+      </p>
     </div>
   );
 }
@@ -34,6 +39,7 @@ function RoleCardHeading({ option }: { option: RoleOption }) {
  * one validation path, no bypass logic (CLAUDE.md product shape).
  */
 export function RoleCard({ option, onEnter }: RoleCardProps) {
+  const strings = useUiStrings();
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const inputId = useId();
@@ -44,7 +50,7 @@ export function RoleCard({ option, onEnter }: RoleCardProps) {
       <Card accent={ROLE_ACCENTS[option.id]} bracket className="flex flex-col gap-4">
         <RoleCardHeading option={option} />
         <Button className="mt-auto" onClick={() => onEnter(option.id)}>
-          Enter as Fan
+          {strings['landing.enterAsFan']}
         </Button>
       </Card>
     );
@@ -56,7 +62,11 @@ export function RoleCard({ option, onEnter }: RoleCardProps) {
       setError(null);
       onEnter(resolved);
     } else {
-      setError(`That code does not unlock the ${option.label} view.`);
+      setError(
+        formatUiString(strings['landing.codeError'], {
+          role: strings[`role.${option.id}.label`],
+        }),
+      );
     }
   };
 
@@ -73,7 +83,7 @@ export function RoleCard({ option, onEnter }: RoleCardProps) {
       >
         <div className="flex flex-col gap-1.5">
           <label className="text-label font-semibold text-fan-faint" htmlFor={inputId}>
-            Demo access code
+            {strings['landing.demoAccessCode']}
           </label>
           <input
             aria-describedby={error ? errorId : undefined}
@@ -87,7 +97,7 @@ export function RoleCard({ option, onEnter }: RoleCardProps) {
             )}
             id={inputId}
             onChange={(event) => setCode(event.target.value)}
-            placeholder="Enter access code"
+            placeholder={strings['landing.enterAccessCode']}
             value={code}
           />
           {error ? (
@@ -98,10 +108,10 @@ export function RoleCard({ option, onEnter }: RoleCardProps) {
           ) : null}
         </div>
         <Button size="sm" type="submit" variant="secondary">
-          Enter with code
+          {strings['landing.enterWithCode']}
         </Button>
         <Button onClick={() => submitCode(DEMO_ACCESS_CODES[option.id])} size="sm" variant="accent">
-          Continue with demo access
+          {strings['landing.continueWithDemo']}
         </Button>
       </form>
     </Card>

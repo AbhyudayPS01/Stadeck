@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { ignoringIsolates } from '../../test/textMatchers';
 import { LanguageProvider } from '../../context/LanguageProvider';
 import type { DensityReading } from '../../types/crowd';
 import CrowdManagementScreen from './CrowdManagementScreen';
@@ -52,7 +53,9 @@ describe('CrowdManagementScreen', () => {
     expect(rows[0]).toHaveTextContent('Gate C');
     expect(rows[0]).toHaveTextContent('97%');
     expect(rows[1]).toHaveTextContent('Section 118');
-    expect(screen.getByText('1 critical · 1 elevated · 1 normal of 3 zones')).toBeInTheDocument();
+    expect(
+      screen.getByText(ignoringIsolates('1 critical · 1 elevated · 1 normal of 3 zones')),
+    ).toBeInTheDocument();
   });
 
   it('renders the density heatmap overlay on the stadium map with a labeled legend', () => {

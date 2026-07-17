@@ -6,6 +6,7 @@ import { ErrorState } from '../../components/ui/ErrorState';
 import { LoadingRow } from '../../components/ui/LoadingRow';
 import { StepList } from '../../components/ui/StepList';
 import { useGemini } from '../../hooks/useGemini';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import { getSustainabilityReport } from '../../services/gemini';
 import type { SustainabilityMetrics } from '../../types/sustainability';
 
@@ -28,19 +29,20 @@ function ReportList({ title, items }: ReportListProps) {
 }
 
 function ReportResult({ metrics }: MatchReportPanelProps) {
+  const strings = useUiStrings();
   const fetcher = useCallback(() => getSustainabilityReport(metrics), [metrics]);
   const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
 
   if (isLoading) {
-    return <LoadingRow label="Writing match report" />;
+    return <LoadingRow label={strings['sustainability.writingReport']} />;
   }
 
   if (error !== null || data === null) {
     return (
       <ErrorState
-        message="The sustainability match report could not be generated."
+        message={strings['sustainability.reportError']}
         onRetry={refetch}
-        title="Report unavailable"
+        title={strings['sustainability.reportUnavailable']}
       />
     );
   }
@@ -57,8 +59,8 @@ function ReportResult({ metrics }: MatchReportPanelProps) {
         <p className="rounded-md bg-pitch-tint px-3 py-2 text-body-sm font-semibold text-pitch-darker">
           {data.headline}
         </p>
-        <ReportList items={data.highlights} title="Highlights" />
-        <ReportList items={data.recommendations} title="For the next match" />
+        <ReportList items={data.highlights} title={strings['sustainability.highlights']} />
+        <ReportList items={data.recommendations} title={strings['sustainability.nextMatch']} />
       </div>
     </div>
   );
@@ -69,18 +71,18 @@ function ReportResult({ metrics }: MatchReportPanelProps) {
  * screen renders this panel only for the organizer role.
  */
 export function MatchReportPanel({ metrics }: MatchReportPanelProps) {
+  const strings = useUiStrings();
   const [snapshot, setSnapshot] = useState<SustainabilityMetrics | null>(null);
 
   return (
     <Card accent="steel">
-      <h2 className="font-display text-h2 text-fan-ink">Match report</h2>
+      <h2 className="font-display text-h2 text-fan-ink">{strings['sustainability.matchReport']}</h2>
       {snapshot === null ? (
         <div className="mt-3 flex flex-col items-start gap-3">
-          <p className="text-body-sm text-fan-muted">
-            An AI report for organizers: headline verdict, highlights, and what to improve for the
-            next match.
-          </p>
-          <Button onClick={() => setSnapshot(metrics)}>Generate match report</Button>
+          <p className="text-body-sm text-fan-muted">{strings['sustainability.reportIntro']}</p>
+          <Button onClick={() => setSnapshot(metrics)}>
+            {strings['sustainability.generateReport']}
+          </Button>
         </div>
       ) : (
         <ReportResult metrics={snapshot} />

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { LanguageProvider } from '../../context/LanguageProvider';
 import { ErrorBoundary } from './ErrorBoundary';
 
 function Boom(): never {
@@ -12,9 +13,11 @@ describe('ErrorBoundary', () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
     render(
-      <ErrorBoundary>
-        <Boom />
-      </ErrorBoundary>,
+      <LanguageProvider>
+        <ErrorBoundary>
+          <Boom />
+        </ErrorBoundary>
+      </LanguageProvider>,
     );
 
     expect(screen.getByRole('alert')).toHaveTextContent(/something went wrong/i);
@@ -25,12 +28,15 @@ describe('ErrorBoundary', () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
     render(
-      <ErrorBoundary scope="Crowd Management">
-        <Boom />
-      </ErrorBoundary>,
+      <LanguageProvider>
+        <ErrorBoundary scope="Crowd Management">
+          <Boom />
+        </ErrorBoundary>
+      </LanguageProvider>,
     );
 
-    expect(screen.getByRole('alert')).toHaveTextContent(/Crowd Management ran into/);
+    // The scope is bidi-isolated by formatUiString; '.' absorbs the mark.
+    expect(screen.getByRole('alert')).toHaveTextContent(/Crowd Management. ran into/);
   });
 
   it('re-mounts the crashed subtree when "Try again" is pressed', async () => {
@@ -46,9 +52,11 @@ describe('ErrorBoundary', () => {
     }
 
     render(
-      <ErrorBoundary>
-        <FlakyOnce />
-      </ErrorBoundary>,
+      <LanguageProvider>
+        <ErrorBoundary>
+          <FlakyOnce />
+        </ErrorBoundary>
+      </LanguageProvider>,
     );
     expect(screen.getByRole('alert')).toBeInTheDocument();
 
@@ -61,9 +69,11 @@ describe('ErrorBoundary', () => {
 
   it('renders children when there is no error', () => {
     render(
-      <ErrorBoundary>
-        <p>All good</p>
-      </ErrorBoundary>,
+      <LanguageProvider>
+        <ErrorBoundary>
+          <p>All good</p>
+        </ErrorBoundary>
+      </LanguageProvider>,
     );
 
     expect(screen.getByText('All good')).toBeInTheDocument();

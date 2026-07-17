@@ -42,7 +42,7 @@ export function Shell() {
         className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded-md focus:bg-pitch-deep focus:px-4 focus:py-2 focus:text-body-sm focus:text-white"
         href="#main-content"
       >
-        Skip to content
+        {strings['shell.skipToContent']}
       </a>
 
       <header className="flex items-center justify-between bg-ops-bg px-gutter py-3 md:hidden">
@@ -54,7 +54,7 @@ export function Shell() {
           onClick={() => setNavOpen((open) => !open)}
           type="button"
         >
-          {navOpen ? 'Close menu' : 'Menu'}
+          {navOpen ? strings['shell.closeMenu'] : strings['shell.menu']}
         </button>
       </header>
 
@@ -114,7 +114,7 @@ export function Shell() {
         <Suspense
           fallback={
             <div className="flex min-h-[60vh] items-center justify-center text-pitch-deep">
-              <Spinner label="Loading module" size="lg" />
+              <Spinner label={strings['shell.loadingModule']} size="lg" />
             </div>
           }
         >

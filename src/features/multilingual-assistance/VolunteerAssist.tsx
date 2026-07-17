@@ -8,6 +8,7 @@ import { MAX_USER_INPUT_LENGTH, SUPPORTED_LANGUAGES } from '../../config/constan
 import { useLanguage } from '../../hooks/useLanguage';
 import { useUiStrings } from '../../hooks/useUiStrings';
 import { isRtlLanguage } from '../../utils/detectLanguage';
+import { formatUiString } from '../../utils/uiText';
 import { COMMON_QUESTIONS } from './commonQuestions';
 import { useVolunteerAssist, type VolunteerAnswer } from './useVolunteerAssist';
 
@@ -17,6 +18,7 @@ import { useVolunteerAssist, type VolunteerAnswer } from './useVolunteerAssist';
  * large enough to read from an outstretched phone in a crowded stand.
  */
 function AnswerPanels({ answer }: { answer: VolunteerAnswer }) {
+  const strings = useUiStrings();
   const fanLanguage = SUPPORTED_LANGUAGES.find(
     (option) => option.code === answer.translated?.language,
   );
@@ -24,14 +26,16 @@ function AnswerPanels({ answer }: { answer: VolunteerAnswer }) {
     <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
       <section className="rounded-xl border border-fan-border bg-fan-bg p-3.5">
         <h3 className="font-mono text-mono-tag font-bold uppercase text-fan-faint">
-          English — for you
+          {strings['volunteer.englishForYou']}
         </h3>
         <p className="mt-2 text-h3 text-fan-ink">{answer.english}</p>
       </section>
       {answer.translated ? (
         <section className="rounded-xl bg-pitch-tint p-3.5">
           <h3 className="font-mono text-mono-tag font-bold uppercase text-pitch-darker">
-            {fanLanguage ? `${fanLanguage.nativeLabel} — show the fan` : 'Show the fan'}
+            {formatUiString(strings['volunteer.showTheFan'], {
+              language: fanLanguage?.nativeLabel ?? answer.translated?.language ?? '',
+            })}
           </h3>
           <p
             className="mt-2 text-h3 text-pitch-darker"
@@ -65,15 +69,19 @@ export function VolunteerAssist() {
   return (
     <Card accent="pitch" className="flex flex-col">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="font-display text-h2 text-fan-ink">Common questions</h2>
+        <h2 className="font-display text-h2 text-fan-ink">
+          {strings['volunteer.commonQuestions']}
+        </h2>
         {answer?.source === 'mock' ? (
           <DemoDataBadge reason={answer.mockReason ?? undefined} />
         ) : null}
       </div>
       <p className="mt-1.5 text-body-sm text-fan-muted">
         {language === 'en'
-          ? 'Tap a question for the grounded answer. Pick a language in the sidebar to also get a show-the-fan translation.'
-          : `Tap a question — you read English, the fan reads ${languageOption?.label ?? language}.`}
+          ? strings['volunteer.introEnglish']
+          : formatUiString(strings['volunteer.introTranslated'], {
+              language: languageOption?.nativeLabel ?? language,
+            })}
       </p>
 
       <ul aria-label="Common questions" className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -85,7 +93,7 @@ export function VolunteerAssist() {
               onClick={() => ask(item.question)}
               type="button"
             >
-              {item.label}
+              {strings[item.labelKey]}
             </button>
           </li>
         ))}
@@ -93,9 +101,13 @@ export function VolunteerAssist() {
 
       {/* AI response region per CLAUDE.md accessibility rules */}
       <div aria-live="polite" className="mt-4 flex flex-col gap-3">
-        {isLoading ? <LoadingRow label="Fetching the grounded answer" /> : null}
+        {isLoading ? <LoadingRow label={strings['volunteer.fetching']} /> : null}
         {error !== null ? (
-          <ErrorState message={error} onRetry={retry} title="Answer failed" />
+          <ErrorState
+            message={strings['volunteer.answerFailed']}
+            onRetry={retry}
+            title={strings['volunteer.answerFailedTitle']}
+          />
         ) : null}
         {answer !== null && !isLoading && error === null ? <AnswerPanels answer={answer} /> : null}
       </div>
@@ -109,7 +121,7 @@ export function VolunteerAssist() {
         }}
       >
         <label className="text-label font-semibold text-fan-faint" htmlFor={inputId}>
-          Anything not on the grid
+          {strings['volunteer.anythingElse']}
         </label>
         <div className="flex gap-2">
           <input
@@ -118,7 +130,7 @@ export function VolunteerAssist() {
             id={inputId}
             maxLength={MAX_USER_INPUT_LENGTH}
             onChange={(event) => setDraft(event.target.value)}
-            placeholder="e.g. Where is the merchandise stand?"
+            placeholder={strings['placeholder.volunteerQuestion']}
             value={draft}
           />
           <Button disabled={isLoading || draft.trim().length === 0} size="sm" type="submit">

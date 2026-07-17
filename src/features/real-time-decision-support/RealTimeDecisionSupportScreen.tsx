@@ -47,7 +47,7 @@ export default function RealTimeDecisionSupportScreen() {
               message={strings['empty.incidentNotSelected']}
               showMascot={false}
               theme="ops"
-              title="No incident selected"
+              title={strings['rtds.noIncidentSelectedTitle']}
             />
           )}
           {role === 'organizer' ? <ScenarioPlanner /> : null}

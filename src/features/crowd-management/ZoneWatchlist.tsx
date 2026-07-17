@@ -2,8 +2,10 @@ import { Badge } from '../../components/ui/Badge';
 import { Card } from '../../components/ui/Card';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { CROWD_WATCHLIST_COUNT } from '../../config/constants';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import { findZoneLabel } from '../../services/data/stadiumLayout';
 import type { DensityReading } from '../../types/crowd';
+import { formatUiString } from '../../utils/uiText';
 
 interface ZoneWatchlistProps {
   readings: DensityReading[];
@@ -14,6 +16,7 @@ interface ZoneWatchlistProps {
  * label + occupancy — so the heatmap's meaning never depends on color alone.
  */
 export function ZoneWatchlist({ readings }: ZoneWatchlistProps) {
+  const strings = useUiStrings();
   const busiest = [...readings]
     .sort((a, b) => b.percentOfCapacity - a.percentOfCapacity)
     .slice(0, CROWD_WATCHLIST_COUNT);
@@ -22,18 +25,22 @@ export function ZoneWatchlist({ readings }: ZoneWatchlistProps) {
 
   return (
     <Card theme="ops">
-      <h2 className="font-display text-h2 text-ops-ink">Busiest zones</h2>
+      <h2 className="font-display text-h2 text-ops-ink">{strings['crowd.busiestZones']}</h2>
       <p className="mt-1.5 text-body-sm text-ops-muted">
-        {criticalCount} critical · {elevatedCount} elevated ·{' '}
-        {readings.length - criticalCount - elevatedCount} normal of {readings.length} zones
+        {formatUiString(strings['crowd.zoneSummary'], {
+          critical: criticalCount,
+          elevated: elevatedCount,
+          normal: readings.length - criticalCount - elevatedCount,
+          total: readings.length,
+        })}
       </p>
       {busiest.length === 0 ? (
         <div className="mt-4">
           <EmptyState
-            message="Sensor readings will appear here as soon as the sweep starts."
+            message={strings['crowd.noReadingsMessage']}
             showMascot={false}
             theme="ops"
-            title="No readings yet"
+            title={strings['crowd.noReadingsTitle']}
           />
         </div>
       ) : (
@@ -45,7 +52,7 @@ export function ZoneWatchlist({ readings }: ZoneWatchlistProps) {
             >
               <div className="flex items-center gap-2.5">
                 <Badge severity={reading.level} theme="ops">
-                  {reading.level}
+                  {strings[`severity.${reading.level}`]}
                 </Badge>
                 <span className="text-body-sm text-ops-body">{findZoneLabel(reading.zoneId)}</span>
               </div>

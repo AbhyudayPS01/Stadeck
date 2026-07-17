@@ -53,7 +53,9 @@ export default function AccessibilityScreen() {
       <div className="mt-section grid grid-cols-1 items-start gap-gutter xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
         <div className="flex flex-col gap-gutter">
           <Card>
-            <h2 className="font-display text-h2 text-fan-ink">Step-free route map</h2>
+            <h2 className="font-display text-h2 text-fan-ink">
+              {strings['accessibility.routeMap']}
+            </h2>
             <StadiumMap
               className="mt-4"
               onSelectGate={setGateId}
@@ -66,7 +68,9 @@ export default function AccessibilityScreen() {
         </div>
         <div className="flex flex-col gap-gutter">
           <Card accent="pitch">
-            <h2 className="font-display text-h2 text-fan-ink">Step-free route planner</h2>
+            <h2 className="font-display text-h2 text-fan-ink">
+              {strings['accessibility.routePlanner']}
+            </h2>
             <StepFreeRouteForm
               destinations={ACCESSIBLE_SECTIONS}
               gateId={gateId}

@@ -1,12 +1,17 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { LanguageProvider } from '../../context/LanguageProvider';
 import { AMENITIES, SECTIONS } from '../../services/data/stadiumLayout';
 import { StadiumMap } from './StadiumMap';
 
 describe('StadiumMap', () => {
   it('names the map for assistive technology', () => {
-    render(<StadiumMap />);
+    render(
+      <LanguageProvider>
+        <StadiumMap />
+      </LanguageProvider>,
+    );
 
     expect(
       screen.getByRole('group', { name: /Schematic seating map of MetLife Stadium/ }),
@@ -14,7 +19,11 @@ describe('StadiumMap', () => {
   });
 
   it('makes every section keyboard-focusable with an accessible name', () => {
-    render(<StadiumMap />);
+    render(
+      <LanguageProvider>
+        <StadiumMap />
+      </LanguageProvider>,
+    );
 
     const sections = screen.getAllByRole('button', { name: /^Section \d+/ });
     expect(sections).toHaveLength(SECTIONS.length);
@@ -24,14 +33,22 @@ describe('StadiumMap', () => {
   });
 
   it('names gates with their compass entrance', () => {
-    render(<StadiumMap />);
+    render(
+      <LanguageProvider>
+        <StadiumMap />
+      </LanguageProvider>,
+    );
 
     expect(screen.getByRole('button', { name: 'Gate A, north entrance' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Gate E, south entrance' })).toBeInTheDocument();
   });
 
   it('makes every amenity marker a keyboard-focusable popup toggle', () => {
-    render(<StadiumMap />);
+    render(
+      <LanguageProvider>
+        <StadiumMap />
+      </LanguageProvider>,
+    );
 
     const marker = screen.getByRole('button', { name: 'First Aid, near section 112' });
     expect(marker).toHaveAttribute('tabindex', '0');
@@ -42,7 +59,11 @@ describe('StadiumMap', () => {
   it('reports section selection from clicks and from the keyboard', async () => {
     const user = userEvent.setup();
     const onSelectSection = vi.fn();
-    render(<StadiumMap onSelectSection={onSelectSection} />);
+    render(
+      <LanguageProvider>
+        <StadiumMap onSelectSection={onSelectSection} />
+      </LanguageProvider>,
+    );
 
     await user.click(screen.getByRole('button', { name: 'Section 101, lower bowl' }));
     expect(onSelectSection).toHaveBeenCalledWith('sec-101');
@@ -55,7 +76,11 @@ describe('StadiumMap', () => {
   it('reports gate selection', async () => {
     const user = userEvent.setup();
     const onSelectGate = vi.fn();
-    render(<StadiumMap onSelectGate={onSelectGate} />);
+    render(
+      <LanguageProvider>
+        <StadiumMap onSelectGate={onSelectGate} />
+      </LanguageProvider>,
+    );
 
     await user.click(screen.getByRole('button', { name: 'Gate C, east entrance' }));
 
@@ -63,7 +88,11 @@ describe('StadiumMap', () => {
   });
 
   it('marks the selected section as pressed', () => {
-    render(<StadiumMap selectedSectionId="sec-105" />);
+    render(
+      <LanguageProvider>
+        <StadiumMap selectedSectionId="sec-105" />
+      </LanguageProvider>,
+    );
 
     expect(screen.getByRole('button', { name: 'Section 105, lower bowl' })).toHaveAttribute(
       'aria-pressed',
@@ -76,13 +105,21 @@ describe('StadiumMap', () => {
   });
 
   it('renders overlay layers above the base map', () => {
-    render(<StadiumMap overlays={<circle data-testid="overlay-dot" r="4" />} />);
+    render(
+      <LanguageProvider>
+        <StadiumMap overlays={<circle data-testid="overlay-dot" r="4" />} />
+      </LanguageProvider>,
+    );
 
     expect(screen.getByTestId('overlay-dot')).toBeInTheDocument();
   });
 
   it('scales through the viewBox with no fixed pixel dimensions', () => {
-    render(<StadiumMap />);
+    render(
+      <LanguageProvider>
+        <StadiumMap />
+      </LanguageProvider>,
+    );
 
     const svg = screen.getByRole('group', { name: /Schematic seating map/ });
     expect(svg).toHaveAttribute('viewBox', '0 0 600 600');
@@ -94,7 +131,11 @@ describe('StadiumMap', () => {
   it('gives every section an expanded touch target that selects it', async () => {
     const user = userEvent.setup();
     const onSelectSection = vi.fn();
-    const { container } = render(<StadiumMap onSelectSection={onSelectSection} />);
+    const { container } = render(
+      <LanguageProvider>
+        <StadiumMap onSelectSection={onSelectSection} />
+      </LanguageProvider>,
+    );
 
     const hitPaths = container.querySelectorAll('.map-section-hit');
     expect(hitPaths).toHaveLength(SECTIONS.length);
@@ -105,7 +146,11 @@ describe('StadiumMap', () => {
   it('gives every gate an enlarged touch circle that selects it', async () => {
     const user = userEvent.setup();
     const onSelectGate = vi.fn();
-    const { container } = render(<StadiumMap onSelectGate={onSelectGate} />);
+    const { container } = render(
+      <LanguageProvider>
+        <StadiumMap onSelectGate={onSelectGate} />
+      </LanguageProvider>,
+    );
 
     const hitCircles = container.querySelectorAll('.map-gate-hit');
     expect(hitCircles).toHaveLength(8);
@@ -115,19 +160,28 @@ describe('StadiumMap', () => {
 
   it('shows name, description, and nearby sections when an amenity is clicked', async () => {
     const user = userEvent.setup();
-    render(<StadiumMap />);
+    render(
+      <LanguageProvider>
+        <StadiumMap />
+      </LanguageProvider>,
+    );
 
     await user.click(screen.getByRole('button', { name: 'First Aid, near section 112' }));
 
     const popup = screen.getByRole('dialog', { name: 'First Aid details' });
     expect(popup).toHaveAttribute('aria-hidden', 'false');
     expect(popup).toHaveTextContent('Staffed medical station with trained personnel.');
-    expect(popup).toHaveTextContent('Near sections 111 · 112 · 113');
+    // The section list is bidi-isolated by formatUiString; '.' absorbs the marks.
+    expect(popup).toHaveTextContent(/Near sections .111 · 112 · 113./);
   });
 
   it('opens the amenity popup with Enter and closes it with Escape', async () => {
     const user = userEvent.setup();
-    render(<StadiumMap />);
+    render(
+      <LanguageProvider>
+        <StadiumMap />
+      </LanguageProvider>,
+    );
 
     const marker = screen.getByRole('button', { name: 'Restroom, near section 105' });
     marker.focus();
@@ -143,7 +197,11 @@ describe('StadiumMap', () => {
 
   it('toggles the popup closed when its marker is clicked again', async () => {
     const user = userEvent.setup();
-    render(<StadiumMap />);
+    render(
+      <LanguageProvider>
+        <StadiumMap />
+      </LanguageProvider>,
+    );
 
     const marker = screen.getByRole('button', { name: 'Concessions, near section 108' });
     await user.click(marker);
@@ -155,7 +213,11 @@ describe('StadiumMap', () => {
 
   it('dismisses the amenity popup on a click outside it', async () => {
     const user = userEvent.setup();
-    render(<StadiumMap />);
+    render(
+      <LanguageProvider>
+        <StadiumMap />
+      </LanguageProvider>,
+    );
 
     await user.click(screen.getByRole('button', { name: 'Merchandise, near section 110' }));
     expect(screen.getByRole('dialog', { name: 'Merchandise details' })).toBeInTheDocument();
@@ -166,7 +228,11 @@ describe('StadiumMap', () => {
 
   it('shows the emergency-exit warning with its Emergency header', async () => {
     const user = userEvent.setup();
-    render(<StadiumMap />);
+    render(
+      <LanguageProvider>
+        <StadiumMap />
+      </LanguageProvider>,
+    );
 
     await user.click(screen.getByRole('button', { name: 'Emergency Exit, near section 311' }));
 
@@ -179,7 +245,11 @@ describe('StadiumMap', () => {
 
   it('gives every amenity an enlarged touch circle that opens its popup', async () => {
     const user = userEvent.setup();
-    const { container } = render(<StadiumMap />);
+    const { container } = render(
+      <LanguageProvider>
+        <StadiumMap />
+      </LanguageProvider>,
+    );
 
     const hitCircles = container.querySelectorAll('.map-amenity-hit');
     expect(hitCircles).toHaveLength(AMENITIES.length);
@@ -188,7 +258,11 @@ describe('StadiumMap', () => {
   });
 
   it('reduces label density instead of shrinking text: minors classed or dropped', () => {
-    const { container } = render(<StadiumMap />);
+    const { container } = render(
+      <LanguageProvider>
+        <StadiumMap />
+      </LanguageProvider>,
+    );
 
     const labels = [...container.querySelectorAll('.map-section-label')];
     const labelText = labels.map((label) => label.textContent);

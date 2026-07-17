@@ -5,8 +5,10 @@ import { ErrorState } from '../../components/ui/ErrorState';
 import { LoadingRow } from '../../components/ui/LoadingRow';
 import { StepList } from '../../components/ui/StepList';
 import { useGemini } from '../../hooks/useGemini';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import { getNavigationDirections } from '../../services/gemini';
 import type { Gate, StadiumSection } from '../../types/stadium';
+import { formatUiString } from '../../utils/uiText';
 
 export interface DirectionsPanelProps {
   gate: Gate;
@@ -21,17 +23,21 @@ export interface DirectionsPanelProps {
 export function DirectionsPanel({ gate, section }: DirectionsPanelProps) {
   const fetcher = useCallback(() => getNavigationDirections(gate, section), [gate, section]);
   const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
+  const strings = useUiStrings();
 
   if (isLoading) {
-    return <LoadingRow label="Fetching directions" />;
+    return <LoadingRow label={strings['navigation.fetchingDirections']} />;
   }
 
   if (error !== null || data === null) {
     return (
       <ErrorState
-        message={`Directions from ${gate.label} to Section ${section.label} could not be fetched.`}
+        message={formatUiString(strings['navigation.directionsError'], {
+          gate: gate.label,
+          section: `Section ${section.label}`,
+        })}
         onRetry={refetch}
-        title="Directions unavailable"
+        title={strings['navigation.directionsUnavailable']}
       />
     );
   }
@@ -39,7 +45,9 @@ export function DirectionsPanel({ gate, section }: DirectionsPanelProps) {
   return (
     <div className="mt-3 flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
-        <Badge severity="normal">~{data.etaMinutes} min walk</Badge>
+        <Badge severity="normal">
+          {formatUiString(strings['navigation.minWalk'], { minutes: data.etaMinutes })}
+        </Badge>
         {source === 'mock' ? <DemoDataBadge reason={mockReason ?? undefined} /> : null}
       </div>
       {/* AI response region per CLAUDE.md accessibility rules */}

@@ -75,7 +75,7 @@ export function ConciergeChat() {
   return (
     <Card accent="pitch" className="flex flex-col">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="font-display text-h2 text-fan-ink">AI concierge</h2>
+        <h2 className="font-display text-h2 text-fan-ink">{strings['ml.aiConcierge']}</h2>
         {lastSource === 'mock' ? <DemoDataBadge reason={lastMockReason ?? undefined} /> : null}
       </div>
 
@@ -114,14 +114,18 @@ export function ConciergeChat() {
         {isSending ? <TypingIndicator /> : null}
         {error ? (
           <li>
-            <ErrorState message={error} onRetry={retry} title="Reply failed" />
+            <ErrorState
+              message={strings['ml.replyFailed']}
+              onRetry={retry}
+              title={strings['ml.replyFailedTitle']}
+            />
           </li>
         ) : null}
       </ul>
 
       {/* Mirrors the finished reply for assistive tech — the visible bubble streams word by word. */}
       <p aria-live="polite" className="sr-only">
-        {isSending ? 'The concierge is typing.' : lastAssistantText}
+        {isSending ? strings['ml.typing'] : lastAssistantText}
       </p>
 
       <form
@@ -133,7 +137,7 @@ export function ConciergeChat() {
         }}
       >
         <label className="text-label font-semibold text-fan-faint" htmlFor={inputId}>
-          Ask in any language
+          {strings['ml.askAnyLanguage']}
         </label>
         <div className="flex gap-2">
           <input
@@ -149,10 +153,8 @@ export function ConciergeChat() {
           </Button>
         </div>
         <p className={cx('text-label text-fan-faint', !detectedLanguage && 'invisible')}>
-          Detected: {detectedLanguage?.label ?? '—'}
-          {detectedLanguage && detectedLanguage.code !== 'en'
-            ? ` · ${detectedLanguage.nativeLabel}`
-            : ''}
+          {/* The autonym is language-neutral, so this line needs no per-language name table. */}
+          {strings['ml.detected']} {detectedLanguage?.nativeLabel ?? '—'}
         </p>
       </form>
     </Card>

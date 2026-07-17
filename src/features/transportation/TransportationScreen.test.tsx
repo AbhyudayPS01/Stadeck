@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { ignoringIsolates } from '../../test/textMatchers';
 import { LanguageProvider } from '../../context/LanguageProvider';
 import type { TransitOption } from '../../types/transportation';
 import TransportationScreen from './TransportationScreen';
@@ -84,7 +85,7 @@ describe('TransportationScreen — transit board', () => {
       </LanguageProvider>,
     );
 
-    expect(screen.getByText('120 min')).toBeInTheDocument();
+    expect(screen.getByText(ignoringIsolates('120 min'))).toBeInTheDocument();
     expect(screen.queryByText('999 min')).not.toBeInTheDocument();
   });
 });

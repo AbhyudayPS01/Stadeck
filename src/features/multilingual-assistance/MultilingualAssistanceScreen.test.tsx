@@ -167,7 +167,8 @@ describe('MultilingualAssistanceScreen — volunteer mode', () => {
     );
     renderScreen('volunteer', 'ar');
 
-    await user.click(screen.getByRole('button', { name: 'First aid' }));
+    // Chip labels follow the Arabic interface language.
+    await user.click(screen.getByRole('button', { name: 'الإسعافات الأولية' }));
 
     expect(
       await screen.findByText('First aid is next to sections 112 and 132.'),

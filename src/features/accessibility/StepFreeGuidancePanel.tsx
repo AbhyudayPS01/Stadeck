@@ -4,8 +4,10 @@ import { ErrorState } from '../../components/ui/ErrorState';
 import { LoadingRow } from '../../components/ui/LoadingRow';
 import { StepList } from '../../components/ui/StepList';
 import { useGemini } from '../../hooks/useGemini';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import { getStepFreeRoute } from '../../services/gemini';
 import type { Gate, StadiumSection } from '../../types/stadium';
+import { formatUiString } from '../../utils/uiText';
 
 export interface StepFreeGuidancePanelProps {
   gate: Gate;
@@ -16,17 +18,21 @@ export interface StepFreeGuidancePanelProps {
 export function StepFreeGuidancePanel({ gate, section }: StepFreeGuidancePanelProps) {
   const fetcher = useCallback(() => getStepFreeRoute(gate, section), [gate, section]);
   const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
+  const strings = useUiStrings();
 
   if (isLoading) {
-    return <LoadingRow label="Planning step-free route" />;
+    return <LoadingRow label={strings['accessibility.planningRoute']} />;
   }
 
   if (error !== null || data === null) {
     return (
       <ErrorState
-        message={`The step-free route from ${gate.label} to Section ${section.label} could not be planned.`}
+        message={formatUiString(strings['accessibility.routeError'], {
+          gate: gate.label,
+          section: `Section ${section.label}`,
+        })}
         onRetry={refetch}
-        title="Route unavailable"
+        title={strings['accessibility.routeUnavailable']}
       />
     );
   }
@@ -44,7 +50,9 @@ export function StepFreeGuidancePanel({ gate, section }: StepFreeGuidancePanelPr
         <p className="mt-2 rounded-md bg-pitch-tint px-3 py-2 text-body-sm text-pitch-darker">
           {data.recommendedRoute}
         </p>
-        <h3 className="mt-3 font-display text-h3 text-fan-ink">At your seating area</h3>
+        <h3 className="mt-3 font-display text-h3 text-fan-ink">
+          {strings['accessibility.atYourSeatingArea']}
+        </h3>
         <StepList items={data.accommodations} />
       </div>
     </div>

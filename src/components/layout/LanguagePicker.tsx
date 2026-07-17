@@ -1,6 +1,7 @@
 import { useId } from 'react';
 import { SUPPORTED_LANGUAGES } from '../../config/constants';
 import { useLanguage } from '../../hooks/useLanguage';
+import { useUiStrings } from '../../hooks/useUiStrings';
 
 /**
  * The interface language preference. Switches the static string table
@@ -11,12 +12,13 @@ import { useLanguage } from '../../hooks/useLanguage';
  */
 export function LanguagePicker() {
   const { language, setLanguage } = useLanguage();
+  const strings = useUiStrings();
   const id = useId();
 
   return (
     <div className="flex flex-col gap-1.5">
       <label className="text-label font-semibold text-ops-faint" htmlFor={id}>
-        Interface language
+        {strings['shell.interfaceLanguage']}
       </label>
       <select
         className="rounded-md border border-ops-border bg-ops-surface px-3 py-2 text-body-sm text-ops-body focus-visible:outline-none focus-visible:shadow-inputfocus"

@@ -46,7 +46,7 @@ export default function NavigationScreen() {
       </p>
       <div className="mt-section grid grid-cols-1 items-start gap-gutter xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
         <Card>
-          <h2 className="font-display text-h2 text-fan-ink">Stadium map</h2>
+          <h2 className="font-display text-h2 text-fan-ink">{strings['navigation.stadiumMap']}</h2>
           <StadiumMap
             className="mt-4"
             onSelectGate={setGateId}
@@ -58,7 +58,9 @@ export default function NavigationScreen() {
         </Card>
         <div className="flex flex-col gap-gutter">
           <Card accent="gold">
-            <h2 className="font-display text-h2 text-fan-ink">Plan your route</h2>
+            <h2 className="font-display text-h2 text-fan-ink">
+              {strings['navigation.planYourRoute']}
+            </h2>
             <RoutePlannerForm
               gateId={gateId}
               onGateChange={setGateId}
