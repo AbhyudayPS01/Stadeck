@@ -1,6 +1,6 @@
 import { Card } from '../../components/ui/Card';
 import { StatTile } from '../../components/ui/StatTile';
-import { STADIUM_CAPACITY } from '../../config/constants';
+import { DEFAULT_VENUE } from '../../services/data/venues';
 import { useUiStrings } from '../../hooks/useUiStrings';
 import type { SustainabilityMetrics } from '../../types/sustainability';
 import { estimateCrowdCarbonTonnes } from '../../utils/carbon';
@@ -24,7 +24,7 @@ export function SustainabilityDashboard({ metrics }: SustainabilityDashboardProp
   const transitPercent = clamp(metrics.transitModeSharePercent, 0, 100);
   const waterLiters = clamp(metrics.waterUsageLiters, 0, Number.MAX_SAFE_INTEGER);
   const offsetKg = clamp(metrics.carbonOffsetKg, 0, Number.MAX_SAFE_INTEGER);
-  const crowdCarbonTonnes = estimateCrowdCarbonTonnes(STADIUM_CAPACITY, transitPercent);
+  const crowdCarbonTonnes = estimateCrowdCarbonTonnes(DEFAULT_VENUE.capacity, transitPercent);
 
   return (
     <Card>
@@ -65,7 +65,7 @@ export function SustainabilityDashboard({ metrics }: SustainabilityDashboardProp
         />
         <StatTile
           caption={formatUiString(strings['sustainability.crowdCarbonCaption'], {
-            count: formatCount(STADIUM_CAPACITY),
+            count: formatCount(DEFAULT_VENUE.capacity),
           })}
           label={strings['sustainability.crowdCarbon']}
           value={`~${formatCount(crowdCarbonTonnes)} t`}

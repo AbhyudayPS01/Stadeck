@@ -1,3 +1,4 @@
+import { DEFAULT_VENUE_ID } from '../../config/constants';
 import type {
   Amenity,
   AmenityType,
@@ -5,48 +6,68 @@ import type {
   Gate,
   SectionTier,
   StadiumSection,
+  VenueLayout,
 } from '../../types/stadium';
+import type { Venue } from '../../types/venue';
 import { angularDistanceDegrees } from '../../utils/geometry';
+import { clamp } from '../../utils/numbers';
+import { AMENITY_DESCRIPTIONS, AMENITY_LABELS, AMENITY_PLAN } from './stadiumAmenities';
+import { findVenue } from './venues';
 
 /**
- * Typed JSON config for the schematic stadium map — the map component maps
- * this straight to SVG elements, never hand-draws paths. Capacities and
- * counts are illustrative approximations of an 82,500-seat World Cup Final
- * venue, not MetLife Stadium's real seating chart.
+ * Generates each venue's typed schematic-map config — the map component maps
+ * a VenueLayout straight to SVG elements, never hand-draws paths. Section
+ * counts derive from registry capacity, so every layout is an illustrative
+ * approximation of that venue at tournament configuration, not its real
+ * seating chart.
  */
 
-interface TierConfig {
+export { AMENITY_LABELS } from './stadiumAmenities';
+
+interface TierPlan {
   tier: SectionTier;
   startNumber: number;
-  count: number;
+  /** Share of total venue capacity this tier absorbs — an approximate three-ring bowl profile. */
+  capacityShare: number;
+  /** Seats per section, fixed per tier so section granularity feels consistent across venues. */
   capacityPerSection: number;
 }
 
-const TIER_CONFIGS: readonly TierConfig[] = [
-  { tier: 'lower', startNumber: 101, count: 40, capacityPerSection: 900 },
-  { tier: 'club', startNumber: 201, count: 16, capacityPerSection: 500 },
-  { tier: 'upper', startNumber: 301, count: 40, capacityPerSection: 955 },
+const TIER_PLANS: readonly TierPlan[] = [
+  { tier: 'lower', startNumber: 101, capacityShare: 0.44, capacityPerSection: 900 },
+  { tier: 'club', startNumber: 201, capacityShare: 0.1, capacityPerSection: 500 },
+  { tier: 'upper', startNumber: 301, capacityShare: 0.46, capacityPerSection: 955 },
 ];
 
-function buildSections(): StadiumSection[] {
-  return TIER_CONFIGS.flatMap((config) => {
-    const angleStep = 360 / config.count;
-    return Array.from({ length: config.count }, (_, index) => {
+/**
+ * Section counts snap to multiples of 4 so every ring is quarter-symmetric
+ * and the four cardinal emergency exits land on distinct sections at any
+ * venue size. Bounds keep tiny/huge capacities from degenerating the ring
+ * (fewer than 8 sections) or overflowing a tier's hundred-number block.
+ */
+function sectionCountFor(plan: TierPlan, capacity: number): number {
+  const quarters = Math.round((plan.capacityShare * capacity) / plan.capacityPerSection / 4);
+  return 4 * clamp(quarters, 2, 12);
+}
+
+function buildSections(capacity: number): StadiumSection[] {
+  return TIER_PLANS.flatMap((plan) => {
+    const count = sectionCountFor(plan, capacity);
+    const angleStep = 360 / count;
+    return Array.from({ length: count }, (_, index) => {
       const angleStart = index * angleStep;
-      const number = config.startNumber + index;
+      const number = plan.startNumber + index;
       return {
         id: `sec-${number}`,
         label: String(number),
-        tier: config.tier,
-        capacity: config.capacityPerSection,
+        tier: plan.tier,
+        capacity: plan.capacityPerSection,
         angleStart,
         angleEnd: angleStart + angleStep,
       };
     });
   });
 }
-
-export const SECTIONS: readonly StadiumSection[] = buildSections();
 
 /** Human-readable tier names, shared by map accessible labels and AI prompts. */
 export const TIER_NAMES: Record<SectionTier, string> = {
@@ -66,6 +87,7 @@ const GATE_DEFINITIONS: ReadonlyArray<{ label: string; compassPoint: CompassPoin
   { label: 'H', compassPoint: 'NW' },
 ];
 
+/** Gates A–H at compass points — a schematic convention shared by every venue. */
 export const GATES: readonly Gate[] = GATE_DEFINITIONS.map((definition, index) => ({
   id: `gate-${definition.label.toLowerCase()}`,
   label: `Gate ${definition.label}`,
@@ -73,98 +95,84 @@ export const GATES: readonly Gate[] = GATE_DEFINITIONS.map((definition, index) =
   angle: index * 45,
 }));
 
-/** Display name per amenity type, shared by markers, the detail popup, and the map legend. */
-export const AMENITY_LABELS: Record<AmenityType, string> = {
-  restroom: 'Restroom',
-  food: 'Concessions',
-  water: 'Water Refill Station',
-  'first-aid': 'First Aid',
-  'accessible-seating': 'Accessible Seating',
-  merchandise: 'Merchandise',
-  'guest-services': 'Guest Services',
-  'prayer-room': 'Prayer & Quiet Room',
-  'family-reunification': 'Family Reunification',
-  'emergency-exit': 'Emergency Exit',
-};
+function buildAmenities(sections: readonly StadiumSection[]): Amenity[] {
+  return AMENITY_PLAN.map((entry, index) => {
+    const ring = sections.filter((section) => section.tier === entry.tier);
+    const anchor = ring[Math.floor(entry.ringFraction * ring.length)];
+    if (anchor === undefined) {
+      throw new Error(`Amenity plan entry ${index} resolves outside the ${entry.tier} ring`);
+    }
+    return {
+      id: `amenity-${entry.type}-${index + 1}`,
+      type: entry.type,
+      label: AMENITY_LABELS[entry.type],
+      description: AMENITY_DESCRIPTIONS[entry.type],
+      sectionId: anchor.id,
+      angle: entry.angle,
+    };
+  });
+}
 
-/** One-line fan-facing description per amenity type, shown in the map popup. */
-const AMENITY_DESCRIPTIONS: Record<AmenityType, string> = {
-  restroom: 'Public restrooms on the main concourse.',
-  food: 'Food and drink stands with local and international options.',
-  water: 'Free filtered water available.',
-  'first-aid': 'Staffed medical station with trained personnel.',
-  'accessible-seating': 'Wheelchair-accessible seating area with companion seats.',
-  merchandise: 'Official tournament merchandise and souvenirs.',
-  'guest-services': 'Help desk for tickets, lost and found, and general questions.',
-  'prayer-room': 'Multi-faith prayer room and sensory quiet space.',
-  'family-reunification':
-    'Meeting point for separated groups and lost children, staffed by Guest Services.',
-  'emergency-exit': 'Follow staff instructions. Do not use during normal operations.',
-};
+/**
+ * Layouts are deterministic per venue, so each is generated once and cached —
+ * screens, facts, and prompt builders all share the same object identity.
+ */
+const layoutCache = new Map<string, VenueLayout>();
 
-const AMENITY_DEFINITIONS: ReadonlyArray<{
-  type: AmenityType;
-  sectionLabel: string;
-  angle: number;
-}> = [
-  { type: 'restroom', sectionLabel: '105', angle: 20 },
-  { type: 'restroom', sectionLabel: '115', angle: 110 },
-  { type: 'restroom', sectionLabel: '125', angle: 200 },
-  { type: 'restroom', sectionLabel: '135', angle: 290 },
-  { type: 'food', sectionLabel: '108', angle: 50 },
-  { type: 'food', sectionLabel: '118', angle: 140 },
-  { type: 'food', sectionLabel: '128', angle: 230 },
-  { type: 'food', sectionLabel: '138', angle: 320 },
-  { type: 'first-aid', sectionLabel: '112', angle: 90 },
-  { type: 'first-aid', sectionLabel: '132', angle: 270 },
-  { type: 'accessible-seating', sectionLabel: '101', angle: 5 },
-  { type: 'accessible-seating', sectionLabel: '120', angle: 175 },
-  { type: 'merchandise', sectionLabel: '110', angle: 80 },
-  { type: 'merchandise', sectionLabel: '130', angle: 260 },
-  { type: 'guest-services', sectionLabel: '103', angle: 15 },
-  { type: 'guest-services', sectionLabel: '123', angle: 195 },
-  // Water refill stations sit midway between the existing marker clusters so
-  // every eighth of the main concourse has one within a short walk.
-  { type: 'water', sectionLabel: '104', angle: 35 },
-  { type: 'water', sectionLabel: '108', angle: 65 },
-  { type: 'water', sectionLabel: '114', angle: 125 },
-  { type: 'water', sectionLabel: '118', angle: 155 },
-  { type: 'water', sectionLabel: '124', angle: 215 },
-  { type: 'water', sectionLabel: '128', angle: 245 },
-  { type: 'water', sectionLabel: '134', angle: 305 },
-  { type: 'water', sectionLabel: '138', angle: 335 },
-  // Prayer & quiet rooms beside the two first-aid stations (calm, staffed
-  // corners of the concourse); the reunification point sits beside Guest
-  // Services at 123 so lost-child handoffs happen next to staff.
-  { type: 'prayer-room', sectionLabel: '112', angle: 100 },
-  { type: 'prayer-room', sectionLabel: '132', angle: 280 },
-  { type: 'family-reunification', sectionLabel: '121', angle: 185 },
-  // Emergency exits at the four cardinal bearings, anchored to the upper
-  // bowl: they render on the upper concourse ring, not the main one — see
-  // EMERGENCY_EXIT_RADIUS in mapGeometry for why.
-  { type: 'emergency-exit', sectionLabel: '301', angle: 0 },
-  { type: 'emergency-exit', sectionLabel: '311', angle: 90 },
-  { type: 'emergency-exit', sectionLabel: '321', angle: 180 },
-  { type: 'emergency-exit', sectionLabel: '331', angle: 270 },
-];
+function buildVenueLayout(venue: Venue): VenueLayout {
+  const sections = buildSections(venue.capacity);
+  return { venueId: venue.id, sections, gates: GATES, amenities: buildAmenities(sections) };
+}
 
-export const AMENITIES: readonly Amenity[] = AMENITY_DEFINITIONS.map((definition, index) => ({
-  id: `amenity-${definition.type}-${index + 1}`,
-  type: definition.type,
-  label: AMENITY_LABELS[definition.type],
-  description: AMENITY_DESCRIPTIONS[definition.type],
-  sectionId: `sec-${definition.sectionLabel}`,
-  angle: definition.angle,
-}));
+/**
+ * The generated schematic layout for a registered venue.
+ *
+ * @param venueId A registry id from services/data/venues.ts.
+ * @returns The memoised layout for that venue.
+ * @throws When the id is not in the venue registry.
+ */
+export function getVenueLayout(venueId: string): VenueLayout {
+  const cached = layoutCache.get(venueId);
+  if (cached) {
+    return cached;
+  }
+  const venue = findVenue(venueId);
+  if (!venue) {
+    throw new Error(`Unknown venue id "${venueId}" — see services/data/venues.ts`);
+  }
+  const layout = buildVenueLayout(venue);
+  layoutCache.set(venueId, layout);
+  return layout;
+}
 
-const ZONE_LABELS = new Map<string, string>([
-  ...SECTIONS.map((section) => [section.id, `Section ${section.label}`] as const),
-  ...GATES.map((gate) => [gate.id, gate.label] as const),
-]);
+/** Layout of the default demo venue — the one every screen currently renders. */
+export const DEFAULT_VENUE_LAYOUT: VenueLayout = getVenueLayout(DEFAULT_VENUE_ID);
+
+/** Sections of the default venue layout — shorthand for the current screens. */
+export const SECTIONS: readonly StadiumSection[] = DEFAULT_VENUE_LAYOUT.sections;
+
+/** Amenities of the default venue layout — shorthand for the current screens. */
+export const AMENITIES: readonly Amenity[] = DEFAULT_VENUE_LAYOUT.amenities;
+
+/** Zone-label maps are derived per layout on first use, then reused for every lookup. */
+const zoneLabelCache = new WeakMap<VenueLayout, Map<string, string>>();
+
+function zoneLabelsFor(layout: VenueLayout): Map<string, string> {
+  const cached = zoneLabelCache.get(layout);
+  if (cached) {
+    return cached;
+  }
+  const labels = new Map<string, string>([
+    ...layout.sections.map((section) => [section.id, `Section ${section.label}`] as const),
+    ...layout.gates.map((gate) => [gate.id, gate.label] as const),
+  ]);
+  zoneLabelCache.set(layout, labels);
+  return labels;
+}
 
 /** Human-readable name for a sensor zone id, e.g. "sec-118" → "Section 118", "gate-a" → "Gate A". */
-export function findZoneLabel(zoneId: string): string {
-  return ZONE_LABELS.get(zoneId) ?? zoneId;
+export function findZoneLabel(zoneId: string, layout: VenueLayout = DEFAULT_VENUE_LAYOUT): string {
+  return zoneLabelsFor(layout).get(zoneId) ?? zoneId;
 }
 
 /** Bare section number from a section id, e.g. "sec-118" → "118". */
@@ -195,8 +203,12 @@ function nearestByAngle<T>(items: readonly T[], angleOf: (item: T) => number, ta
  * The amenity of a given type with the smallest walk around the concourse
  * ring from a section — powers the "nearest restroom / food" callouts.
  */
-export function nearestAmenity(section: StadiumSection, type: AmenityType): Amenity {
-  const candidates = AMENITIES.filter((amenity) => amenity.type === type);
+export function nearestAmenity(
+  section: StadiumSection,
+  type: AmenityType,
+  layout: VenueLayout = DEFAULT_VENUE_LAYOUT,
+): Amenity {
+  const candidates = layout.amenities.filter((amenity) => amenity.type === type);
   return nearestByAngle(candidates, (amenity) => amenity.angle, sectionMidAngle(section));
 }
 
@@ -210,12 +222,15 @@ export function nearestGate(section: StadiumSection): Gate {
  * neighbour on either side, wrapping across the tier's 0° seam — powers the
  * "near sections" line in the map's amenity popup.
  */
-export function amenityNearbySectionLabels(amenity: Amenity): string[] {
-  const anchor = SECTIONS.find((section) => section.id === amenity.sectionId);
+export function amenityNearbySectionLabels(
+  amenity: Amenity,
+  layout: VenueLayout = DEFAULT_VENUE_LAYOUT,
+): string[] {
+  const anchor = layout.sections.find((section) => section.id === amenity.sectionId);
   if (anchor === undefined) {
     return [sectionNumber(amenity.sectionId)];
   }
-  const ring = SECTIONS.filter((section) => section.tier === anchor.tier);
+  const ring = layout.sections.filter((section) => section.tier === anchor.tier);
   const index = ring.indexOf(anchor);
   // ?? anchor is unreachable (ring always contains anchor) but keeps index
   // access total under strict checking.

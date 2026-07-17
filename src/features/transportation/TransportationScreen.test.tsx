@@ -22,7 +22,7 @@ const getTransitOptionsMock = vi.mocked(getTransitOptions);
 
 const FIXED_OPTIONS: TransitOption[] = [
   {
-    id: 'nj-transit-rail',
+    id: 'venue-rail',
     mode: 'rail',
     label: 'NJ Transit Rail — Meadowlands Line',
     etaMinutes: 12,
@@ -41,7 +41,7 @@ const FIXED_OPTIONS: TransitOption[] = [
 
 const STRATEGY = {
   summary: 'Rail is your best option tonight.',
-  recommendedOptionId: 'nj-transit-rail',
+  recommendedOptionId: 'venue-rail',
   departureWindow: 'Leave your seat between 5:05 and 5:15 PM',
   steps: ['4:50 PM — final whistle, stay seated.', '5:15 PM — walk to the rail platform.'],
 };

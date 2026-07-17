@@ -1,5 +1,7 @@
 import type { TransitMode, TransitOption, TransitStatus } from '../../types/transportation';
+import type { Venue } from '../../types/venue';
 import { randomInt } from './random';
+import { DEFAULT_VENUE } from './venues';
 
 interface TransitTemplate {
   id: string;
@@ -8,23 +10,40 @@ interface TransitTemplate {
   baseEtaMinutes: number;
 }
 
-const TRANSIT_TEMPLATES: readonly TransitTemplate[] = [
-  {
-    id: 'nj-transit-rail',
-    mode: 'rail',
-    label: 'NJ Transit Rail — Meadowlands Line',
-    baseEtaMinutes: 12,
-  },
-  { id: 'coach-bus', mode: 'bus', label: 'Coach Express Bus', baseEtaMinutes: 18 },
-  { id: 'rideshare-zone', mode: 'rideshare', label: 'Rideshare Pickup — Lot E', baseEtaMinutes: 8 },
-  { id: 'lot-g-parking', mode: 'parking', label: 'Lot G Parking', baseEtaMinutes: 5 },
-  {
-    id: 'walk-secaucus',
-    mode: 'walk',
-    label: 'Walking Path from Secaucus Junction',
-    baseEtaMinutes: 22,
-  },
-];
+/**
+ * The five board rows, labelled from the venue's registry entry. Ids are
+ * venue-independent so mock Gemini recommendations (which name an option id)
+ * stay valid at every venue.
+ */
+function transitTemplatesFor(venue: Venue): TransitTemplate[] {
+  return [
+    {
+      id: 'venue-rail',
+      mode: 'rail',
+      label: `${venue.rail.service} — ${venue.rail.line}`,
+      baseEtaMinutes: 12,
+    },
+    { id: 'coach-bus', mode: 'bus', label: 'Coach Express Bus', baseEtaMinutes: 18 },
+    {
+      id: 'rideshare-zone',
+      mode: 'rideshare',
+      label: `Rideshare Pickup — ${venue.rideshareLot}`,
+      baseEtaMinutes: 8,
+    },
+    {
+      id: 'venue-parking',
+      mode: 'parking',
+      label: `${venue.parkingLot} Parking`,
+      baseEtaMinutes: 5,
+    },
+    {
+      id: 'walk-transit-hub',
+      mode: 'walk',
+      label: `Walking Path from ${venue.rail.hub}`,
+      baseEtaMinutes: 22,
+    },
+  ];
+}
 
 export function statusForDelay(delayMinutes: number): TransitStatus {
   if (delayMinutes >= 10) return 'disrupted';
@@ -32,9 +51,14 @@ export function statusForDelay(delayMinutes: number): TransitStatus {
   return 'on-time';
 }
 
-/** Simulated live transit board for MetLife Stadium arrivals and departures. */
-export function getTransitOptions(): TransitOption[] {
-  return TRANSIT_TEMPLATES.map((template) => {
+/**
+ * Simulated live transit board for a venue's arrivals and departures.
+ *
+ * @param venue The venue whose board to simulate; defaults to the demo venue.
+ * @returns All five options with fresh ETAs, statuses, and crowding levels.
+ */
+export function getTransitOptions(venue: Venue = DEFAULT_VENUE): TransitOption[] {
+  return transitTemplatesFor(venue).map((template) => {
     const delayMinutes = randomInt(-3, 12);
     const etaMinutes = Math.max(1, template.baseEtaMinutes + delayMinutes);
     return {

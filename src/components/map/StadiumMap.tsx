@@ -1,5 +1,5 @@
 import { memo, useCallback, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { STADIUM_NAME } from '../../config/constants';
+import { DEFAULT_VENUE } from '../../services/data/venues';
 import { AMENITIES, GATES, SECTIONS, TIER_NAMES } from '../../services/data/stadiumLayout';
 import type { SectionTier, StadiumSection } from '../../types/stadium';
 import { cx } from '../../utils/cx';
@@ -173,7 +173,7 @@ export function StadiumMap({
   return (
     <div className={cx('relative', className)}>
       <svg
-        aria-label={`Schematic seating map of ${STADIUM_NAME}`}
+        aria-label={`Schematic seating map of ${DEFAULT_VENUE.name}`}
         className="h-auto w-full"
         preserveAspectRatio="xMidYMid meet"
         role="group"

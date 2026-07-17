@@ -91,7 +91,7 @@ export function mockTransportationResponse(): TransportationResponse {
   return {
     summary:
       'Rail is your best post-match option: it clears the biggest share of the crowd and avoids the parking-lot surge.',
-    recommendedOptionId: 'nj-transit-rail',
+    recommendedOptionId: 'venue-rail',
     departureWindow: 'Leave your seat between 5:05 and 5:15 PM',
     steps: [
       '4:50 PM — final whistle. Stay seated for the trophy ceremony; concourses are packed.',

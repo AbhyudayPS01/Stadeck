@@ -1,4 +1,5 @@
 import { getStadiumFactsContext } from '../data/stadiumFacts';
+import { DEFAULT_VENUE } from '../data/venues';
 import type { Announcement } from '../../types/announcement';
 import type { DensityReading } from '../../types/crowd';
 import type { Incident } from '../../types/incident';
@@ -6,6 +7,7 @@ import type { KpiSnapshot } from '../../types/operational';
 import type { Gate, StadiumSection } from '../../types/stadium';
 import type { SustainabilityMetrics } from '../../types/sustainability';
 import type { TransitOption } from '../../types/transportation';
+import type { Venue } from '../../types/venue';
 import { detectLanguage } from '../../utils/detectLanguage';
 import { callFeature, type GeminiResult } from './callFeature';
 import {
@@ -69,6 +71,8 @@ import {
  * fallback exists because international fans are on expensive roaming inside
  * a congested bowl — the app must never present a dead end, with zero
  * connectivity and zero API key (see callFeature for the full rationale).
+ * Every function takes an optional trailing venue so prompts are grounded in
+ * the venue being rendered; it defaults to the demo venue.
  */
 export type { GeminiResult, MockReason } from './callFeature';
 
@@ -76,10 +80,11 @@ export type { GeminiResult, MockReason } from './callFeature';
 export async function getNavigationDirections(
   gate: Gate,
   section: StadiumSection,
+  venue: Venue = DEFAULT_VENUE,
 ): Promise<GeminiResult<NavigationResponse>> {
   return callFeature(
     'navigation',
-    buildNavigationPrompt({ gate, section }),
+    buildNavigationPrompt({ gate, section, venue }),
     isNavigationResponse,
     () => mockNavigationResponse(gate.label, section.label),
   );
@@ -88,10 +93,11 @@ export async function getNavigationDirections(
 /** Gate/steward recommendations and a congestion forecast over the live sensor sweep. */
 export async function getCrowdManagementSummary(
   readings: DensityReading[],
+  venue: Venue = DEFAULT_VENUE,
 ): Promise<GeminiResult<CrowdManagementResponse>> {
   return callFeature(
     'crowd-management',
-    buildCrowdManagementPrompt({ readings }),
+    buildCrowdManagementPrompt({ readings, venue }),
     isCrowdManagementResponse,
     mockCrowdManagementResponse,
   );
@@ -101,10 +107,11 @@ export async function getCrowdManagementSummary(
 export async function getStepFreeRoute(
   gate: Gate,
   section: StadiumSection,
+  venue: Venue = DEFAULT_VENUE,
 ): Promise<GeminiResult<AccessibilityResponse>> {
   return callFeature(
     'accessibility',
-    buildAccessibilityPrompt({ gate, section }),
+    buildAccessibilityPrompt({ gate, section, venue }),
     isAccessibilityResponse,
     () => mockAccessibilityResponse(gate.label, section.label),
   );
@@ -113,10 +120,11 @@ export async function getStepFreeRoute(
 /** "Access Companion": rewrites a venue announcement into plain language. */
 export async function getPlainLanguageRewrite(
   announcement: Announcement,
+  venue: Venue = DEFAULT_VENUE,
 ): Promise<GeminiResult<PlainLanguageResponse>> {
   return callFeature(
     'plain-language',
-    buildPlainLanguagePrompt({ message: announcement.message }),
+    buildPlainLanguagePrompt({ message: announcement.message, venue }),
     isPlainLanguageResponse,
     () => mockPlainLanguageResponse(announcement),
   );
@@ -126,10 +134,11 @@ export async function getPlainLanguageRewrite(
 export async function getTransportationRecommendation(
   options: TransitOption[],
   destination: string,
+  venue: Venue = DEFAULT_VENUE,
 ): Promise<GeminiResult<TransportationResponse>> {
   return callFeature(
     'transportation',
-    buildTransportationPrompt({ options, destination }),
+    buildTransportationPrompt({ options, destination, venue }),
     isTransportationResponse,
     mockTransportationResponse,
   );
@@ -138,10 +147,11 @@ export async function getTransportationRecommendation(
 /** Per-fan eco-actions grounded in the live venue metrics. */
 export async function getSustainabilityTips(
   metrics: SustainabilityMetrics,
+  venue: Venue = DEFAULT_VENUE,
 ): Promise<GeminiResult<SustainabilityResponse>> {
   return callFeature(
     'sustainability',
-    buildSustainabilityPrompt({ metrics }),
+    buildSustainabilityPrompt({ metrics, venue }),
     isSustainabilityResponse,
     mockSustainabilityResponse,
   );
@@ -150,10 +160,11 @@ export async function getSustainabilityTips(
 /** Organizer sustainability match report over the same venue metrics. */
 export async function getSustainabilityReport(
   metrics: SustainabilityMetrics,
+  venue: Venue = DEFAULT_VENUE,
 ): Promise<GeminiResult<SustainabilityReportResponse>> {
   return callFeature(
     'sustainability-report',
-    buildSustainabilityReportPrompt({ metrics }),
+    buildSustainabilityReportPrompt({ metrics, venue }),
     isSustainabilityReportResponse,
     mockSustainabilityReportResponse,
   );
@@ -166,11 +177,12 @@ export async function getSustainabilityReport(
  */
 export async function getMultilingualReply(
   message: string,
+  venue: Venue = DEFAULT_VENUE,
 ): Promise<GeminiResult<MultilingualAssistanceResponse>> {
   const detected = detectLanguage(message);
   return callFeature(
     'multilingual-assistance',
-    buildMultilingualAssistancePrompt({ message, facts: getStadiumFactsContext() }),
+    buildMultilingualAssistancePrompt({ message, facts: getStadiumFactsContext(venue), venue }),
     isMultilingualAssistanceResponse,
     () => mockMultilingualAssistanceResponse(detected),
   );
@@ -186,13 +198,15 @@ export async function getMultilingualReply(
 export async function getVolunteerAnswer(
   question: string,
   targetLanguage: string,
+  venue: Venue = DEFAULT_VENUE,
 ): Promise<GeminiResult<MultilingualAssistanceResponse>> {
   return callFeature(
     targetLanguage === 'en' ? 'multilingual-assistance' : 'volunteer-assist-translation',
     buildMultilingualAssistancePrompt({
       message: question,
-      facts: getStadiumFactsContext(),
+      facts: getStadiumFactsContext(venue),
       targetLanguage,
+      venue,
     }),
     isMultilingualAssistanceResponse,
     () => mockMultilingualAssistanceResponse(targetLanguage),
@@ -203,10 +217,11 @@ export async function getVolunteerAnswer(
 export async function getAnnouncementTranslation(
   announcement: Announcement,
   targetLanguage: string,
+  venue: Venue = DEFAULT_VENUE,
 ): Promise<GeminiResult<AnnouncementTranslationResponse>> {
   return callFeature(
     'announcement-translation',
-    buildAnnouncementTranslationPrompt({ message: announcement.message, targetLanguage }),
+    buildAnnouncementTranslationPrompt({ message: announcement.message, targetLanguage, venue }),
     isAnnouncementTranslationResponse,
     () => mockAnnouncementTranslationResponse(announcement, targetLanguage),
   );
@@ -215,10 +230,11 @@ export async function getAnnouncementTranslation(
 /** On-demand executive briefing over the organizer KPI snapshot. */
 export async function getOperationalIntelligenceSummary(
   kpis: KpiSnapshot[],
+  venue: Venue = DEFAULT_VENUE,
 ): Promise<GeminiResult<OperationalIntelligenceResponse>> {
   return callFeature(
     'operational-intelligence',
-    buildOperationalIntelligencePrompt({ kpis }),
+    buildOperationalIntelligencePrompt({ kpis, venue }),
     isOperationalIntelligenceResponse,
     mockOperationalIntelligenceResponse,
   );
@@ -227,10 +243,11 @@ export async function getOperationalIntelligenceSummary(
 /** Structured action plan (actions, teams, escalation criteria) for a reported incident. */
 export async function getRealTimeDecisionSupport(
   incident: Incident,
+  venue: Venue = DEFAULT_VENUE,
 ): Promise<GeminiResult<RealTimeDecisionSupportResponse>> {
   return callFeature(
     'real-time-decision-support',
-    buildRealTimeDecisionSupportPrompt({ incident }),
+    buildRealTimeDecisionSupportPrompt({ incident, venue }),
     isRealTimeDecisionSupportResponse,
     () => mockRealTimeDecisionSupportResponse(incident.category),
   );
@@ -239,10 +256,11 @@ export async function getRealTimeDecisionSupport(
 /** Organizer "what-if" scenario planning — same action-plan shape as incident analysis. */
 export async function getScenarioPlan(
   scenario: string,
+  venue: Venue = DEFAULT_VENUE,
 ): Promise<GeminiResult<RealTimeDecisionSupportResponse>> {
   return callFeature(
     'scenario-planning',
-    buildScenarioPrompt({ scenario }),
+    buildScenarioPrompt({ scenario, venue }),
     isRealTimeDecisionSupportResponse,
     mockScenarioPlanResponse,
   );

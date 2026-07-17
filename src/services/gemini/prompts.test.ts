@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { findGate, findSection } from '../../test/stadiumFixtures';
+import { getVenueLayout, sectionNumber } from '../data/stadiumLayout';
+import { findVenue } from '../data/venues';
 import {
   buildAccessibilityPrompt,
   buildAnnouncementTranslationPrompt,
@@ -233,5 +235,49 @@ describe('data-based prompt builders', () => {
     expect(prompt).toContain('Rail line goes down at halftime');
     expect(prompt).toContain('"immediateActions"');
     expect(prompt).toContain(JSON_INSTRUCTION);
+  });
+});
+
+describe('venue context', () => {
+  it('grounds prompts in the default venue when none is passed', () => {
+    const prompt = buildScenarioPrompt({ scenario: 'Heavy rain at kickoff' });
+    expect(prompt).toContain(
+      'at MetLife Stadium in East Rutherford, hosting the Final at FIFA World Cup 2026',
+    );
+  });
+
+  it('switches the persona to the venue passed in', () => {
+    const toronto = findVenue('bmo-field');
+    expect(toronto).toBeDefined();
+    if (!toronto) return;
+    const prompt = buildCrowdManagementPrompt({ readings: [], venue: toronto });
+    expect(prompt).toContain('at BMO Field in Toronto');
+    expect(prompt).toContain('hosting Group stage matches at FIFA World Cup 2026');
+    expect(prompt).toContain('45,000 fans');
+    expect(prompt).not.toContain('MetLife');
+  });
+
+  it('anchors the lost-child protocol to the venue’s own reunification section', () => {
+    const toronto = findVenue('bmo-field');
+    expect(toronto).toBeDefined();
+    if (!toronto) return;
+    const reunification = getVenueLayout(toronto.id).amenities.find(
+      (amenity) => amenity.type === 'family-reunification',
+    );
+    expect(reunification).toBeDefined();
+    if (!reunification) return;
+    const incident = {
+      id: 'incident-3',
+      category: 'lost-child' as const,
+      severity: 'critical' as const,
+      summary: 'Lost child reported by a parent',
+      location: 'Concourse',
+      reportedAt: 'now',
+      status: 'open' as const,
+    };
+    const prompt = buildRealTimeDecisionSupportPrompt({ incident, venue: toronto });
+    expect(prompt).toContain(
+      `Family Reunification point near section ${sectionNumber(reunification.sectionId)}`,
+    );
   });
 });

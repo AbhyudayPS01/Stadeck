@@ -2,9 +2,13 @@ import type { LanguageOption } from '../types/language';
 import type { Module } from '../types/module';
 import type { GatedRole, RoleOption } from '../types/role';
 
-/** Demo venue for all mock data: the FIFA World Cup 2026 Final host. */
-export const STADIUM_NAME = 'MetLife Stadium';
-export const STADIUM_CAPACITY = 82_500;
+/**
+ * Venue every screen renders until a venue switcher lands: the FIFA World Cup
+ * 2026 Final host. The full host-venue registry lives in
+ * services/data/venues.ts; layouts, facts, and mock feeds are all generated
+ * per venue from that registry.
+ */
+export const DEFAULT_VENUE_ID = 'metlife-stadium';
 
 /**
  * The eight modules named exactly after the challenge clauses. Drives route

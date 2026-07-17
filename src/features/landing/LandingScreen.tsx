@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { Mascot } from '../../components/mascot/Mascot';
-import { MODULES, ROLES, STADIUM_NAME } from '../../config/constants';
+import { MODULES, ROLES } from '../../config/constants';
 import { useRole } from '../../hooks/useRole';
+import { DEFAULT_VENUE } from '../../services/data/venues';
 import { useUiStrings } from '../../hooks/useUiStrings';
 import type { Role } from '../../types/role';
 import { RoleCard } from './RoleCard';
@@ -29,7 +30,7 @@ export default function LandingScreen() {
           <Mascot float pose="welcoming" size={140} />
           <div>
             <p className="font-mono text-mono-tag font-bold uppercase text-gold">
-              FIFA World Cup 2026 · {STADIUM_NAME}
+              FIFA World Cup 2026 · {DEFAULT_VENUE.name}
             </p>
             <h1 className="mt-3 font-display text-h1 font-extrabold text-ops-ink md:text-display">
               Stadeck

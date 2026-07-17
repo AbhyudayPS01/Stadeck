@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { generateIncident, getInitialIncidents } from './incidents';
+import { getVenueLayout } from './stadiumLayout';
+import { VENUES } from './venues';
 
 const VALID_CATEGORIES = [
   'medical',
@@ -34,6 +36,33 @@ describe('generateIncident', () => {
     expect(incident).toBeDefined();
     expect(incident?.severity).toBe('critical');
     expect(incident?.location).toContain('121');
+  });
+});
+
+describe('venue-scoped locations', () => {
+  it('only cites sections that exist in each venue’s generated layout', () => {
+    for (const venue of VENUES) {
+      const sectionLabels = new Set(
+        getVenueLayout(venue.id).sections.map((section) => section.label),
+      );
+      const sampled = Array.from({ length: 50 }, () => generateIncident(venue));
+      for (const incident of sampled) {
+        const cited = incident.location.match(/Section (\d+)/)?.[1];
+        if (cited !== undefined) {
+          expect(sectionLabels.has(cited), `${venue.id}: ${incident.location}`).toBe(true);
+        }
+      }
+    }
+  });
+
+  it('names the venue’s own rail station in transportation incidents', () => {
+    const vancouver = VENUES.find((venue) => venue.id === 'bc-place');
+    expect(vancouver).toBeDefined();
+    if (!vancouver) return;
+    const incident = Array.from({ length: 200 }, () => generateIncident(vancouver)).find(
+      (candidate) => candidate.category === 'transportation',
+    );
+    expect(incident?.location).toBe('Stadium-Chinatown Rail Station');
   });
 });
 

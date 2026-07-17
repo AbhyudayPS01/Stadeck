@@ -46,3 +46,11 @@ export interface Amenity {
   /** Degrees, 0 = North, clockwise. */
   angle: number;
 }
+
+/** A venue's full generated schematic layout — see services/data/stadiumLayout.ts. */
+export interface VenueLayout {
+  venueId: string;
+  sections: readonly StadiumSection[];
+  gates: readonly Gate[];
+  amenities: readonly Amenity[];
+}
