@@ -8,7 +8,7 @@ interface LanguageProviderProps {
   initialLanguage?: string;
 }
 
-/** Provides the AI content language preference. See languageContext.ts for scope. */
+/** Provides the interface language preference. See languageContext.ts for scope. */
 export function LanguageProvider({
   children,
   initialLanguage = DEFAULT_LANGUAGE,

@@ -18,7 +18,7 @@ interface ActionPlanPanelProps {
  */
 export function ActionPlanPanel({ incident }: ActionPlanPanelProps) {
   const fetcher = useCallback(() => getRealTimeDecisionSupport(incident), [incident]);
-  const { data, source, isLoading, error, refetch } = useGemini(fetcher);
+  const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
 
   return (
     <Card theme="ops">
@@ -37,7 +37,7 @@ export function ActionPlanPanel({ incident }: ActionPlanPanelProps) {
             title="Plan failed"
           />
         ) : (
-          <ActionPlanDetails plan={data} source={source} />
+          <ActionPlanDetails mockReason={mockReason ?? undefined} plan={data} source={source} />
         )}
       </div>
     </Card>

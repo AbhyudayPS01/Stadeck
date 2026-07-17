@@ -2,6 +2,7 @@ export type IncidentCategory =
   | 'medical'
   | 'security'
   | 'crowd'
+  | 'lost-child'
   | 'weather'
   | 'facilities'
   | 'transportation';

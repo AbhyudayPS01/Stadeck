@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { GeminiResult } from '../services/gemini';
+import type { GeminiResult, MockReason } from '../services/gemini';
 
 export interface UseGeminiState<T> {
   data: T | null;
   source: 'live' | 'mock' | null;
+  /** Set when source is "mock" — picks the offline/demo badge copy. */
+  mockReason: MockReason | null;
   isLoading: boolean;
   error: string | null;
 }
@@ -21,6 +23,7 @@ export function useGemini<T>(
   const [state, setState] = useState<UseGeminiState<T>>({
     data: null,
     source: null,
+    mockReason: null,
     isLoading: true,
     error: null,
   });
@@ -36,7 +39,13 @@ export function useGemini<T>(
         if (requestIdRef.current !== requestId) {
           return; // a newer request already resolved; discard this stale response
         }
-        setState({ data: result.data, source: result.source, isLoading: false, error: null });
+        setState({
+          data: result.data,
+          source: result.source,
+          mockReason: result.mockReason ?? null,
+          isLoading: false,
+          error: null,
+        });
       })
       .catch((error: unknown) => {
         if (requestIdRef.current !== requestId) {
@@ -45,6 +54,7 @@ export function useGemini<T>(
         setState({
           data: null,
           source: null,
+          mockReason: null,
           isLoading: false,
           error: error instanceof Error ? error.message : 'Unknown error',
         });

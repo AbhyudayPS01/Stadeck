@@ -14,7 +14,7 @@ function renderPicker() {
 }
 
 describe('LanguagePicker', () => {
-  it('offers every supported AI content language', () => {
+  it('offers every supported interface language', () => {
     renderPicker();
 
     expect(screen.getAllByRole('option')).toHaveLength(SUPPORTED_LANGUAGES.length);
@@ -24,7 +24,7 @@ describe('LanguagePicker', () => {
     const user = userEvent.setup();
     renderPicker();
 
-    const select = screen.getByLabelText('AI content language');
+    const select = screen.getByLabelText('Interface language');
     await user.selectOptions(select, 'es');
 
     expect(select).toHaveValue('es');

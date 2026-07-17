@@ -25,6 +25,13 @@ export function AmenityPopup({ amenity, onDismiss }: AmenityPopupProps) {
     const handleKeyDown = (event: globalThis.KeyboardEvent): void => {
       if (event.key === 'Escape') {
         onDismiss();
+        // Return focus to the marker so a keyboard user resumes exactly
+        // where they opened the popup (a pointer dismissal below moves focus
+        // to whatever was clicked, so only Escape restores it).
+        const marker = document.querySelector(`[data-amenity-id="${amenity.id}"]`);
+        if (marker instanceof SVGElement) {
+          marker.focus();
+        }
       }
     };
     const handlePointerDown = (event: PointerEvent): void => {
@@ -45,7 +52,7 @@ export function AmenityPopup({ amenity, onDismiss }: AmenityPopupProps) {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('pointerdown', handlePointerDown);
     };
-  }, [onDismiss]);
+  }, [amenity.id, onDismiss]);
 
   const point = amenityPoint(amenity);
   // Markers in the top half of the bowl open their card downward (and vice

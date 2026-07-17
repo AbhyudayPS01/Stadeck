@@ -1,6 +1,7 @@
 import type { FormEvent } from 'react';
 import { Button } from '../../components/ui/Button';
 import { FormSelect } from '../../components/ui/FormSelect';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import { GATES, TIER_NAMES } from '../../services/data/stadiumLayout';
 import type { StadiumSection } from '../../types/stadium';
 
@@ -23,6 +24,7 @@ export function StepFreeRouteForm({
   onSectionChange,
   onSubmit,
 }: StepFreeRouteFormProps) {
+  const strings = useUiStrings();
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     onSubmit();
@@ -45,7 +47,7 @@ export function StepFreeRouteForm({
         ))}
       </FormSelect>
       <Button className="self-start" type="submit">
-        Plan step-free route
+        {strings['action.planStepFreeRoute']}
       </Button>
     </form>
   );

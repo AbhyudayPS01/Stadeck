@@ -64,6 +64,17 @@ describe('query-based prompt builders', () => {
     expect(prompt).toContain(JSON_INSTRUCTION);
   });
 
+  it('buildMultilingualAssistancePrompt replies in an explicit target language when given one', () => {
+    const prompt = buildMultilingualAssistancePrompt({
+      message: 'Where is first aid?',
+      facts: '- health: First aid is next to sections 112 and 132.',
+      targetLanguage: 'ar',
+    });
+    expect(prompt).toContain('BCP-47 code "ar"');
+    expect(prompt).not.toContain('Detect the language');
+    expect(prompt).toContain('###USER_DATA###');
+  });
+
   it('buildAnnouncementTranslationPrompt includes the target language and wraps the feed text as untrusted', () => {
     const prompt = buildAnnouncementTranslationPrompt({
       message: 'Gates are open.',
@@ -197,6 +208,23 @@ describe('data-based prompt builders', () => {
     expect(prompt).toContain('"teamsToNotify"');
     expect(prompt).toContain('"escalationCriteria"');
     expect(prompt).toContain('"priority"');
+  });
+
+  it('buildRealTimeDecisionSupportPrompt dictates the child-safety protocol for lost-child incidents', () => {
+    const incident = {
+      id: 'incident-2',
+      category: 'lost-child' as const,
+      severity: 'critical' as const,
+      summary: 'Lost child reported by a parent',
+      location: 'Section 121 concourse',
+      reportedAt: 'now',
+      status: 'open' as const,
+    };
+    const prompt = buildRealTimeDecisionSupportPrompt({ incident });
+    expect(prompt).toContain('never moves them through the crowd');
+    expect(prompt).toContain('Family Reunification point near section 121');
+    expect(prompt).toContain('never taken outside the venue');
+    expect(prompt).toContain('15 minutes');
   });
 
   it('buildScenarioPrompt wraps the organizer scenario as untrusted data', () => {

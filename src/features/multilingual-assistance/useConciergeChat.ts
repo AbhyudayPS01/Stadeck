@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { getMultilingualReply } from '../../services/gemini';
+import { getMultilingualReply, type MockReason } from '../../services/gemini';
 import type { ChatMessage } from '../../types/chat';
 import { detectLanguage } from '../../utils/detectLanguage';
 
@@ -9,8 +9,10 @@ export interface ConciergeChatState {
   isSending: boolean;
   /** Set when a send fails unexpectedly; retry() re-sends the failed message. */
   error: string | null;
-  /** Source of the newest assistant reply — "mock" drives the "Demo data" badge. */
+  /** Source of the newest assistant reply — "mock" drives the offline/demo badge. */
   lastSource: 'live' | 'mock' | null;
+  /** Why the newest reply was mock, when it was — picks the badge copy. */
+  lastMockReason: MockReason | null;
   send: (text: string) => void;
   retry: () => void;
 }
@@ -26,6 +28,7 @@ export function useConciergeChat(): ConciergeChatState {
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastSource, setLastSource] = useState<'live' | 'mock' | null>(null);
+  const [lastMockReason, setLastMockReason] = useState<MockReason | null>(null);
   const sequenceRef = useRef(0);
   const lastFailedTextRef = useRef<string | null>(null);
 
@@ -60,6 +63,7 @@ export function useConciergeChat(): ConciergeChatState {
         };
         setMessages((previous) => [...previous, assistantMessage]);
         setLastSource(result.source);
+        setLastMockReason(result.mockReason ?? null);
         setIsSending(false);
         lastFailedTextRef.current = null;
       })
@@ -81,5 +85,5 @@ export function useConciergeChat(): ConciergeChatState {
     }
   }, [send]);
 
-  return { messages, isSending, error, lastSource, send, retry };
+  return { messages, isSending, error, lastSource, lastMockReason, send, retry };
 }

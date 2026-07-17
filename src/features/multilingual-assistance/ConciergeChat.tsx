@@ -6,6 +6,7 @@ import { DemoDataBadge } from '../../components/ui/DemoDataBadge';
 import { ErrorState } from '../../components/ui/ErrorState';
 import { CHAT_INPUT_DEBOUNCE_MS, SUPPORTED_LANGUAGES } from '../../config/constants';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import { cx } from '../../utils/cx';
 import { detectLanguage } from '../../utils/detectLanguage';
 import { ChatMessageBubble } from './ChatMessageBubble';
@@ -41,7 +42,9 @@ function TypingIndicator() {
  * so assistive tech hears one clean announcement instead of every partial.
  */
 export function ConciergeChat() {
-  const { messages, isSending, error, lastSource, send, retry } = useConciergeChat();
+  const strings = useUiStrings();
+  const { messages, isSending, error, lastSource, lastMockReason, send, retry } =
+    useConciergeChat();
   const [draft, setDraft] = useState('');
   const inputId = useId();
   const listRef = useRef<HTMLUListElement>(null);
@@ -73,7 +76,7 @@ export function ConciergeChat() {
     <Card accent="pitch" className="flex flex-col">
       <div className="flex items-center justify-between gap-3">
         <h2 className="font-display text-h2 text-fan-ink">AI concierge</h2>
-        {lastSource === 'mock' ? <DemoDataBadge /> : null}
+        {lastSource === 'mock' ? <DemoDataBadge reason={lastMockReason ?? undefined} /> : null}
       </div>
 
       <ul
@@ -84,9 +87,7 @@ export function ConciergeChat() {
         {messages.length === 0 && !error ? (
           <li className="flex flex-col items-center gap-3 py-6 text-center">
             <Mascot pose="pointing" size={72} />
-            <p className="text-body-sm text-fan-muted">
-              Ask anything about the stadium — in any language. Try one of these:
-            </p>
+            <p className="text-body-sm text-fan-muted">{strings['empty.conciergeIntro']}</p>
             <div className="flex flex-wrap justify-center gap-2">
               {SUGGESTIONS.map((suggestion) => (
                 <button
@@ -140,11 +141,11 @@ export function ConciergeChat() {
             className="min-w-0 flex-1 rounded-md border border-fan-border bg-fan-bg px-3 py-2.5 text-body-sm text-fan-ink placeholder:text-fan-faint focus:border-pitch focus:outline-none focus:shadow-inputfocus"
             id={inputId}
             onChange={(event) => setDraft(event.target.value)}
-            placeholder="e.g. ¿Dónde está la Puerta C?"
+            placeholder={strings['placeholder.conciergeMessage']}
             value={draft}
           />
           <Button disabled={isSending || draft.trim().length === 0} size="sm" type="submit">
-            Send
+            {strings['action.send']}
           </Button>
         </div>
         <p className={cx('text-label text-fan-faint', !detectedLanguage && 'invisible')}>

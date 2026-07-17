@@ -1,4 +1,5 @@
 import type { Announcement } from '../../types/announcement';
+import type { IncidentCategory } from '../../types/incident';
 import type {
   AccessibilityResponse,
   AnnouncementTranslationResponse,
@@ -187,7 +188,38 @@ export function mockOperationalIntelligenceResponse(): OperationalIntelligenceRe
   };
 }
 
-export function mockRealTimeDecisionSupportResponse(): RealTimeDecisionSupportResponse {
+/**
+ * The lost-child plan is safety-critical, so its offline fallback carries the
+ * full protocol (stay put, radio Guest Services, reunification point, hard
+ * time threshold) instead of the generic containment plan.
+ */
+const LOST_CHILD_PLAN: RealTimeDecisionSupportResponse = {
+  summary:
+    'Begin the lost-child protocol: stay with the child, radio Guest Services, and reunite at the Family Reunification point near Section 121.',
+  immediateActions: [
+    'Stay with the child (or the reporting adult) exactly where they are — do not move them through the crowd.',
+    "Radio Guest Services and the security control room with the child's description and last known location.",
+    'Send a steward to the Family Reunification point near Section 121 and page the guardian there.',
+    'Never take the child outside the venue or hand them to anyone but the verified guardian or Guest Services staff.',
+  ],
+  teamsToNotify: [
+    'Guest Services desk 103',
+    'Security control room',
+    'Family Reunification point steward (Section 121)',
+  ],
+  escalationCriteria: [
+    'No reunification within 15 minutes — escalate to the venue security lead and the on-site police detail.',
+    'Any sign the child is injured, distressed, or was seen leaving with an unrelated adult.',
+  ],
+  priority: 'critical',
+};
+
+export function mockRealTimeDecisionSupportResponse(
+  category?: IncidentCategory,
+): RealTimeDecisionSupportResponse {
+  if (category === 'lost-child') {
+    return LOST_CHILD_PLAN;
+  }
   return {
     summary:
       'Contain the incident locally, keep fan flow moving around it, and reassess in 10 minutes.',

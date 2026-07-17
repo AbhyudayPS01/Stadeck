@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RoleProvider } from '../../context/RoleProvider';
+import { LanguageProvider } from '../../context/LanguageProvider';
 import type { Role } from '../../types/role';
 import type { SustainabilityMetrics } from '../../types/sustainability';
 import SustainabilityScreen from './SustainabilityScreen';
@@ -45,7 +46,9 @@ const REPORT = {
 function renderScreen(role: Role = 'fan') {
   return render(
     <RoleProvider initialRole={role}>
-      <SustainabilityScreen />
+      <LanguageProvider>
+        <SustainabilityScreen />
+      </LanguageProvider>
     </RoleProvider>,
   );
 }

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { LanguageProvider } from '../../context/LanguageProvider';
 import NavigationScreen from './NavigationScreen';
 
 vi.mock('../../services/gemini', () => ({
@@ -29,7 +30,11 @@ beforeEach(() => {
 
 describe('NavigationScreen', () => {
   it('renders the module heading and the schematic stadium map', () => {
-    render(<NavigationScreen />);
+    render(
+      <LanguageProvider>
+        <NavigationScreen />
+      </LanguageProvider>,
+    );
 
     expect(screen.getByRole('heading', { level: 1, name: 'Navigation' })).toBeInTheDocument();
     expect(
@@ -38,14 +43,22 @@ describe('NavigationScreen', () => {
   });
 
   it('disables "Get directions" until a section is chosen', () => {
-    render(<NavigationScreen />);
+    render(
+      <LanguageProvider>
+        <NavigationScreen />
+      </LanguageProvider>,
+    );
 
     expect(screen.getByRole('button', { name: 'Get directions' })).toBeDisabled();
   });
 
   it('shows the closest restroom, food, and exit once a section is chosen', async () => {
     const user = userEvent.setup();
-    render(<NavigationScreen />);
+    render(
+      <LanguageProvider>
+        <NavigationScreen />
+      </LanguageProvider>,
+    );
 
     await user.selectOptions(screen.getByLabelText('Your seating section'), 'sec-118');
 
@@ -58,7 +71,11 @@ describe('NavigationScreen', () => {
   it('fetches directions for the chosen gate and section and renders the steps', async () => {
     const user = userEvent.setup();
     getNavigationDirectionsMock.mockResolvedValueOnce({ data: DIRECTIONS, source: 'live' });
-    render(<NavigationScreen />);
+    render(
+      <LanguageProvider>
+        <NavigationScreen />
+      </LanguageProvider>,
+    );
 
     await submitRoute(user);
 
@@ -73,7 +90,11 @@ describe('NavigationScreen', () => {
   it('highlights the route on the map after directions are requested', async () => {
     const user = userEvent.setup();
     getNavigationDirectionsMock.mockResolvedValueOnce({ data: DIRECTIONS, source: 'live' });
-    const { container } = render(<NavigationScreen />);
+    const { container } = render(
+      <LanguageProvider>
+        <NavigationScreen />
+      </LanguageProvider>,
+    );
 
     expect(container.querySelector('[data-testid="route-overlay"]')).toBeNull();
     await submitRoute(user);
@@ -84,7 +105,11 @@ describe('NavigationScreen', () => {
   it('marks mock directions with the Demo data badge', async () => {
     const user = userEvent.setup();
     getNavigationDirectionsMock.mockResolvedValueOnce({ data: DIRECTIONS, source: 'mock' });
-    render(<NavigationScreen />);
+    render(
+      <LanguageProvider>
+        <NavigationScreen />
+      </LanguageProvider>,
+    );
 
     await submitRoute(user);
 
@@ -96,7 +121,11 @@ describe('NavigationScreen', () => {
     getNavigationDirectionsMock
       .mockRejectedValueOnce(new Error('boom'))
       .mockResolvedValueOnce({ data: DIRECTIONS, source: 'live' });
-    render(<NavigationScreen />);
+    render(
+      <LanguageProvider>
+        <NavigationScreen />
+      </LanguageProvider>,
+    );
 
     await submitRoute(user);
     expect(await screen.findByRole('alert')).toHaveTextContent(/could not be fetched/i);

@@ -21,7 +21,22 @@ export const STADIUM_FACTS: readonly StadiumFact[] = [
   {
     id: 'fact-bag-policy',
     topic: 'entry',
-    fact: 'Only clear bags up to 12 x 6 x 12 inches are allowed; small clutches are screened at every gate.',
+    fact: 'Only clear bags up to 12 x 6 x 12 inches or small clutches are allowed; non-compliant bags can be checked for a fee at the bag-check tents outside Gate B.',
+  },
+  {
+    id: 'fact-cashless',
+    topic: 'payments',
+    fact: 'The stadium is fully cashless: card and mobile payments only, no cash accepted anywhere. Cash-to-card kiosks on each concourse convert cash to a free prepaid card.',
+  },
+  {
+    id: 'fact-re-entry',
+    topic: 'entry',
+    fact: 'There is no re-entry: a scanned ticket cannot exit and enter again, except for documented medical emergencies handled at Guest Services.',
+  },
+  {
+    id: 'fact-smoking',
+    topic: 'entry',
+    fact: 'The venue is smoke-free, including e-cigarettes and vaping; there is no smoking area inside the gates.',
   },
   {
     id: 'fact-seating-tiers',
@@ -46,12 +61,17 @@ export const STADIUM_FACTS: readonly StadiumFact[] = [
   {
     id: 'fact-water',
     topic: 'services',
-    fact: 'Free water refill stations are on every concourse; bring an empty reusable bottle.',
+    fact: 'Free filtered water refill stations are on every concourse, including near sections 104, 118, 124, and 138; bringing an empty reusable bottle through security is permitted.',
   },
   {
     id: 'fact-food',
     topic: 'services',
-    fact: 'Concessions near sections 108, 118, 128, and 138 include halal, vegetarian, and gluten-free options.',
+    fact: 'Concessions near sections 108, 118, 128, and 138 include halal, kosher, vegetarian, and gluten-free options.',
+  },
+  {
+    id: 'fact-prayer-rooms',
+    topic: 'services',
+    fact: 'Multi-faith prayer and quiet rooms are on the main concourse near sections 112 and 132, open from gate time until one hour after the final whistle.',
   },
   {
     id: 'fact-restrooms',
@@ -61,7 +81,27 @@ export const STADIUM_FACTS: readonly StadiumFact[] = [
   {
     id: 'fact-guest-services',
     topic: 'services',
-    fact: 'Guest Services desks at sections 103 and 123 handle lost and found, lost children, and language help.',
+    fact: 'Guest Services desks at sections 103 and 123 handle lost and found, lost children, language help, and free sensory kits to borrow.',
+  },
+  {
+    id: 'fact-family-reunification',
+    topic: 'safety',
+    fact: 'If your group is separated, meet at the Family Reunification point near section 121, beside Guest Services at section 123.',
+  },
+  {
+    id: 'fact-lost-child',
+    topic: 'safety',
+    fact: 'Report a lost child to any steward or Guest Services desk immediately: staff stay with the child where they are found and page the guardian to the Family Reunification point near section 121. Children are never taken outside the venue.',
+  },
+  {
+    id: 'fact-emergency-exits',
+    topic: 'safety',
+    fact: 'Emergency exits marked with an X on the upper concourse at the four compass points are for emergencies only — follow staff instructions and do not use them during normal operations.',
+  },
+  {
+    id: 'fact-step-free',
+    topic: 'accessibility',
+    fact: 'Step-free routes connect every gate to accessible seating via ramps and elevators, and accessible restrooms adjoin every restroom location.',
   },
   {
     id: 'fact-merchandise',
@@ -77,6 +117,11 @@ export const STADIUM_FACTS: readonly StadiumFact[] = [
     id: 'fact-rideshare',
     topic: 'transportation',
     fact: 'The rideshare pickup and drop-off zone is in Lot E, outside Gate F.',
+  },
+  {
+    id: 'fact-egress',
+    topic: 'transportation',
+    fact: 'After the final whistle, exits are released in stages by section block to keep concourses safe — expect a 10-20 minute wait and follow steward instructions; trains and shuttles run for at least 90 minutes.',
   },
   {
     id: 'fact-prohibited',
@@ -97,8 +142,8 @@ export const STADIUM_FACTS: readonly StadiumFact[] = [
 
 /**
  * The knowledge base flattened into prompt context — one "- topic: fact" line
- * per entry, small enough to embed in every concierge prompt (~1.5 KB, well
- * under the proxy's payload cap).
+ * per entry, small enough to embed in every concierge prompt (~3 KB, well
+ * under the proxy's payload cap; the size test guards the headroom).
  */
 export function getStadiumFactsContext(): string {
   return STADIUM_FACTS.map((entry) => `- ${entry.topic}: ${entry.fact}`).join('\n');

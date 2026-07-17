@@ -17,9 +17,30 @@ describe('STADIUM_FACTS', () => {
 
   it('stays consistent with the stadium layout amenities', () => {
     const context = getStadiumFactsContext();
-    expect(context).toContain('112 and 132'); // first aid sections
+    expect(context).toContain('112 and 132'); // first aid + prayer room sections
     expect(context).toContain('101 and 120'); // accessible seating sections
     expect(context).toContain('103 and 123'); // guest services sections
+    expect(context).toContain('section 121'); // family reunification section
+  });
+
+  it('covers the topics that catch international visitors out', () => {
+    const context = getStadiumFactsContext().toLowerCase();
+    for (const topic of [
+      'cashless',
+      'clear bags',
+      'water refill',
+      'prayer',
+      'halal',
+      'kosher',
+      'reunification',
+      'lost child',
+      'no re-entry',
+      'smoke-free',
+      'emergency exits',
+      'rideshare',
+    ]) {
+      expect(context).toContain(topic);
+    }
   });
 });
 

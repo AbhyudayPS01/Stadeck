@@ -9,6 +9,7 @@ export type GeminiErrorType =
   | 'timeout'
   | 'network'
   | 'rate-limited'
+  | 'not-configured'
   | 'server-error'
   | 'invalid-response';
 
@@ -52,11 +53,19 @@ async function attemptRequest(prompt: string): Promise<string> {
     });
 
     if (!response.ok) {
-      const type: GeminiErrorType = response.status === 429 ? 'rate-limited' : 'server-error';
+      // 503 is the proxy's "no GEMINI_API_KEY configured" answer (api/gemini.ts)
+      // — distinguished from transient failures so the UI can label the mock
+      // fallback as demo data rather than an offline condition.
+      const type: GeminiErrorType =
+        response.status === 503
+          ? 'not-configured'
+          : response.status === 429
+            ? 'rate-limited'
+            : 'server-error';
       throw new GeminiClientError(
         type,
         `Gemini proxy responded with ${response.status}`,
-        isRetryableStatus(response.status),
+        type !== 'not-configured' && isRetryableStatus(response.status),
       );
     }
 

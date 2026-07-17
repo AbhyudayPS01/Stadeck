@@ -15,8 +15,10 @@ describe('MapLegend', () => {
       'WWater Refill Station',
       'MMerchandise',
       'iGuest Services',
+      'PPrayer & Quiet Room',
       'AAccessible Seating',
       '+First Aid',
+      'FFamily Reunification',
       'XEmergency Exit',
     ]);
   });

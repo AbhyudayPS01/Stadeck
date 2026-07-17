@@ -5,12 +5,12 @@ import { Card } from '../../components/ui/Card';
 import { DemoDataBadge } from '../../components/ui/DemoDataBadge';
 import { Spinner } from '../../components/ui/Spinner';
 import { getInitialAnnouncements } from '../../services/data/announcements';
-import { getPlainLanguageRewrite } from '../../services/gemini';
+import { getPlainLanguageRewrite, type MockReason } from '../../services/gemini';
 import type { Announcement } from '../../types/announcement';
 
 type RewriteEntry =
   | { status: 'loading' }
-  | { status: 'done'; text: string; source: 'live' | 'mock' };
+  | { status: 'done'; text: string; source: 'live' | 'mock'; mockReason?: MockReason };
 
 /**
  * "Access Companion": one click rewrites any venue announcement into plain
@@ -27,7 +27,12 @@ export function AccessCompanion() {
     getPlainLanguageRewrite(announcement).then((result) => {
       setRewrites((previous) => ({
         ...previous,
-        [announcement.id]: { status: 'done', text: result.data.rewrite, source: result.source },
+        [announcement.id]: {
+          status: 'done',
+          text: result.data.rewrite,
+          source: result.source,
+          mockReason: result.mockReason,
+        },
       }));
     });
   };
@@ -57,7 +62,7 @@ export function AccessCompanion() {
                   </p>
                   {entry.source === 'mock' ? (
                     <span className="mt-1.5 inline-flex">
-                      <DemoDataBadge />
+                      <DemoDataBadge reason={entry.mockReason} />
                     </span>
                   ) : null}
                 </div>

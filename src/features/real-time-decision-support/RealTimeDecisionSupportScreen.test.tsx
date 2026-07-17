@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RoleProvider } from '../../context/RoleProvider';
+import { LanguageProvider } from '../../context/LanguageProvider';
 import { MAX_USER_INPUT_LENGTH } from '../../config/constants';
 import type { Role } from '../../types/role';
 import RealTimeDecisionSupportScreen from './RealTimeDecisionSupportScreen';
@@ -69,7 +70,9 @@ const PLAN = {
 function renderScreen(role: Role = 'organizer') {
   return render(
     <RoleProvider initialRole={role}>
-      <RealTimeDecisionSupportScreen />
+      <LanguageProvider>
+        <RealTimeDecisionSupportScreen />
+      </LanguageProvider>
     </RoleProvider>,
   );
 }

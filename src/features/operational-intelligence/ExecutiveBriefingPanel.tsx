@@ -6,6 +6,7 @@ import { ErrorState } from '../../components/ui/ErrorState';
 import { InsightCard } from '../../components/ui/InsightCard';
 import { LoadingRow } from '../../components/ui/LoadingRow';
 import { useGemini } from '../../hooks/useGemini';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import { getOperationalIntelligenceSummary } from '../../services/gemini';
 import type { KpiSnapshot } from '../../types/operational';
 
@@ -15,7 +16,7 @@ export interface ExecutiveBriefingPanelProps {
 
 function BriefingResult({ kpis, onRefresh }: { kpis: KpiSnapshot[]; onRefresh: () => void }) {
   const fetcher = useCallback(() => getOperationalIntelligenceSummary(kpis), [kpis]);
-  const { data, source, isLoading, error, refetch } = useGemini(fetcher);
+  const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
 
   if (isLoading) {
     return <LoadingRow label="Writing executive briefing" theme="ops" />;
@@ -38,7 +39,7 @@ function BriefingResult({ kpis, onRefresh }: { kpis: KpiSnapshot[]; onRefresh: (
     <div className="mt-3 flex flex-col gap-3">
       {source === 'mock' ? (
         <span className="self-start">
-          <DemoDataBadge theme="ops" />
+          <DemoDataBadge reason={mockReason ?? undefined} theme="ops" />
         </span>
       ) : null}
       {/* AI response region per CLAUDE.md accessibility rules */}
@@ -60,6 +61,7 @@ function BriefingResult({ kpis, onRefresh }: { kpis: KpiSnapshot[]; onRefresh: (
  * structured state-of-venue read.
  */
 export function ExecutiveBriefingPanel({ kpis }: ExecutiveBriefingPanelProps) {
+  const strings = useUiStrings();
   const [snapshot, setSnapshot] = useState<KpiSnapshot[] | null>(null);
 
   return (
@@ -71,7 +73,7 @@ export function ExecutiveBriefingPanel({ kpis }: ExecutiveBriefingPanelProps) {
             An AI state-of-venue read over the live KPI board: anomalies to act on and trends to
             watch.
           </p>
-          <Button onClick={() => setSnapshot(kpis)}>Generate briefing</Button>
+          <Button onClick={() => setSnapshot(kpis)}>{strings['action.generateBriefing']}</Button>
         </div>
       ) : (
         <BriefingResult kpis={snapshot} onRefresh={() => setSnapshot([...kpis])} />

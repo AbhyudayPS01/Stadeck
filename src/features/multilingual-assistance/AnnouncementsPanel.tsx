@@ -11,9 +11,10 @@ import {
   SUPPORTED_LANGUAGES,
 } from '../../config/constants';
 import { useLanguage } from '../../hooks/useLanguage';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import { useMockStream } from '../../hooks/useMockStream';
 import { generateAnnouncement, getInitialAnnouncements } from '../../services/data/announcements';
-import { getAnnouncementTranslation } from '../../services/gemini';
+import { getAnnouncementTranslation, type MockReason } from '../../services/gemini';
 import type { Announcement, AnnouncementCategory } from '../../types/announcement';
 import { isRtlLanguage } from '../../utils/detectLanguage';
 
@@ -28,15 +29,22 @@ const TIME_FORMAT = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute
 
 type TranslationEntry =
   | { status: 'loading' }
-  | { status: 'done'; text: string; language: string; source: 'live' | 'mock' };
+  | {
+      status: 'done';
+      text: string;
+      language: string;
+      source: 'live' | 'mock';
+      mockReason?: MockReason;
+    };
 
 /**
  * The simulated venue announcement feed with one-click translation into the
- * fan's chosen AI content language (the sidebar LanguagePicker). Feed items
+ * fan's chosen interface language (the sidebar LanguagePicker). Feed items
  * are English; each translation sets its own `lang`/`dir`.
  */
 export function AnnouncementsPanel() {
   const { language } = useLanguage();
+  const strings = useUiStrings();
   const [announcements, setAnnouncements] = useState<Announcement[]>(getInitialAnnouncements);
   const [translations, setTranslations] = useState<Record<string, TranslationEntry>>({});
 
@@ -61,6 +69,7 @@ export function AnnouncementsPanel() {
           text: result.data.translation,
           language: result.data.language,
           source: result.source,
+          mockReason: result.mockReason,
         },
       }));
     });
@@ -83,10 +92,7 @@ export function AnnouncementsPanel() {
 
       {announcements.length === 0 ? (
         <div className="mt-4">
-          <EmptyState
-            message="Venue announcements will appear here as they are issued."
-            title="No announcements yet"
-          />
+          <EmptyState message={strings['empty.announcements']} title="No announcements yet" />
         </div>
       ) : (
         <ul aria-label="Announcements" aria-live="polite" className="mt-4 flex flex-col gap-4">
@@ -121,7 +127,7 @@ export function AnnouncementsPanel() {
                     </p>
                     {translated.source === 'mock' ? (
                       <span className="mt-1.5 inline-flex">
-                        <DemoDataBadge />
+                        <DemoDataBadge reason={translated.mockReason} />
                       </span>
                     ) : null}
                   </div>
@@ -136,7 +142,7 @@ export function AnnouncementsPanel() {
                     {entry?.status === 'loading' ? (
                       <Spinner label="Translating" size="sm" />
                     ) : (
-                      'Translate'
+                      strings['action.translate']
                     )}
                   </Button>
                 ) : null}

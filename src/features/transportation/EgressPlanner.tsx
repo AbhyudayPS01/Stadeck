@@ -7,6 +7,7 @@ import { LoadingRow } from '../../components/ui/LoadingRow';
 import { StepList } from '../../components/ui/StepList';
 import { MAX_USER_INPUT_LENGTH } from '../../config/constants';
 import { useGemini } from '../../hooks/useGemini';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import { getTransportationRecommendation } from '../../services/gemini';
 import type { TransitOption } from '../../types/transportation';
 
@@ -32,7 +33,7 @@ function StrategyResult({ plan, onRecommendation }: StrategyResultProps) {
     () => getTransportationRecommendation(plan.options, plan.destination),
     [plan],
   );
-  const { data, source, isLoading, error, refetch } = useGemini(fetcher);
+  const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
 
   useEffect(() => {
     onRecommendation(data?.recommendedOptionId ?? null);
@@ -56,7 +57,7 @@ function StrategyResult({ plan, onRecommendation }: StrategyResultProps) {
     <div className="mt-3 flex flex-col gap-3">
       {source === 'mock' ? (
         <span className="self-start">
-          <DemoDataBadge />
+          <DemoDataBadge reason={mockReason ?? undefined} />
         </span>
       ) : null}
       {/* AI response region per CLAUDE.md accessibility rules */}
@@ -77,6 +78,7 @@ function StrategyResult({ plan, onRecommendation }: StrategyResultProps) {
  * concrete times and expected crowd loads.
  */
 export function EgressPlanner({ options, onRecommendation }: EgressPlannerProps) {
+  const strings = useUiStrings();
   const [destination, setDestination] = useState('');
   const [plan, setPlan] = useState<EgressPlan | null>(null);
 
@@ -97,13 +99,13 @@ export function EgressPlanner({ options, onRecommendation }: EgressPlannerProps)
             className="mt-1.5 w-full rounded-lg border border-fan-border bg-fan-surface px-3 py-2.5 text-body-sm text-fan-ink focus-visible:outline-none focus-visible:shadow-inputfocus"
             maxLength={MAX_USER_INPUT_LENGTH}
             onChange={(event) => setDestination(event.target.value)}
-            placeholder="e.g. Penn Station, New York"
+            placeholder={strings['placeholder.destination']}
             type="text"
             value={destination}
           />
         </label>
         <Button className="self-start" disabled={destination.trim() === ''} type="submit">
-          Plan my exit
+          {strings['action.planExit']}
         </Button>
       </form>
       {plan ? <StrategyResult onRecommendation={onRecommendation} plan={plan} /> : null}

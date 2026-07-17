@@ -1,6 +1,7 @@
 import { Badge } from '../../components/ui/Badge';
 import { Card } from '../../components/ui/Card';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import type { Incident } from '../../types/incident';
 import { cx } from '../../utils/cx';
 
@@ -18,6 +19,7 @@ const TIME_FORMAT = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute
  * incidents are announced (CLAUDE.md accessibility rules).
  */
 export function IncidentFeed({ incidents, selectedId, onSelect }: IncidentFeedProps) {
+  const strings = useUiStrings();
   return (
     <Card theme="ops">
       <div className="flex items-center gap-2.5">
@@ -33,7 +35,7 @@ export function IncidentFeed({ incidents, selectedId, onSelect }: IncidentFeedPr
       {incidents.length === 0 ? (
         <div className="mt-4">
           <EmptyState
-            message="Reported incidents will appear here in real time."
+            message={strings['empty.incidents']}
             showMascot={false}
             theme="ops"
             title="No incidents reported"

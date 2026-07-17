@@ -3,6 +3,7 @@ import { MapLegend } from '../../components/map/MapLegend';
 import { RouteOverlayLayer } from '../../components/map/RouteOverlayLayer';
 import { StadiumMap } from '../../components/map/StadiumMap';
 import { Card } from '../../components/ui/Card';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import { AMENITIES, GATES, SECTIONS } from '../../services/data/stadiumLayout';
 import type { Gate, StadiumSection } from '../../types/stadium';
 import { AccessCompanion } from './AccessCompanion';
@@ -29,6 +30,7 @@ const DEFAULT_GATE_ID = 'gate-a';
  * Companion, and set app-wide high-contrast and text-size preferences.
  */
 export default function AccessibilityScreen() {
+  const strings = useUiStrings();
   const [gateId, setGateId] = useState(DEFAULT_GATE_ID);
   const [sectionId, setSectionId] = useState(ACCESSIBLE_SECTIONS[0]?.id ?? '');
   const [plan, setPlan] = useState<RoutePlan | null>(null);
@@ -44,10 +46,9 @@ export default function AccessibilityScreen() {
 
   return (
     <main className="min-h-screen bg-fan-bg px-gutter py-section md:px-page">
-      <h1 className="font-display text-h1 text-fan-ink">Accessibility</h1>
+      <h1 className="font-display text-h1 text-fan-ink">{strings['module.accessibility.title']}</h1>
       <p className="mt-2 max-w-2xl text-body text-fan-muted">
-        Step-free routes to accessible seating, plain-language announcements, and display settings
-        that apply across the whole app.
+        {strings['module.accessibility.description']}
       </p>
       <div className="mt-section grid grid-cols-1 items-start gap-gutter xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
         <div className="flex flex-col gap-gutter">

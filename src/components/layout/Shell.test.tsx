@@ -7,10 +7,10 @@ import { RoleProvider } from '../../context/RoleProvider';
 import type { Role } from '../../types/role';
 import { Shell } from './Shell';
 
-function renderShellAs(role: Role) {
+function renderShellAs(role: Role, initialLanguage = 'en') {
   return render(
     <RoleProvider initialRole={role}>
-      <LanguageProvider>
+      <LanguageProvider initialLanguage={initialLanguage}>
         <MemoryRouter
           future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
           initialEntries={['/navigation']}
@@ -61,7 +61,7 @@ describe('Shell', () => {
 
     expect(screen.getByText('Module body')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Switch role' })).toBeInTheDocument();
-    expect(screen.getByLabelText('AI content language')).toBeInTheDocument();
+    expect(screen.getByLabelText('Interface language')).toBeInTheDocument();
   });
 
   it('toggles the mobile menu with an announced expanded state', async () => {
@@ -85,5 +85,26 @@ describe('Shell', () => {
       'href',
       '#main-content',
     );
+  });
+
+  it('translates the module navigation for the selected interface language', () => {
+    renderShellAs('fan', 'es');
+
+    expect(screen.getByRole('link', { name: 'Navegación' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Asistencia Multilingüe' })).toBeInTheDocument();
+  });
+
+  it('flips the content region to RTL with its language tag for Arabic', () => {
+    const { container } = renderShellAs('fan', 'ar');
+
+    const main = container.querySelector('#main-content');
+    expect(main).toHaveAttribute('dir', 'rtl');
+    expect(main).toHaveAttribute('lang', 'ar');
+  });
+
+  it('keeps the content region LTR with no dir attribute for English', () => {
+    const { container } = renderShellAs('fan');
+
+    expect(container.querySelector('#main-content')).not.toHaveAttribute('dir');
   });
 });

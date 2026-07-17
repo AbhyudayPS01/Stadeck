@@ -138,6 +138,7 @@ describe('StadiumMap', () => {
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(marker).toHaveAttribute('aria-expanded', 'false');
+    expect(marker).toHaveFocus();
   });
 
   it('toggles the popup closed when its marker is clicked again', async () => {
@@ -171,7 +172,9 @@ describe('StadiumMap', () => {
 
     const popup = screen.getByRole('dialog', { name: 'Emergency Exit details' });
     expect(popup).toHaveTextContent('Emergency Exit');
-    expect(popup).toHaveTextContent('Follow staff instructions. Do not use during normal operations.');
+    expect(popup).toHaveTextContent(
+      'Follow staff instructions. Do not use during normal operations.',
+    );
   });
 
   it('gives every amenity an enlarged touch circle that opens its popup', async () => {

@@ -5,12 +5,13 @@ import { ErrorState } from '../../components/ui/ErrorState';
 import { LoadingRow } from '../../components/ui/LoadingRow';
 import { MAX_USER_INPUT_LENGTH } from '../../config/constants';
 import { useGemini } from '../../hooks/useGemini';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import { getScenarioPlan } from '../../services/gemini';
 import { ActionPlanDetails } from './ActionPlanDetails';
 
 function ScenarioResult({ scenario }: { scenario: string }) {
   const fetcher = useCallback(() => getScenarioPlan(scenario), [scenario]);
-  const { data, source, isLoading, error, refetch } = useGemini(fetcher);
+  const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
 
   if (isLoading) {
     return <LoadingRow label="Planning scenario" theme="ops" />;
@@ -25,7 +26,7 @@ function ScenarioResult({ scenario }: { scenario: string }) {
       />
     );
   }
-  return <ActionPlanDetails plan={data} source={source} />;
+  return <ActionPlanDetails mockReason={mockReason ?? undefined} plan={data} source={source} />;
 }
 
 /**
@@ -35,6 +36,7 @@ function ScenarioResult({ scenario }: { scenario: string }) {
  * it ever reaches the model.
  */
 export function ScenarioPlanner() {
+  const strings = useUiStrings();
   const [draft, setDraft] = useState('');
   const [submitted, setSubmitted] = useState<string | null>(null);
   const textareaId = useId();
@@ -60,11 +62,11 @@ export function ScenarioPlanner() {
           id={textareaId}
           maxLength={MAX_USER_INPUT_LENGTH}
           onChange={(event) => setDraft(event.target.value)}
-          placeholder="e.g. The rail line goes down 20 minutes before the final whistle"
+          placeholder={strings['placeholder.scenario']}
           value={draft}
         />
         <Button className="self-start" disabled={draft.trim().length === 0} size="sm" type="submit">
-          Plan scenario
+          {strings['action.planScenario']}
         </Button>
       </form>
       {submitted !== null ? (

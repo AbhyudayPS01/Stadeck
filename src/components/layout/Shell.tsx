@@ -1,9 +1,12 @@
 import { Suspense, useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { MODULES } from '../../config/constants';
+import { useLanguage } from '../../hooks/useLanguage';
 import { useRole } from '../../hooks/useRole';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import { Spinner } from '../ui/Spinner';
 import { cx } from '../../utils/cx';
+import { isRtlLanguage } from '../../utils/detectLanguage';
 import { LanguagePicker } from './LanguagePicker';
 import { RoleSwitcher } from './RoleSwitcher';
 
@@ -27,6 +30,8 @@ function BrandMark() {
  */
 export function Shell() {
   const { role } = useRole();
+  const { language } = useLanguage();
+  const strings = useUiStrings();
   const [navOpen, setNavOpen] = useState(false);
 
   const visibleModules = MODULES.filter((module) => role !== null && module.roles.includes(role));
@@ -79,10 +84,11 @@ export function Shell() {
                           : 'text-ops-muted hover:bg-ops-surface hover:text-ops-ink',
                       )
                     }
+                    lang={language}
                     onClick={() => setNavOpen(false)}
                     to={module.path}
                   >
-                    {module.label}
+                    {strings[`module.${module.id}.title`]}
                   </NavLink>
                 </li>
               ))}
@@ -95,7 +101,16 @@ export function Shell() {
         </div>
       </aside>
 
-      <div className="min-w-0 flex-1 outline-none" id="main-content" tabIndex={-1}>
+      {/* The interface language applies to the content region: translated
+          chrome gets its lang, and Arabic flips the region to RTL. AI content
+          keeps setting lang/dir on its own containers as before. */}
+      <div
+        className="min-w-0 flex-1 outline-none"
+        dir={isRtlLanguage(language) ? 'rtl' : undefined}
+        id="main-content"
+        lang={language}
+        tabIndex={-1}
+      >
         <Suspense
           fallback={
             <div className="flex min-h-[60vh] items-center justify-center text-pitch-deep">

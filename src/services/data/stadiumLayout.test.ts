@@ -113,6 +113,17 @@ describe('AMENITIES', () => {
     expect(stations.every((station) => station.label === 'Water Refill Station')).toBe(true);
   });
 
+  it('collocates prayer rooms with first aid and the reunification point with Guest Services', () => {
+    const prayerSections = AMENITIES.filter((amenity) => amenity.type === 'prayer-room').map(
+      (amenity) => amenity.sectionId,
+    );
+    expect(prayerSections).toEqual(['sec-112', 'sec-132']);
+
+    const reunification = AMENITIES.filter((amenity) => amenity.type === 'family-reunification');
+    expect(reunification).toHaveLength(1);
+    expect(reunification[0]?.sectionId).toBe('sec-121');
+  });
+
   it('places emergency exits at the four cardinal bearings', () => {
     const exits = AMENITIES.filter((amenity) => amenity.type === 'emergency-exit');
     expect(exits.map((exit) => exit.angle)).toEqual([0, 90, 180, 270]);

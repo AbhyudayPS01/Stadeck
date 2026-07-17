@@ -5,6 +5,7 @@ const VALID_CATEGORIES = [
   'medical',
   'security',
   'crowd',
+  'lost-child',
   'weather',
   'facilities',
   'transportation',
@@ -23,6 +24,16 @@ describe('generateIncident', () => {
     const first = generateIncident();
     const second = generateIncident();
     expect(first.id).not.toBe(second.id);
+  });
+
+  it('can report a critical lost-child incident at the reunification concourse', () => {
+    // The template pool is randomly sampled, so sample until it appears.
+    const incident = Array.from({ length: 200 }, generateIncident).find(
+      (candidate) => candidate.category === 'lost-child',
+    );
+    expect(incident).toBeDefined();
+    expect(incident?.severity).toBe('critical');
+    expect(incident?.location).toContain('121');
   });
 });
 

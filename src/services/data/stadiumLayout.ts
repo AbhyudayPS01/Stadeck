@@ -82,6 +82,8 @@ export const AMENITY_LABELS: Record<AmenityType, string> = {
   'accessible-seating': 'Accessible Seating',
   merchandise: 'Merchandise',
   'guest-services': 'Guest Services',
+  'prayer-room': 'Prayer & Quiet Room',
+  'family-reunification': 'Family Reunification',
   'emergency-exit': 'Emergency Exit',
 };
 
@@ -94,6 +96,9 @@ const AMENITY_DESCRIPTIONS: Record<AmenityType, string> = {
   'accessible-seating': 'Wheelchair-accessible seating area with companion seats.',
   merchandise: 'Official tournament merchandise and souvenirs.',
   'guest-services': 'Help desk for tickets, lost and found, and general questions.',
+  'prayer-room': 'Multi-faith prayer room and sensory quiet space.',
+  'family-reunification':
+    'Meeting point for separated groups and lost children, staffed by Guest Services.',
   'emergency-exit': 'Follow staff instructions. Do not use during normal operations.',
 };
 
@@ -128,6 +133,12 @@ const AMENITY_DEFINITIONS: ReadonlyArray<{
   { type: 'water', sectionLabel: '128', angle: 245 },
   { type: 'water', sectionLabel: '134', angle: 305 },
   { type: 'water', sectionLabel: '138', angle: 335 },
+  // Prayer & quiet rooms beside the two first-aid stations (calm, staffed
+  // corners of the concourse); the reunification point sits beside Guest
+  // Services at 123 so lost-child handoffs happen next to staff.
+  { type: 'prayer-room', sectionLabel: '112', angle: 100 },
+  { type: 'prayer-room', sectionLabel: '132', angle: 280 },
+  { type: 'family-reunification', sectionLabel: '121', angle: 185 },
   // Emergency exits at the four cardinal bearings, anchored to the upper
   // bowl: they render on the upper concourse ring, not the main one — see
   // EMERGENCY_EXIT_RADIUS in mapGeometry for why.

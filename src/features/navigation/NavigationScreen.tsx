@@ -3,6 +3,7 @@ import { MapLegend } from '../../components/map/MapLegend';
 import { StadiumMap } from '../../components/map/StadiumMap';
 import { RouteOverlayLayer } from '../../components/map/RouteOverlayLayer';
 import { Card } from '../../components/ui/Card';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import { GATES, SECTIONS } from '../../services/data/stadiumLayout';
 import type { Gate, StadiumSection } from '../../types/stadium';
 import { DirectionsPanel } from './DirectionsPanel';
@@ -23,6 +24,7 @@ const DEFAULT_GATE_ID = 'gate-a';
  * closest restroom, food, and exit for their block.
  */
 export default function NavigationScreen() {
+  const strings = useUiStrings();
   const [gateId, setGateId] = useState(DEFAULT_GATE_ID);
   const [sectionId, setSectionId] = useState('');
   const [plan, setPlan] = useState<RoutePlan | null>(null);
@@ -38,10 +40,9 @@ export default function NavigationScreen() {
 
   return (
     <main className="min-h-screen bg-fan-bg px-gutter py-section md:px-page">
-      <h1 className="font-display text-h1 text-fan-ink">Navigation</h1>
+      <h1 className="font-display text-h1 text-fan-ink">{strings['module.navigation.title']}</h1>
       <p className="mt-2 max-w-2xl text-body text-fan-muted">
-        Turn-by-turn wayfinding to seats, gates, and amenities across MetLife Stadium. Pick your
-        gate and section — or tap them on the map.
+        {strings['module.navigation.description']}
       </p>
       <div className="mt-section grid grid-cols-1 items-start gap-gutter xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
         <Card>

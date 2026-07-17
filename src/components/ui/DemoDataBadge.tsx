@@ -1,9 +1,16 @@
+import type { MockReason } from '../../services/gemini';
 import { cx } from '../../utils/cx';
 import type { CardTheme } from './Card';
 
 export interface DemoDataBadgeProps {
   /** Defaults to the light fan theme. */
   theme?: CardTheme;
+  /**
+   * Why the mock was served. Network-shaped failures read as "Offline mode" —
+   * deliberate capability for fans on roaming, not a degraded state — while
+   * everything else (no key, rate limits) stays "Demo data".
+   */
+  reason?: MockReason;
 }
 
 const THEME_CLASSES: Record<CardTheme, string> = {
@@ -13,11 +20,10 @@ const THEME_CLASSES: Record<CardTheme, string> = {
 
 /**
  * Marks AI content that came from the deterministic mock rather than a live
- * Gemini call (proxy unreachable, rate-limited, or no key) — the app quietly
- * keeps working, but never passes demo data off as live (CLAUDE.md Gemini
- * rules). Gold mono-tag styling per DESIGN.md §4.
+ * Gemini call — the app quietly keeps working, but never passes demo data
+ * off as live (CLAUDE.md Gemini rules). Gold mono-tag styling per DESIGN.md §4.
  */
-export function DemoDataBadge({ theme = 'fan' }: DemoDataBadgeProps) {
+export function DemoDataBadge({ theme = 'fan', reason = 'unavailable' }: DemoDataBadgeProps) {
   return (
     <span
       className={cx(
@@ -25,7 +31,7 @@ export function DemoDataBadge({ theme = 'fan' }: DemoDataBadgeProps) {
         THEME_CLASSES[theme],
       )}
     >
-      Demo data
+      {reason === 'offline' ? 'Offline mode' : 'Demo data'}
     </span>
   );
 }

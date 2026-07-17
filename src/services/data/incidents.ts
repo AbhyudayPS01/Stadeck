@@ -28,6 +28,12 @@ const INCIDENT_TEMPLATES: readonly IncidentTemplate[] = [
     location: 'Gate F plaza',
   },
   {
+    category: 'lost-child',
+    severity: 'critical',
+    summary: 'Lost child reported by a parent',
+    location: 'Section 121 concourse',
+  },
+  {
     category: 'weather',
     severity: 'critical',
     summary: 'Lightning within 8 miles — delay protocol in effect',

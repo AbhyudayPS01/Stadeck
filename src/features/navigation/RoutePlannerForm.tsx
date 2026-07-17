@@ -1,6 +1,7 @@
 import type { FormEvent } from 'react';
 import { Button } from '../../components/ui/Button';
 import { FormSelect } from '../../components/ui/FormSelect';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import { GATES, SECTIONS, TIER_NAMES } from '../../services/data/stadiumLayout';
 import type { SectionTier } from '../../types/stadium';
 
@@ -22,6 +23,7 @@ export function RoutePlannerForm({
   onSectionChange,
   onSubmit,
 }: RoutePlannerFormProps) {
+  const strings = useUiStrings();
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     onSubmit();
@@ -51,7 +53,7 @@ export function RoutePlannerForm({
         ))}
       </FormSelect>
       <Button className="self-start" disabled={sectionId === ''} type="submit">
-        Get directions
+        {strings['action.getDirections']}
       </Button>
     </form>
   );

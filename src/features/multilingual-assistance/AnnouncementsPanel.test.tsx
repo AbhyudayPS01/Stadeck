@@ -61,7 +61,8 @@ describe('AnnouncementsPanel', () => {
     if (!kickoffItem) {
       throw new Error('expected the kickoff announcement inside a list item');
     }
-    await user.click(within(kickoffItem).getByRole('button', { name: 'Translate' }));
+    // The button label follows the interface language (uiStrings), Spanish here.
+    await user.click(within(kickoffItem).getByRole('button', { name: 'Traducir' }));
 
     const translation = await screen.findByText('El partido comienza a las 15:00.');
     expect(translation).toHaveAttribute('lang', 'es');
@@ -79,9 +80,9 @@ describe('AnnouncementsPanel', () => {
     });
     renderPanel('ar');
 
-    const firstButton = screen.getAllByRole('button', { name: 'Translate' })[0];
+    const firstButton = screen.getAllByRole('button', { name: 'ترجمة' })[0];
     if (!firstButton) {
-      throw new Error('expected at least one Translate button');
+      throw new Error('expected at least one translate button');
     }
     await user.click(firstButton);
 

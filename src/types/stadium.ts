@@ -31,6 +31,8 @@ export type AmenityType =
   | 'accessible-seating'
   | 'merchandise'
   | 'guest-services'
+  | 'prayer-room'
+  | 'family-reunification'
   | 'emergency-exit';
 
 /** A fixed venue amenity marker, anchored near a section on the map. */

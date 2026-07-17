@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { LanguageProvider } from '../../context/LanguageProvider';
 import type { KpiSnapshot } from '../../types/operational';
 import OperationalIntelligenceScreen from './OperationalIntelligenceScreen';
 
@@ -53,7 +54,11 @@ beforeEach(() => {
 
 describe('OperationalIntelligenceScreen — KPI board', () => {
   it('renders every KPI with its label, value, unit, trend word, and severity badge', () => {
-    render(<OperationalIntelligenceScreen />);
+    render(
+      <LanguageProvider>
+        <OperationalIntelligenceScreen />
+      </LanguageProvider>,
+    );
 
     expect(screen.getByRole('heading', { name: 'Attendance' })).toBeInTheDocument();
     expect(screen.getByText('78,375')).toBeInTheDocument();
@@ -64,7 +69,11 @@ describe('OperationalIntelligenceScreen — KPI board', () => {
   });
 
   it('clamps negative values from the untrusted feed to zero before rendering', () => {
-    render(<OperationalIntelligenceScreen />);
+    render(
+      <LanguageProvider>
+        <OperationalIntelligenceScreen />
+      </LanguageProvider>,
+    );
 
     expect(screen.getByText('0')).toBeInTheDocument();
     expect(screen.queryByText('-4')).not.toBeInTheDocument();
@@ -78,7 +87,11 @@ describe('OperationalIntelligenceScreen — executive briefing', () => {
       data: BRIEFING,
       source: 'live',
     });
-    render(<OperationalIntelligenceScreen />);
+    render(
+      <LanguageProvider>
+        <OperationalIntelligenceScreen />
+      </LanguageProvider>,
+    );
 
     await user.click(screen.getByRole('button', { name: 'Generate briefing' }));
 
@@ -94,7 +107,11 @@ describe('OperationalIntelligenceScreen — executive briefing', () => {
       data: BRIEFING,
       source: 'mock',
     });
-    render(<OperationalIntelligenceScreen />);
+    render(
+      <LanguageProvider>
+        <OperationalIntelligenceScreen />
+      </LanguageProvider>,
+    );
 
     await user.click(screen.getByRole('button', { name: 'Generate briefing' }));
 
@@ -106,7 +123,11 @@ describe('OperationalIntelligenceScreen — executive briefing', () => {
     getOperationalIntelligenceSummaryMock
       .mockRejectedValueOnce(new Error('boom'))
       .mockResolvedValueOnce({ data: BRIEFING, source: 'live' });
-    render(<OperationalIntelligenceScreen />);
+    render(
+      <LanguageProvider>
+        <OperationalIntelligenceScreen />
+      </LanguageProvider>,
+    );
 
     await user.click(screen.getByRole('button', { name: 'Generate briefing' }));
     expect(await screen.findByRole('alert')).toHaveTextContent(/could not be generated/i);
@@ -118,7 +139,11 @@ describe('OperationalIntelligenceScreen — executive briefing', () => {
   it('re-briefs with fresh KPIs on demand', async () => {
     const user = userEvent.setup();
     getOperationalIntelligenceSummaryMock.mockResolvedValue({ data: BRIEFING, source: 'live' });
-    render(<OperationalIntelligenceScreen />);
+    render(
+      <LanguageProvider>
+        <OperationalIntelligenceScreen />
+      </LanguageProvider>,
+    );
 
     await user.click(screen.getByRole('button', { name: 'Generate briefing' }));
     await screen.findByText(BRIEFING.summary);

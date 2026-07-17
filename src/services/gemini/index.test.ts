@@ -13,13 +13,15 @@ import {
   getMultilingualReply,
   getNavigationDirections,
   getPlainLanguageRewrite,
+  getRealTimeDecisionSupport,
   getStepFreeRoute,
   getSustainabilityTips,
-  getTransportationRecommendation,
+  getVolunteerAnswer,
 } from './index';
 import {
   mockAccessibilityResponse,
   mockPlainLanguageResponse,
+  mockRealTimeDecisionSupportResponse,
   mockSustainabilityResponse,
 } from './mock';
 
@@ -175,48 +177,61 @@ describe('getAnnouncementTranslation', () => {
   });
 });
 
-describe('per-feature min-interval limiter', () => {
-  it('serves mock without calling Gemini again when called within the interval', async () => {
-    const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(1_000_000);
-    requestGeminiMock.mockResolvedValue(
-      JSON.stringify({
-        recommendedOptionId: 'nj-transit-rail',
-        summary: 'ok',
-        departureWindow: 'Leave by 5:15 PM',
-        steps: [],
-      }),
+describe('getVolunteerAnswer', () => {
+  it('asks for the reply in the explicit target language', async () => {
+    requestGeminiMock.mockResolvedValueOnce(
+      JSON.stringify({ reply: 'الإسعافات الأولية بجوار القسم 112.', language: 'ar' }),
     );
 
-    await getTransportationRecommendation([], 'Gate A');
-    requestGeminiMock.mockClear();
-
-    const result = await getTransportationRecommendation([], 'Gate A');
-
-    expect(result.source).toBe('mock');
-    expect(requestGeminiMock).not.toHaveBeenCalled();
-    nowSpy.mockRestore();
-  });
-
-  it('calls Gemini again once the interval has elapsed', async () => {
-    const nowSpy = vi.spyOn(Date, 'now');
-    nowSpy.mockReturnValue(2_000_000);
-    requestGeminiMock.mockResolvedValue(
-      JSON.stringify({
-        recommendedOptionId: 'nj-transit-rail',
-        summary: 'ok',
-        departureWindow: 'Leave by 5:15 PM',
-        steps: [],
-      }),
-    );
-
-    await getTransportationRecommendation([], 'Gate A');
-    requestGeminiMock.mockClear();
-
-    nowSpy.mockReturnValue(2_000_000 + 3_000);
-    const result = await getTransportationRecommendation([], 'Gate A');
+    const result = await getVolunteerAnswer('Where is first aid?', 'ar');
 
     expect(result.source).toBe('live');
-    expect(requestGeminiMock).toHaveBeenCalledTimes(1);
-    nowSpy.mockRestore();
+    expect(result.data.language).toBe('ar');
+    const prompt = requestGeminiMock.mock.calls[0]?.[0] ?? '';
+    expect(prompt).toContain('BCP-47 code "ar"');
+    expect(prompt).toContain('First aid stations'); // same grounding as the fan chat
+  });
+
+  it('serves the mock in the target language when the proxy is unreachable', async () => {
+    requestGeminiMock.mockRejectedValueOnce(new Error('network down'));
+
+    const result = await getVolunteerAnswer('Where is first aid?', 'ja');
+
+    expect(result.source).toBe('mock');
+    expect(result.data.language).toBe('ja');
+  });
+});
+
+describe('getRealTimeDecisionSupport', () => {
+  const lostChildIncident = {
+    id: 'incident-test-1',
+    category: 'lost-child' as const,
+    severity: 'critical' as const,
+    summary: 'Lost child reported by a parent',
+    location: 'Section 121 concourse',
+    reportedAt: '2026-07-19T19:05:00.000Z',
+    status: 'open' as const,
+  };
+
+  it('dictates the child-safety protocol in the prompt for lost-child incidents', async () => {
+    requestGeminiMock.mockResolvedValueOnce(
+      JSON.stringify(mockRealTimeDecisionSupportResponse('lost-child')),
+    );
+
+    await getRealTimeDecisionSupport(lostChildIncident);
+
+    const prompt = requestGeminiMock.mock.calls[0]?.[0] ?? '';
+    expect(prompt).toContain('never moves them through the crowd');
+    expect(prompt).toContain('Family Reunification point near section 121');
+    expect(prompt).toContain('15 minutes');
+  });
+
+  it('serves the full lost-child protocol from the mock with zero key', async () => {
+    requestGeminiMock.mockRejectedValueOnce(new Error('network down'));
+
+    const result = await getRealTimeDecisionSupport(lostChildIncident);
+
+    expect(result.source).toBe('mock');
+    expect(result.data).toEqual(mockRealTimeDecisionSupportResponse('lost-child'));
   });
 });

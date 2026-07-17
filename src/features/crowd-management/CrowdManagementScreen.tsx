@@ -3,6 +3,7 @@ import { StadiumMap } from '../../components/map/StadiumMap';
 import { Card } from '../../components/ui/Card';
 import { DENSITY_REFRESH_INTERVAL_MS } from '../../config/constants';
 import { useMockStream } from '../../hooks/useMockStream';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import { generateDensityReadings } from '../../services/data/density';
 import { CrowdAnalysisPanel } from './CrowdAnalysisPanel';
 import { DensityHeatmapLayer, HeatmapLegend } from './DensityHeatmapLayer';
@@ -10,14 +11,16 @@ import { ZoneWatchlist } from './ZoneWatchlist';
 
 /** Crowd Management — implements the challenge clause "crowd management". */
 export default function CrowdManagementScreen() {
+  const strings = useUiStrings();
   const readings = useMockStream(generateDensityReadings, DENSITY_REFRESH_INTERVAL_MS);
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-ops-bg to-ops-bg2 px-gutter py-section md:px-page">
-      <h1 className="font-display text-h1 text-ops-ink">Crowd Management</h1>
+      <h1 className="font-display text-h1 text-ops-ink">
+        {strings['module.crowd-management.title']}
+      </h1>
       <p className="mt-2 max-w-2xl text-body text-ops-muted">
-        Live occupancy from simulated sensors across all 96 sections and 8 gates, with AI staff
-        recommendations for keeping the crowd moving.
+        {strings['module.crowd-management.description']}
       </p>
       <div className="mt-section grid grid-cols-1 items-start gap-gutter xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
         <Card theme="ops">

@@ -1,4 +1,3 @@
-import { GEMINI_MIN_REQUEST_INTERVAL_MS } from '../../config/constants';
 import { getStadiumFactsContext } from '../data/stadiumFacts';
 import type { Announcement } from '../../types/announcement';
 import type { DensityReading } from '../../types/crowd';
@@ -8,7 +7,7 @@ import type { Gate, StadiumSection } from '../../types/stadium';
 import type { SustainabilityMetrics } from '../../types/sustainability';
 import type { TransitOption } from '../../types/transportation';
 import { detectLanguage } from '../../utils/detectLanguage';
-import { parseJsonResponse, requestGemini } from './client';
+import { callFeature, type GeminiResult } from './callFeature';
 import {
   mockAccessibilityResponse,
   mockAnnouncementTranslationResponse,
@@ -41,7 +40,6 @@ import type {
   AccessibilityResponse,
   AnnouncementTranslationResponse,
   CrowdManagementResponse,
-  FeatureId,
   MultilingualAssistanceResponse,
   NavigationResponse,
   OperationalIntelligenceResponse,
@@ -65,57 +63,14 @@ import {
   isTransportationResponse,
 } from './validators';
 
-export interface GeminiResult<T> {
-  data: T;
-  /** "mock" drives the "Demo data" badge in the UI — live and mock never look identical to the fan. */
-  source: 'live' | 'mock';
-}
-
 /**
- * Secondary AI actions get their own limiter key so they never rate-limit the
- * primary feature they share a screen with (e.g. translating an announcement
- * vs. the concierge chat — used back-to-back on the same screen).
+ * Public Gemini API: one named function per feature, all flowing through
+ * callFeature.ts (limiter → live call → deterministic mock fallback). The
+ * fallback exists because international fans are on expensive roaming inside
+ * a congested bowl — the app must never present a dead end, with zero
+ * connectivity and zero API key (see callFeature for the full rationale).
  */
-type LimiterKey =
-  | FeatureId
-  | 'announcement-translation'
-  | 'scenario-planning'
-  | 'plain-language'
-  | 'sustainability-report';
-
-const lastCalledAt = new Map<LimiterKey, number>();
-
-function isWithinMinInterval(feature: LimiterKey): boolean {
-  const last = lastCalledAt.get(feature);
-  return last !== undefined && Date.now() - last < GEMINI_MIN_REQUEST_INTERVAL_MS;
-}
-
-/**
- * Shared per-feature request flow: client-side rate limiting (so rapid
- * repeated triggers on one screen don't hammer the API), then a live
- * Gemini call, defensively parsed — falling back to the deterministic mock
- * on any failure so the app never shows an error state for AI content.
- */
-async function callFeature<T>(
-  feature: LimiterKey,
-  prompt: string,
-  isValidResponse: (value: unknown) => value is T,
-  mockResponse: () => T,
-): Promise<GeminiResult<T>> {
-  if (isWithinMinInterval(feature)) {
-    return { data: mockResponse(), source: 'mock' };
-  }
-
-  lastCalledAt.set(feature, Date.now());
-
-  try {
-    const text = await requestGemini(prompt);
-    const data = parseJsonResponse(text, isValidResponse);
-    return { data, source: 'live' };
-  } catch {
-    return { data: mockResponse(), source: 'mock' };
-  }
-}
+export type { GeminiResult, MockReason } from './callFeature';
 
 /** Turn-by-turn walking directions from an entry gate to a seating section. */
 export async function getNavigationDirections(
@@ -221,6 +176,29 @@ export async function getMultilingualReply(
   );
 }
 
+/**
+ * Volunteer assist: the same fact-grounded concierge answer, in an explicit
+ * target language. The volunteer view requests each answer twice — English
+ * for the volunteer, the fan's language to show the fan — so the translated
+ * half gets its own limiter key (see LimiterKey) and never rate-limits the
+ * English half it always ships with.
+ */
+export async function getVolunteerAnswer(
+  question: string,
+  targetLanguage: string,
+): Promise<GeminiResult<MultilingualAssistanceResponse>> {
+  return callFeature(
+    targetLanguage === 'en' ? 'multilingual-assistance' : 'volunteer-assist-translation',
+    buildMultilingualAssistancePrompt({
+      message: question,
+      facts: getStadiumFactsContext(),
+      targetLanguage,
+    }),
+    isMultilingualAssistanceResponse,
+    () => mockMultilingualAssistanceResponse(targetLanguage),
+  );
+}
+
 /** One-click translation of a venue announcement into the fan's chosen language. */
 export async function getAnnouncementTranslation(
   announcement: Announcement,
@@ -254,7 +232,7 @@ export async function getRealTimeDecisionSupport(
     'real-time-decision-support',
     buildRealTimeDecisionSupportPrompt({ incident }),
     isRealTimeDecisionSupportResponse,
-    mockRealTimeDecisionSupportResponse,
+    () => mockRealTimeDecisionSupportResponse(incident.category),
   );
 }
 

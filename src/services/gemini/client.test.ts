@@ -72,7 +72,7 @@ describe('requestGemini', () => {
 
   it('throws after exhausting retries on repeated 5xx errors', async () => {
     vi.useFakeTimers();
-    fetchMock.mockResolvedValue(mockResponse(503, { error: 'down' }));
+    fetchMock.mockResolvedValue(mockResponse(500, { error: 'down' }));
 
     const resultPromise = requestGemini('prompt-e');
     const assertion = expect(resultPromise).rejects.toMatchObject({
@@ -83,6 +83,18 @@ describe('requestGemini', () => {
     await assertion;
 
     expect(fetchMock).toHaveBeenCalledTimes(3); // initial + 2 retries
+  });
+
+  it('maps the proxy 503 to a non-retryable not-configured error', async () => {
+    // 503 is the proxy's "no GEMINI_API_KEY" answer — retrying cannot help,
+    // and the UI labels the fallback "Demo data" rather than "Offline mode".
+    fetchMock.mockResolvedValueOnce(mockResponse(503, { error: 'Gemini is not configured' }));
+
+    await expect(requestGemini('prompt-nc')).rejects.toMatchObject({
+      type: 'not-configured',
+      retryable: false,
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it('does not retry a non-retryable 400', async () => {

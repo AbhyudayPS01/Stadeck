@@ -10,4 +10,14 @@ describe('DemoDataBadge', () => {
     rerender(<DemoDataBadge theme="ops" />);
     expect(screen.getByText('Demo data')).toBeInTheDocument();
   });
+
+  it('reads as offline capability when the mock was served for a network failure', () => {
+    render(<DemoDataBadge reason="offline" />);
+    expect(screen.getByText('Offline mode')).toBeInTheDocument();
+  });
+
+  it('keeps the demo label when no API key is configured', () => {
+    render(<DemoDataBadge reason="no-key" />);
+    expect(screen.getByText('Demo data')).toBeInTheDocument();
+  });
 });

@@ -10,8 +10,10 @@ const LEGEND_ORDER: readonly AmenityType[] = [
   'water',
   'merchandise',
   'guest-services',
+  'prayer-room',
   'accessible-seating',
   'first-aid',
+  'family-reunification',
   'emergency-exit',
 ];
 

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { LanguageProvider } from '../../context/LanguageProvider';
 import type { TransitOption } from '../../types/transportation';
 import TransportationScreen from './TransportationScreen';
 
@@ -60,7 +61,11 @@ beforeEach(() => {
 
 describe('TransportationScreen — transit board', () => {
   it('lists every option with mode, status, and crowding as words — never color alone', () => {
-    render(<TransportationScreen />);
+    render(
+      <LanguageProvider>
+        <TransportationScreen />
+      </LanguageProvider>,
+    );
 
     const board = within(screen.getByRole('list', { name: 'Transit options' }));
     const rows = board.getAllByRole('listitem');
@@ -73,7 +78,11 @@ describe('TransportationScreen — transit board', () => {
   });
 
   it('clamps out-of-range ETAs from the untrusted feed before rendering', () => {
-    render(<TransportationScreen />);
+    render(
+      <LanguageProvider>
+        <TransportationScreen />
+      </LanguageProvider>,
+    );
 
     expect(screen.getByText('120 min')).toBeInTheDocument();
     expect(screen.queryByText('999 min')).not.toBeInTheDocument();
@@ -82,7 +91,11 @@ describe('TransportationScreen — transit board', () => {
 
 describe('TransportationScreen — departure strategy', () => {
   it('disables "Plan my exit" until a destination is entered', () => {
-    render(<TransportationScreen />);
+    render(
+      <LanguageProvider>
+        <TransportationScreen />
+      </LanguageProvider>,
+    );
 
     expect(screen.getByRole('button', { name: 'Plan my exit' })).toBeDisabled();
   });
@@ -90,7 +103,11 @@ describe('TransportationScreen — departure strategy', () => {
   it('plans a departure strategy and highlights the AI pick on the board', async () => {
     const user = userEvent.setup();
     getTransportationRecommendationMock.mockResolvedValueOnce({ data: STRATEGY, source: 'live' });
-    render(<TransportationScreen />);
+    render(
+      <LanguageProvider>
+        <TransportationScreen />
+      </LanguageProvider>,
+    );
 
     await planExit(user);
 
@@ -106,7 +123,11 @@ describe('TransportationScreen — departure strategy', () => {
   it('marks mock strategies with the Demo data badge', async () => {
     const user = userEvent.setup();
     getTransportationRecommendationMock.mockResolvedValueOnce({ data: STRATEGY, source: 'mock' });
-    render(<TransportationScreen />);
+    render(
+      <LanguageProvider>
+        <TransportationScreen />
+      </LanguageProvider>,
+    );
 
     await planExit(user);
 
@@ -118,7 +139,11 @@ describe('TransportationScreen — departure strategy', () => {
     getTransportationRecommendationMock
       .mockRejectedValueOnce(new Error('boom'))
       .mockResolvedValueOnce({ data: STRATEGY, source: 'live' });
-    render(<TransportationScreen />);
+    render(
+      <LanguageProvider>
+        <TransportationScreen />
+      </LanguageProvider>,
+    );
 
     await planExit(user);
     expect(await screen.findByRole('alert')).toHaveTextContent(/could not be planned/i);

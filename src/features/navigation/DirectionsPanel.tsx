@@ -20,7 +20,7 @@ export interface DirectionsPanelProps {
  */
 export function DirectionsPanel({ gate, section }: DirectionsPanelProps) {
   const fetcher = useCallback(() => getNavigationDirections(gate, section), [gate, section]);
-  const { data, source, isLoading, error, refetch } = useGemini(fetcher);
+  const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
 
   if (isLoading) {
     return <LoadingRow label="Fetching directions" />;
@@ -40,7 +40,7 @@ export function DirectionsPanel({ gate, section }: DirectionsPanelProps) {
     <div className="mt-3 flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
         <Badge severity="normal">~{data.etaMinutes} min walk</Badge>
-        {source === 'mock' ? <DemoDataBadge /> : null}
+        {source === 'mock' ? <DemoDataBadge reason={mockReason ?? undefined} /> : null}
       </div>
       {/* AI response region per CLAUDE.md accessibility rules */}
       <div aria-live="polite">

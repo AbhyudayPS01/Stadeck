@@ -96,9 +96,11 @@ export const DEMO_ACCESS_CODES: Readonly<Record<GatedRole, string>> = {
 };
 
 /**
- * Languages offered for AI-generated content (chat replies, translated
- * announcements). UI chrome stays English — there is deliberately no full UI
- * i18n, only the AI content regions set `lang` on their containers.
+ * Languages offered by the interface-language picker. The bounded static
+ * string table in services/data/uiStrings covers each of these (module
+ * titles/descriptions, primary buttons, placeholders, empty states —
+ * deliberately not full UI i18n), and AI-generated content follows the same
+ * setting.
  */
 export const SUPPORTED_LANGUAGES: readonly LanguageOption[] = [
   { code: 'en', label: 'English', nativeLabel: 'English' },
@@ -111,7 +113,7 @@ export const SUPPORTED_LANGUAGES: readonly LanguageOption[] = [
   { code: 'ja', label: 'Japanese', nativeLabel: '日本語' },
 ];
 
-/** Default AI content language until the visitor picks another. */
+/** Default interface language until the visitor picks another. */
 export const DEFAULT_LANGUAGE = 'en';
 
 /** Delay before the chat input's language-detection hint recomputes (CLAUDE.md: debounce chat inputs). */

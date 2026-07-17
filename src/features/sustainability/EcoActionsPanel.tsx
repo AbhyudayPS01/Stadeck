@@ -6,6 +6,7 @@ import { ErrorState } from '../../components/ui/ErrorState';
 import { LoadingRow } from '../../components/ui/LoadingRow';
 import { StepList } from '../../components/ui/StepList';
 import { useGemini } from '../../hooks/useGemini';
+import { useUiStrings } from '../../hooks/useUiStrings';
 import { getSustainabilityTips } from '../../services/gemini';
 import type { SustainabilityMetrics } from '../../types/sustainability';
 
@@ -15,7 +16,7 @@ export interface EcoActionsPanelProps {
 
 function ActionsResult({ metrics }: EcoActionsPanelProps) {
   const fetcher = useCallback(() => getSustainabilityTips(metrics), [metrics]);
-  const { data, source, isLoading, error, refetch } = useGemini(fetcher);
+  const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
 
   if (isLoading) {
     return <LoadingRow label="Finding eco actions" />;
@@ -35,7 +36,7 @@ function ActionsResult({ metrics }: EcoActionsPanelProps) {
     <div className="mt-3 flex flex-col gap-3">
       {source === 'mock' ? (
         <span className="self-start">
-          <DemoDataBadge />
+          <DemoDataBadge reason={mockReason ?? undefined} />
         </span>
       ) : null}
       {/* AI response region per CLAUDE.md accessibility rules */}
@@ -53,6 +54,7 @@ function ActionsResult({ metrics }: EcoActionsPanelProps) {
  * in how the venue is actually performing right now.
  */
 export function EcoActionsPanel({ metrics }: EcoActionsPanelProps) {
+  const strings = useUiStrings();
   const [snapshot, setSnapshot] = useState<SustainabilityMetrics | null>(null);
 
   return (
@@ -64,7 +66,7 @@ export function EcoActionsPanel({ metrics }: EcoActionsPanelProps) {
             Get 3-4 concrete actions you can take right now, based on today&apos;s live venue
             metrics.
           </p>
-          <Button onClick={() => setSnapshot(metrics)}>Get my eco actions</Button>
+          <Button onClick={() => setSnapshot(metrics)}>{strings['action.getEcoActions']}</Button>
         </div>
       ) : (
         <ActionsResult metrics={snapshot} />

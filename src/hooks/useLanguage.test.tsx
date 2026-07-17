@@ -16,7 +16,7 @@ describe('useLanguage', () => {
     expect(result.current.language).toBe(DEFAULT_LANGUAGE);
   });
 
-  it('updates the AI content language preference', () => {
+  it('updates the interface language preference', () => {
     const { result } = renderHook(() => useLanguage(), { wrapper });
 
     act(() => result.current.setLanguage('es'));

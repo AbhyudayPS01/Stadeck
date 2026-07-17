@@ -29,7 +29,7 @@ function ReportList({ title, items }: ReportListProps) {
 
 function ReportResult({ metrics }: MatchReportPanelProps) {
   const fetcher = useCallback(() => getSustainabilityReport(metrics), [metrics]);
-  const { data, source, isLoading, error, refetch } = useGemini(fetcher);
+  const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
 
   if (isLoading) {
     return <LoadingRow label="Writing match report" />;
@@ -49,7 +49,7 @@ function ReportResult({ metrics }: MatchReportPanelProps) {
     <div className="mt-3 flex flex-col gap-3">
       {source === 'mock' ? (
         <span className="self-start">
-          <DemoDataBadge />
+          <DemoDataBadge reason={mockReason ?? undefined} />
         </span>
       ) : null}
       {/* AI response region per CLAUDE.md accessibility rules */}

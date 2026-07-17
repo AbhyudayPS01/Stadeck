@@ -102,6 +102,21 @@ describe('mockRealTimeDecisionSupportResponse', () => {
     expect(response.teamsToNotify.length).toBeGreaterThan(0);
     expect(response.escalationCriteria.length).toBeGreaterThan(0);
   });
+
+  it('serves the full child-safety protocol for lost-child incidents', () => {
+    const response = mockRealTimeDecisionSupportResponse('lost-child');
+    expect(response.priority).toBe('critical');
+    expect(response.immediateActions.join(' ')).toContain('do not move them');
+    expect(response.immediateActions.join(' ')).toContain('Radio Guest Services');
+    expect(response.teamsToNotify.join(' ')).toContain('Section 121');
+    expect(response.escalationCriteria.join(' ')).toContain('15 minutes');
+  });
+
+  it('keeps the generic containment plan for every other category', () => {
+    expect(mockRealTimeDecisionSupportResponse('medical')).toEqual(
+      mockRealTimeDecisionSupportResponse(),
+    );
+  });
 });
 
 describe('mockScenarioPlanResponse', () => {

@@ -20,7 +20,7 @@ interface AnalysisResultProps {
 
 function AnalysisResult({ snapshot, onReanalyze }: AnalysisResultProps) {
   const fetcher = useCallback(() => getCrowdManagementSummary(snapshot), [snapshot]);
-  const { data, source, isLoading, error, refetch } = useGemini(fetcher);
+  const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
 
   if (isLoading) {
     return <LoadingRow label="Analyzing crowd state" theme="ops" />;
@@ -43,7 +43,7 @@ function AnalysisResult({ snapshot, onReanalyze }: AnalysisResultProps) {
     <div className="mt-3 flex flex-col gap-3">
       {source === 'mock' ? (
         <span className="self-start">
-          <DemoDataBadge theme="ops" />
+          <DemoDataBadge reason={mockReason ?? undefined} theme="ops" />
         </span>
       ) : null}
       {/* AI response region per CLAUDE.md accessibility rules */}

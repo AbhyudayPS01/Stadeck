@@ -15,7 +15,7 @@ export interface StepFreeGuidancePanelProps {
 /** AI step-free route guidance for a submitted gate → accessible seating plan. */
 export function StepFreeGuidancePanel({ gate, section }: StepFreeGuidancePanelProps) {
   const fetcher = useCallback(() => getStepFreeRoute(gate, section), [gate, section]);
-  const { data, source, isLoading, error, refetch } = useGemini(fetcher);
+  const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
 
   if (isLoading) {
     return <LoadingRow label="Planning step-free route" />;
@@ -35,7 +35,7 @@ export function StepFreeGuidancePanel({ gate, section }: StepFreeGuidancePanelPr
     <div className="mt-3 flex flex-col gap-3">
       {source === 'mock' ? (
         <span className="self-start">
-          <DemoDataBadge />
+          <DemoDataBadge reason={mockReason ?? undefined} />
         </span>
       ) : null}
       {/* AI response region per CLAUDE.md accessibility rules */}

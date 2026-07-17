@@ -148,15 +148,24 @@ export function buildSustainabilityReportPrompt(params: {
   ].join('\n\n');
 }
 
+/**
+ * Fan chat detects the language from the message itself; the volunteer view
+ * passes an explicit targetLanguage instead (the question is English, the
+ * answer is shown to a fan in their language). Same grounding either way.
+ */
 export function buildMultilingualAssistancePrompt(params: {
   message: string;
   facts: string;
+  targetLanguage?: string;
 }): string {
+  const languageInstruction = params.targetLanguage
+    ? `Reply in the language with BCP-47 code "${params.targetLanguage}" and report that code in the "language" field.`
+    : 'Detect the language of the fan message and reply in that same language. Report its BCP-47 code in the "language" field.';
   return [
     "You are Stadeck's multilingual concierge for fans at MetLife Stadium.",
-    'Detect the language of the fan message and reply in that same language. Report its BCP-47 code in the "language" field.',
+    languageInstruction,
     `Answer using only these verified stadium facts:\n${params.facts}`,
-    "If the facts do not cover the question, say so in the fan's language and point them to Guest Services at sections 103 or 123.",
+    'If the facts do not cover the question, say so in the reply language and point them to Guest Services at sections 103 or 123.',
     `A fan's message:\n${wrapUntrustedInput(params.message)}`,
     jsonOnlyInstruction('{ "reply": string, "language": string }'),
   ].join('\n\n');
@@ -187,10 +196,19 @@ export function buildOperationalIntelligencePrompt(params: { kpis: KpiSnapshot[]
 const ACTION_PLAN_SHAPE =
   '{ "summary": string, "immediateActions": string[], "teamsToNotify": string[], "escalationCriteria": string[], "priority": "normal" | "elevated" | "critical" }';
 
+/**
+ * The lost-child protocol is dictated, not left to the model: child-safety
+ * steps must be the same every time, so the prompt states them and the model
+ * only phrases the plan around them.
+ */
+const LOST_CHILD_PROTOCOL =
+  'This is a lost-child incident. The plan MUST follow the venue child-safety protocol: a staff member stays with the child (or the reporting adult) exactly where they are and never moves them through the crowd; Guest Services and the security control room are radioed with a description; the guardian is paged to the Family Reunification point near section 121; the child is never taken outside the venue; and escalation includes a hard time threshold of 15 minutes without reunification.';
+
 export function buildRealTimeDecisionSupportPrompt(params: { incident: Incident }): string {
   return [
     "You are Stadeck's real-time decision support assistant for venue staff at MetLife Stadium.",
     `An incident was reported:\n${JSON.stringify(params.incident)}`,
+    ...(params.incident.category === 'lost-child' ? [LOST_CHILD_PROTOCOL] : []),
     'Produce a structured action plan: immediate actions in order, teams to notify, and escalation criteria.',
     jsonOnlyInstruction(ACTION_PLAN_SHAPE),
   ].join('\n\n');

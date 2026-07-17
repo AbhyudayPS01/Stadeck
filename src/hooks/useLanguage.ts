@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { LanguageContext, type LanguageContextValue } from '../context/languageContext';
 
 /**
- * The AI content language preference and its setter.
+ * The interface language preference and its setter.
  *
  * @returns The LanguageContext value.
  * @throws When rendered outside a LanguageProvider — misuse should fail loudly in development.

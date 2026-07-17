@@ -151,6 +151,7 @@ export function AmenityMarker({ amenity, expanded, onToggle }: AmenityMarkerProp
         className="map-focusable"
         cx={point.x}
         cy={point.y}
+        data-amenity-id={amenity.id}
         fill={expanded ? colors.stroke : colors.fill}
         onClick={activate}
         onKeyDown={handleKeyDown}

@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DisplayPreferencesProvider } from '../../context/DisplayPreferencesProvider';
+import { LanguageProvider } from '../../context/LanguageProvider';
 import AccessibilityScreen from './AccessibilityScreen';
 
 vi.mock('../../services/gemini', () => ({
@@ -23,7 +24,9 @@ const GUIDANCE = {
 function renderScreen() {
   return render(
     <DisplayPreferencesProvider>
-      <AccessibilityScreen />
+      <LanguageProvider>
+        <AccessibilityScreen />
+      </LanguageProvider>
     </DisplayPreferencesProvider>,
   );
 }
