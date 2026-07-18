@@ -6,9 +6,21 @@ import { RoleProvider } from '../../context/RoleProvider';
 import { LanguageProvider } from '../../context/LanguageProvider';
 import { VenueProvider } from '../../context/VenueProvider';
 import { MAX_USER_INPUT_LENGTH } from '../../config/constants';
+import { useVenue } from '../../hooks/useVenue';
 import { DEFAULT_VENUE } from '../../services/data/venues';
+import { mockRealTimeDecisionSupportResponse } from '../../services/gemini/mock';
 import type { Role } from '../../types/role';
 import RealTimeDecisionSupportScreen from './RealTimeDecisionSupportScreen';
+
+/** Test-only sibling that can switch the active venue within the same provider. */
+function VenueSwitchButton({ toVenueId }: { toVenueId: string }) {
+  const { setVenueId } = useVenue();
+  return (
+    <button onClick={() => setVenueId(toVenueId)} type="button">
+      Switch venue
+    </button>
+  );
+}
 
 vi.mock('../../services/gemini', () => ({
   getRealTimeDecisionSupport: vi.fn(),
@@ -171,5 +183,38 @@ describe('RealTimeDecisionSupportScreen', () => {
     renderScreen('volunteer');
 
     expect(screen.queryByRole('heading', { name: 'What-if scenario' })).not.toBeInTheDocument();
+  });
+
+  it('names the retractable roof in the weather action plan after switching to AT&T Stadium, unlike the default venue', async () => {
+    const user = userEvent.setup();
+    // Routed through the real deterministic mock (not a canned fixture) so this
+    // proves the venue actually reaches the roof-branching logic Part A fixed,
+    // not just that the screen passes a venue object through unexamined.
+    getRealTimeDecisionSupportMock.mockImplementation((incident, venue = DEFAULT_VENUE) =>
+      Promise.resolve({
+        data: mockRealTimeDecisionSupportResponse(incident.category, venue),
+        source: 'mock',
+      }),
+    );
+    render(
+      <RoleProvider initialRole="organizer">
+        <VenueProvider>
+          <LanguageProvider>
+            <VenueSwitchButton toVenueId="att-stadium" />
+            <RealTimeDecisionSupportScreen />
+          </LanguageProvider>
+        </VenueProvider>
+      </RoleProvider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: /Lightning within 8 miles/ }));
+    // Match the prefixed summary line specifically — the same phrase also
+    // appears unprefixed in the immediate-actions list.
+    expect(await screen.findByText(/Weather incident:.*no roof to close/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Switch venue' }));
+    await user.click(screen.getByRole('button', { name: /Lightning within 8 miles/ }));
+
+    expect(await screen.findByText(/Weather incident:.*retractable roof/)).toBeInTheDocument();
   });
 });

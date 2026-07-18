@@ -4,9 +4,21 @@ import userEvent from '@testing-library/user-event';
 import { ignoringIsolates } from '../../test/textMatchers';
 import { LanguageProvider } from '../../context/LanguageProvider';
 import { VenueProvider } from '../../context/VenueProvider';
+import { useVenue } from '../../hooks/useVenue';
 import { DEFAULT_VENUE } from '../../services/data/venues';
+import { mockCrowdManagementResponse } from '../../services/gemini/mock';
 import type { DensityReading } from '../../types/crowd';
 import CrowdManagementScreen from './CrowdManagementScreen';
+
+/** Test-only sibling that can switch the active venue within the same provider. */
+function VenueSwitchButton({ toVenueId }: { toVenueId: string }) {
+  const { setVenueId } = useVenue();
+  return (
+    <button onClick={() => setVenueId(toVenueId)} type="button">
+      Switch venue
+    </button>
+  );
+}
 
 vi.mock('../../services/gemini', () => ({
   getCrowdManagementSummary: vi.fn(),
@@ -125,5 +137,31 @@ describe('CrowdManagementScreen', () => {
     await user.click(screen.getByRole('button', { name: 'Re-analyze with latest readings' }));
 
     expect(getCrowdManagementSummaryMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('surfaces the real mock generator’s altitude guidance after switching to Estadio Azteca, unlike the default venue', async () => {
+    const user = userEvent.setup();
+    // Routed through the real deterministic mock (not a canned fixture) so this
+    // proves the venue actually reaches the altitude-aware branch Part A fixed,
+    // not just that the screen passes a venue object through unexamined.
+    getCrowdManagementSummaryMock.mockImplementation((_readings, venue = DEFAULT_VENUE) =>
+      Promise.resolve({ data: mockCrowdManagementResponse(venue), source: 'mock' }),
+    );
+    render(
+      <VenueProvider>
+        <LanguageProvider>
+          <VenueSwitchButton toVenueId="estadio-azteca" />
+          <CrowdManagementScreen />
+        </LanguageProvider>
+      </VenueProvider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Analyze current state' }));
+    expect(screen.queryByText(/altitude/)).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Switch venue' }));
+    await user.click(screen.getByRole('button', { name: 'Analyze current state' }));
+
+    expect(await screen.findByText(/altitude/)).toBeInTheDocument();
   });
 });

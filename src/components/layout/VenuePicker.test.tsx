@@ -5,6 +5,7 @@ import { LanguageProvider } from '../../context/LanguageProvider';
 import { VenueProvider } from '../../context/VenueProvider';
 import { useVenue } from '../../hooks/useVenue';
 import { VENUES } from '../../services/data/venues';
+import { findNearestVenue } from '../../utils/geolocation';
 import { VenuePicker } from './VenuePicker';
 
 /** Renders the venue name so tests can observe context propagation from the picker. */
@@ -142,6 +143,68 @@ describe('VenuePicker', () => {
 
     const select = screen.getByLabelText('Match venue');
     expect(select.tagName).toBe('SELECT');
+  });
+
+  it('reaches the select and the find-nearest button in tab order and switches venue via the keyboard', async () => {
+    const user = userEvent.setup();
+    renderPicker();
+
+    await user.tab();
+    expect(screen.getByLabelText('Match venue')).toHaveFocus();
+
+    await user.tab();
+    expect(screen.getByRole('button', { name: 'Find nearest venue' })).toHaveFocus();
+  });
+
+  it('activates "Find nearest venue" from the keyboard with Enter', async () => {
+    const user = userEvent.setup();
+    stubGeolocation((success) => success(stubPosition(40.81, -74.07)));
+    renderPicker();
+
+    screen.getByRole('button', { name: 'Find nearest venue' }).focus();
+    await user.keyboard('{Enter}');
+
+    expect(await screen.findByText('Active: MetLife Stadium')).toBeInTheDocument();
+  });
+
+  it('keeps stadium and city names untranslated in every interface language', () => {
+    render(
+      <VenueProvider>
+        <LanguageProvider initialLanguage="hi">
+          <VenuePicker />
+        </LanguageProvider>
+      </VenueProvider>,
+    );
+
+    // The label and roof word translate; the proper nouns never do.
+    expect(screen.getByText('मैच स्थल')).toBeInTheDocument();
+    const option = screen.getByRole('option', { name: /Estadio Azteca/ });
+    expect(option.textContent).toContain('Estadio Azteca');
+    expect(option.textContent).toContain('Mexico City');
+  });
+
+  it('keeps the nearest-venue message’s stadium name untranslated in Arabic while the surrounding copy translates', async () => {
+    const user = userEvent.setup();
+    const sydney = { latitude: -33.8688, longitude: 151.2093 }; // far from every venue
+    stubGeolocation((success) => success(stubPosition(sydney.latitude, sydney.longitude)));
+    // Derive the expected nearest venue instead of assuming which of the 16 it is.
+    const expected = findNearestVenue(sydney, VENUES);
+    if (!expected) {
+      throw new Error('expected a nearest venue for a non-empty registry');
+    }
+    render(
+      <VenueProvider>
+        <LanguageProvider initialLanguage="ar">
+          <VenuePicker />
+        </LanguageProvider>
+      </VenueProvider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'العثور على أقرب ملعب' }));
+
+    const message = await screen.findByText(new RegExp(expected.venue.name), { selector: 'p' });
+    expect(message.textContent).toContain(expected.venue.name);
+    expect(message.textContent).toContain('هل تخطط مسبقًا');
   });
 
   it('lists MetLife Stadium first within the United States group', () => {
