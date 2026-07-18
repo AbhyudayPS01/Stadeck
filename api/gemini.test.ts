@@ -103,7 +103,7 @@ describe('upstream error handling', () => {
     fetchMock.mockResolvedValueOnce({
       ok: false,
       status: 500,
-      json: () => Promise.resolve({ error: { message: 'quota exceeded for key abc123' } }),
+      text: () => Promise.resolve('{"error":{"message":"quota exceeded for key abc123"}}'),
     });
     const res = mockRes();
 
@@ -112,6 +112,25 @@ describe('upstream error handling', () => {
     expect(res.status).toHaveBeenCalledWith(502);
     const [payload] = res.json.mock.calls[0] as [unknown];
     expect(JSON.stringify(payload)).not.toContain('quota exceeded');
+  });
+
+  it('logs the full upstream error body server-side for debugging, even though the client never sees it', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 404,
+      text: () =>
+        Promise.resolve(
+          '{"error":{"code":404,"message":"models/gemini-flash-latest is not found","status":"NOT_FOUND"}}',
+        ),
+    });
+    const res = mockRes();
+
+    await handler(mockReq('POST', { prompt: 'hello' }), res);
+
+    const logged = consoleErrorSpy.mock.calls.map((call) => call.join(' ')).join('\n');
+    expect(logged).toContain('404');
+    expect(logged).toContain('models/gemini-flash-latest is not found');
   });
 
   it('returns 502 when the upstream payload has no text candidate', async () => {

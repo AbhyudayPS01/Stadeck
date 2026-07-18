@@ -8,7 +8,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
  * surfaces in the deployed function, not in `tsc`'s Bundler resolution or
  * Vite's build). Keep these two values in sync with constants.ts by hand.
  */
-const GEMINI_MODEL = 'gemini-1.5-flash';
+const GEMINI_MODEL = 'gemini-flash-latest';
 const MAX_GEMINI_PROMPT_LENGTH = 8_000;
 
 /**
@@ -101,8 +101,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     );
 
     if (!upstream.ok) {
-      // Error shaping: log detail server-side, return a generic message — never the upstream body.
-      console.error(`Gemini upstream error: ${upstream.status}`);
+      // Error shaping: log the full upstream body server-side (so Vercel's logs show
+      // Gemini's exact message — e.g. which model names are valid) but return only a
+      // generic message to the client — never the upstream body (see SECURITY.md).
+      const errorBody = await upstream.text();
+      console.error(`Gemini upstream error: ${upstream.status} ${errorBody}`);
       res.status(502).json({ error: 'Gemini request failed' });
       return;
     }
