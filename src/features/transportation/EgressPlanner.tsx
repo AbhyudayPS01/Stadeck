@@ -10,9 +10,11 @@ import { useGemini } from '../../hooks/useGemini';
 import { useUiStrings } from '../../hooks/useUiStrings';
 import { getTransportationRecommendation } from '../../services/gemini';
 import type { TransitOption } from '../../types/transportation';
+import type { Venue } from '../../types/venue';
 
 export interface EgressPlannerProps {
   options: TransitOption[];
+  venue: Venue;
   /** Reports the AI's recommended option so the transit board can highlight it. */
   onRecommendation: (optionId: string | null) => void;
 }
@@ -25,14 +27,15 @@ interface EgressPlan {
 
 interface StrategyResultProps {
   plan: EgressPlan;
+  venue: Venue;
   onRecommendation: (optionId: string | null) => void;
 }
 
-function StrategyResult({ plan, onRecommendation }: StrategyResultProps) {
+function StrategyResult({ plan, venue, onRecommendation }: StrategyResultProps) {
   const strings = useUiStrings();
   const fetcher = useCallback(
-    () => getTransportationRecommendation(plan.options, plan.destination),
-    [plan],
+    () => getTransportationRecommendation(plan.options, plan.destination, venue),
+    [plan, venue],
   );
   const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
 
@@ -78,7 +81,7 @@ function StrategyResult({ plan, onRecommendation }: StrategyResultProps) {
  * turns the live transit board into a personalized departure strategy with
  * concrete times and expected crowd loads.
  */
-export function EgressPlanner({ options, onRecommendation }: EgressPlannerProps) {
+export function EgressPlanner({ options, venue, onRecommendation }: EgressPlannerProps) {
   const strings = useUiStrings();
   const [destination, setDestination] = useState('');
   const [plan, setPlan] = useState<EgressPlan | null>(null);
@@ -111,7 +114,9 @@ export function EgressPlanner({ options, onRecommendation }: EgressPlannerProps)
           {strings['action.planExit']}
         </Button>
       </form>
-      {plan ? <StrategyResult onRecommendation={onRecommendation} plan={plan} /> : null}
+      {plan ? (
+        <StrategyResult onRecommendation={onRecommendation} plan={plan} venue={venue} />
+      ) : null}
     </Card>
   );
 }

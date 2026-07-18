@@ -180,6 +180,22 @@ export function sectionNumber(sectionId: string): string {
   return sectionId.replace('sec-', '');
 }
 
+/**
+ * The section number a given fraction of the way around a tier's ring —
+ * mirrors the amenity plan's ring-fraction convention (stadiumAmenities.ts),
+ * so mock content can reference "a section on this venue's ring" without
+ * hardcoding a number that only exists at some venues.
+ */
+export function sectionNumberAtRingFraction(
+  layout: VenueLayout,
+  tier: SectionTier,
+  fraction: number,
+): string {
+  const ring = layout.sections.filter((section) => section.tier === tier);
+  const section = ring[Math.floor(fraction * ring.length)];
+  return section ? sectionNumber(section.id) : '';
+}
+
 /** Compass bearing of a section's center, matching the angle convention of gates and amenities. */
 export function sectionMidAngle(section: StadiumSection): number {
   return (section.angleStart + section.angleEnd) / 2;

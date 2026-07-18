@@ -99,7 +99,7 @@ export async function getCrowdManagementSummary(
     'crowd-management',
     buildCrowdManagementPrompt({ readings, venue }),
     isCrowdManagementResponse,
-    mockCrowdManagementResponse,
+    () => mockCrowdManagementResponse(venue),
   );
 }
 
@@ -126,7 +126,7 @@ export async function getPlainLanguageRewrite(
     'plain-language',
     buildPlainLanguagePrompt({ message: announcement.message, venue }),
     isPlainLanguageResponse,
-    () => mockPlainLanguageResponse(announcement),
+    () => mockPlainLanguageResponse(announcement, venue),
   );
 }
 
@@ -140,7 +140,7 @@ export async function getTransportationRecommendation(
     'transportation',
     buildTransportationPrompt({ options, destination, venue }),
     isTransportationResponse,
-    mockTransportationResponse,
+    () => mockTransportationResponse(venue),
   );
 }
 
@@ -184,7 +184,7 @@ export async function getMultilingualReply(
     'multilingual-assistance',
     buildMultilingualAssistancePrompt({ message, facts: getStadiumFactsContext(venue), venue }),
     isMultilingualAssistanceResponse,
-    () => mockMultilingualAssistanceResponse(detected),
+    () => mockMultilingualAssistanceResponse(detected, venue),
   );
 }
 
@@ -209,7 +209,7 @@ export async function getVolunteerAnswer(
       venue,
     }),
     isMultilingualAssistanceResponse,
-    () => mockMultilingualAssistanceResponse(targetLanguage),
+    () => mockMultilingualAssistanceResponse(targetLanguage, venue),
   );
 }
 
@@ -249,7 +249,7 @@ export async function getRealTimeDecisionSupport(
     'real-time-decision-support',
     buildRealTimeDecisionSupportPrompt({ incident, venue }),
     isRealTimeDecisionSupportResponse,
-    () => mockRealTimeDecisionSupportResponse(incident.category),
+    () => mockRealTimeDecisionSupportResponse(incident.category, venue),
   );
 }
 

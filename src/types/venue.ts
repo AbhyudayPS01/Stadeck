@@ -1,6 +1,13 @@
 /** Host country of a FIFA World Cup 2026 venue. */
 export type VenueCountry = 'United States' | 'Canada' | 'Mexico';
 
+/**
+ * Roof configuration — feeds AI weather/crowd reasoning (an open-air bowl and
+ * a domed venue plan differently around rain and heat) and the venue picker's
+ * secondary detail line.
+ */
+export type VenueRoof = 'open' | 'retractable' | 'fixed';
+
 /** Rail link serving a venue — grounds the transit board, facts, and announcements. */
 export interface VenueRail {
   /** Operating service, e.g. "NJ Transit Rail". */
@@ -32,4 +39,14 @@ export interface Venue {
   rideshareLot: string;
   /** Main matchday parking lot, e.g. "Lot G". */
   parkingLot: string;
+  roof: VenueRoof;
+  /** Elevation above sea level — grounds the altitude advisory fact for high-altitude venues. */
+  altitudeMeters: number;
+  /**
+   * Approximate public coordinates (degrees), used only for the on-device
+   * nearest-venue distance calculation in utils/geolocation.ts — never sent
+   * anywhere, never compared against a fan's precise location.
+   */
+  latitude: number;
+  longitude: number;
 }

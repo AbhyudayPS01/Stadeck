@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { LanguageProvider } from '../../context/LanguageProvider';
 import { RoleProvider } from '../../context/RoleProvider';
+import { VenueProvider } from '../../context/VenueProvider';
 import type { Role } from '../../types/role';
 import { Shell } from './Shell';
 
@@ -11,16 +12,18 @@ function renderShellAs(role: Role, initialLanguage = 'en') {
   return render(
     <RoleProvider initialRole={role}>
       <LanguageProvider initialLanguage={initialLanguage}>
-        <MemoryRouter
-          future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-          initialEntries={['/navigation']}
-        >
-          <Routes>
-            <Route element={<Shell />}>
-              <Route element={<p>Module body</p>} path="/navigation" />
-            </Route>
-          </Routes>
-        </MemoryRouter>
+        <VenueProvider>
+          <MemoryRouter
+            future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+            initialEntries={['/navigation']}
+          >
+            <Routes>
+              <Route element={<Shell />}>
+                <Route element={<p>Module body</p>} path="/navigation" />
+              </Route>
+            </Routes>
+          </MemoryRouter>
+        </VenueProvider>
       </LanguageProvider>
     </RoleProvider>,
   );

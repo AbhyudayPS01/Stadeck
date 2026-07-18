@@ -9,13 +9,18 @@ import { useGemini } from '../../hooks/useGemini';
 import { useUiStrings } from '../../hooks/useUiStrings';
 import { getSustainabilityTips } from '../../services/gemini';
 import type { SustainabilityMetrics } from '../../types/sustainability';
+import type { Venue } from '../../types/venue';
 
 export interface EcoActionsPanelProps {
   metrics: SustainabilityMetrics;
+  venue: Venue;
 }
 
-function ActionsResult({ metrics }: EcoActionsPanelProps) {
-  const fetcher = useCallback(() => getSustainabilityTips(metrics), [metrics]);
+function ActionsResult({ metrics, venue }: EcoActionsPanelProps) {
+  const fetcher = useCallback(
+    () => getSustainabilityTips(metrics, venue),
+    [metrics, venue],
+  );
   const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
   const strings = useUiStrings();
 
@@ -54,7 +59,7 @@ function ActionsResult({ metrics }: EcoActionsPanelProps) {
  * ticks must not retrigger the AI call) and renders per-fan actions grounded
  * in how the venue is actually performing right now.
  */
-export function EcoActionsPanel({ metrics }: EcoActionsPanelProps) {
+export function EcoActionsPanel({ metrics, venue }: EcoActionsPanelProps) {
   const strings = useUiStrings();
   const [snapshot, setSnapshot] = useState<SustainabilityMetrics | null>(null);
 
@@ -69,7 +74,7 @@ export function EcoActionsPanel({ metrics }: EcoActionsPanelProps) {
           <Button onClick={() => setSnapshot(metrics)}>{strings['action.getEcoActions']}</Button>
         </div>
       ) : (
-        <ActionsResult metrics={snapshot} />
+        <ActionsResult metrics={snapshot} venue={venue} />
       )}
     </Card>
   );

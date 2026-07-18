@@ -16,8 +16,13 @@ import { useMockStream } from '../../hooks/useMockStream';
 import { generateAnnouncement, getInitialAnnouncements } from '../../services/data/announcements';
 import { getAnnouncementTranslation, type MockReason } from '../../services/gemini';
 import type { Announcement, AnnouncementCategory } from '../../types/announcement';
+import type { Venue } from '../../types/venue';
 import { isRtlLanguage } from '../../utils/detectLanguage';
 import { formatUiString } from '../../utils/uiText';
+
+export interface AnnouncementsPanelProps {
+  venue: Venue;
+}
 
 const CATEGORY_SEVERITIES: Record<AnnouncementCategory, BadgeSeverity> = {
   safety: 'elevated',
@@ -43,13 +48,18 @@ type TranslationEntry =
  * fan's chosen interface language (the sidebar LanguagePicker). Feed items
  * are English; each translation sets its own `lang`/`dir`.
  */
-export function AnnouncementsPanel() {
+export function AnnouncementsPanel({ venue }: AnnouncementsPanelProps) {
   const { language } = useLanguage();
   const strings = useUiStrings();
-  const [announcements, setAnnouncements] = useState<Announcement[]>(getInitialAnnouncements);
+  const [announcements, setAnnouncements] = useState<Announcement[]>(() =>
+    getInitialAnnouncements(venue),
+  );
   const [translations, setTranslations] = useState<Record<string, TranslationEntry>>({});
 
-  const incoming = useMockStream(generateAnnouncement, ANNOUNCEMENT_FEED_INTERVAL_MS);
+  const incoming = useMockStream(
+    () => generateAnnouncement(venue),
+    ANNOUNCEMENT_FEED_INTERVAL_MS,
+  );
   useEffect(() => {
     setAnnouncements((previous) =>
       previous.some((announcement) => announcement.id === incoming.id)
@@ -62,7 +72,7 @@ export function AnnouncementsPanel() {
 
   const translate = (announcement: Announcement): void => {
     setTranslations((previous) => ({ ...previous, [announcement.id]: { status: 'loading' } }));
-    getAnnouncementTranslation(announcement, language).then((result) => {
+    getAnnouncementTranslation(announcement, language, venue).then((result) => {
       setTranslations((previous) => ({
         ...previous,
         [announcement.id]: {

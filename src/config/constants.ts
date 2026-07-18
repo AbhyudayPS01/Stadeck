@@ -11,6 +11,13 @@ import type { GatedRole, RoleOption } from '../types/role';
 export const DEFAULT_VENUE_ID = 'metlife-stadium';
 
 /**
+ * Beyond this radius, "Find nearest venue" treats the fan as planning ahead
+ * from home rather than standing near a venue: it surfaces the nearest match
+ * as information instead of silently jumping the view to an irrelevant venue.
+ */
+export const NEARBY_VENUE_THRESHOLD_KM = 500;
+
+/**
  * The eight modules named exactly after the challenge clauses. Drives route
  * generation, Shell navigation, and the ModuleGate role guard — see App.tsx.
  */

@@ -9,13 +9,26 @@ import { useGemini } from '../../hooks/useGemini';
 import { useUiStrings } from '../../hooks/useUiStrings';
 import { getOperationalIntelligenceSummary } from '../../services/gemini';
 import type { KpiSnapshot } from '../../types/operational';
+import type { Venue } from '../../types/venue';
 
 export interface ExecutiveBriefingPanelProps {
   kpis: KpiSnapshot[];
+  venue: Venue;
 }
 
-function BriefingResult({ kpis, onRefresh }: { kpis: KpiSnapshot[]; onRefresh: () => void }) {
-  const fetcher = useCallback(() => getOperationalIntelligenceSummary(kpis), [kpis]);
+function BriefingResult({
+  kpis,
+  venue,
+  onRefresh,
+}: {
+  kpis: KpiSnapshot[];
+  venue: Venue;
+  onRefresh: () => void;
+}) {
+  const fetcher = useCallback(
+    () => getOperationalIntelligenceSummary(kpis, venue),
+    [kpis, venue],
+  );
   const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
   const strings = useUiStrings();
 
@@ -61,7 +74,7 @@ function BriefingResult({ kpis, onRefresh }: { kpis: KpiSnapshot[]; onRefresh: (
  * 10-second feed ticks must not retrigger the AI call) and renders the
  * structured state-of-venue read.
  */
-export function ExecutiveBriefingPanel({ kpis }: ExecutiveBriefingPanelProps) {
+export function ExecutiveBriefingPanel({ kpis, venue }: ExecutiveBriefingPanelProps) {
   const strings = useUiStrings();
   const [snapshot, setSnapshot] = useState<KpiSnapshot[] | null>(null);
 
@@ -74,7 +87,7 @@ export function ExecutiveBriefingPanel({ kpis }: ExecutiveBriefingPanelProps) {
           <Button onClick={() => setSnapshot(kpis)}>{strings['action.generateBriefing']}</Button>
         </div>
       ) : (
-        <BriefingResult kpis={snapshot} onRefresh={() => setSnapshot([...kpis])} />
+        <BriefingResult kpis={snapshot} onRefresh={() => setSnapshot([...kpis])} venue={venue} />
       )}
     </Card>
   );

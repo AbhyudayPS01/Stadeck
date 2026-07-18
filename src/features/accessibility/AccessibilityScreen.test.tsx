@@ -3,6 +3,8 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DisplayPreferencesProvider } from '../../context/DisplayPreferencesProvider';
 import { LanguageProvider } from '../../context/LanguageProvider';
+import { VenueProvider } from '../../context/VenueProvider';
+import { DEFAULT_VENUE } from '../../services/data/venues';
 import AccessibilityScreen from './AccessibilityScreen';
 
 vi.mock('../../services/gemini', () => ({
@@ -23,11 +25,13 @@ const GUIDANCE = {
 
 function renderScreen() {
   return render(
-    <DisplayPreferencesProvider>
-      <LanguageProvider>
-        <AccessibilityScreen />
-      </LanguageProvider>
-    </DisplayPreferencesProvider>,
+    <VenueProvider>
+      <DisplayPreferencesProvider>
+        <LanguageProvider>
+          <AccessibilityScreen />
+        </LanguageProvider>
+      </DisplayPreferencesProvider>
+    </VenueProvider>,
   );
 }
 
@@ -62,9 +66,10 @@ describe('AccessibilityScreen — step-free route planner', () => {
     expect(await screen.findByText(GUIDANCE.summary)).toBeInTheDocument();
     expect(screen.getByText(GUIDANCE.recommendedRoute)).toBeInTheDocument();
     expect(screen.getByText('Wheelchair-accessible seating')).toBeInTheDocument();
-    const [gate, section] = getStepFreeRouteMock.mock.calls[0] ?? [];
+    const [gate, section, venue] = getStepFreeRouteMock.mock.calls[0] ?? [];
     expect(gate?.id).toBe('gate-g');
     expect(section?.id).toBe('sec-120');
+    expect(venue).toEqual(DEFAULT_VENUE);
   });
 
   it('highlights the step-free route on the map after planning', async () => {

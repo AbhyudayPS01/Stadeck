@@ -16,7 +16,12 @@ import type { TransitOption } from '../../types/transportation';
 import type { Venue } from '../../types/venue';
 import { formatCount } from '../../utils/format';
 import { wrapUntrustedInput } from './guard';
-import { compactDensityReadings, jsonOnlyInstruction, venuePersona } from './promptHelpers';
+import {
+  compactDensityReadings,
+  jsonOnlyInstruction,
+  venueConditionsLine,
+  venuePersona,
+} from './promptHelpers';
 
 /**
  * All prompt templates as typed builder functions. Each builder asks for
@@ -63,7 +68,7 @@ export function buildCrowdManagementPrompt(params: {
   const { readings, venue = DEFAULT_VENUE } = params;
   return [
     venuePersona('crowd management assistant for venue staff', venue),
-    `The venue seats ${formatCount(venue.capacity)} fans behind 8 gates.`,
+    `The venue seats ${formatCount(venue.capacity)} fans behind 8 gates. ${venueConditionsLine(venue)}`,
     `Aggregated live occupancy readings (zone ids: sec-<number> = seating section, gate-<letter> = entry gate):\n${compactDensityReadings(readings)}`,
     'Recommend which gates to open, how to redeploy stewards, and forecast congestion for the next 30 minutes.',
     jsonOnlyInstruction(
@@ -235,6 +240,7 @@ export function buildRealTimeDecisionSupportPrompt(params: {
   const { incident, venue = DEFAULT_VENUE } = params;
   return [
     venuePersona('real-time decision support assistant for venue staff', venue),
+    venueConditionsLine(venue),
     `An incident was reported:\n${JSON.stringify(incident)}`,
     ...(incident.category === 'lost-child' ? [lostChildProtocol(venue)] : []),
     'Produce a structured action plan: immediate actions in order, teams to notify, and escalation criteria.',
@@ -246,6 +252,7 @@ export function buildScenarioPrompt(params: { scenario: string; venue?: Venue })
   const { scenario, venue = DEFAULT_VENUE } = params;
   return [
     venuePersona('real-time decision support assistant for venue staff', venue),
+    venueConditionsLine(venue),
     `An organizer wants to war-game a hypothetical matchday scenario:\n${wrapUntrustedInput(scenario)}`,
     'Produce a structured contingency plan: immediate actions in order, teams to notify, and escalation criteria.',
     jsonOnlyInstruction(ACTION_PLAN_SHAPE),

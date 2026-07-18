@@ -18,6 +18,18 @@ it — and what is consciously out of scope.
 | Role gate bypass                | Volunteer/Organizer views open with a demo access code — a documented hackathon stand-in for venue SSO/OIDC, not an authentication system; the codes protect nothing sensitive. Both entry paths funnel through one validation function, and the active role is held in React context only (never `localStorage`), so a refresh always returns to the gate. | `src/utils/accessCode.ts`; `src/config/constants.ts` (`DEMO_ACCESS_CODES`); `src/context/roleContext.ts` |
 | API abuse from the client       | A per-feature minimum-interval limiter and an in-memory TTL response cache keep repeat or rapid-fire requests from reaching Gemini at all.                                                                                                                                                                                                                   | `src/services/gemini/index.ts` (limiter); `src/services/gemini/client.ts` (cache)                        |
 
+## Location privacy
+
+The "Find nearest venue" control in the venue picker never runs on load —
+only that button click triggers the browser's Geolocation permission prompt,
+and denial, unavailability, or a timeout all fall back to the picker with no
+error state. When permission is granted, the coordinates are compared against
+the bundled venue registry entirely on-device (`utils/geolocation.ts`, a
+haversine distance calculation with no network call and no third-party
+geocoding service) and then discarded — they are never transmitted anywhere,
+stored, or logged. Venue selection itself lives in React context only, like
+role and language, so a refresh always returns to the default (Final) venue.
+
 ## Dependency vulnerabilities
 
 `npm audit` currently reports 3 advisories (2 moderate, 1 high) in

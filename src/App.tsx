@@ -7,6 +7,7 @@ import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { DisplayPreferencesProvider } from './context/DisplayPreferencesProvider';
 import { LanguageProvider } from './context/LanguageProvider';
 import { RoleProvider } from './context/RoleProvider';
+import { VenueProvider } from './context/VenueProvider';
 import { MODULES } from './config/constants';
 import LandingScreen from './features/landing/LandingScreen';
 import type { ModuleId } from './types/module';
@@ -35,41 +36,43 @@ const screens: Record<ModuleId, ReturnType<typeof lazy>> = {
 };
 
 /**
- * Providers (role + AI language), the global error boundary, and the router:
- * landing role gate at "/", the eight module routes behind RequireRole inside
- * the Shell layout, each additionally wrapped by ModuleGate for role checks
- * and a per-route error boundary.
+ * Providers (role + AI language + venue), the global error boundary, and the
+ * router: landing role gate at "/", the eight module routes behind
+ * RequireRole inside the Shell layout, each additionally wrapped by
+ * ModuleGate for role checks and a per-route error boundary.
  */
 export default function App() {
   return (
     <RoleProvider>
       <LanguageProvider>
-        <DisplayPreferencesProvider>
-          <ErrorBoundary>
-            <Routes>
-              <Route element={<LandingScreen />} path="/" />
-              <Route element={<RequireRole />}>
-                <Route element={<Shell />}>
-                  {MODULES.map((module) => {
-                    const Screen = screens[module.id];
-                    return (
-                      <Route
-                        key={module.id}
-                        element={
-                          <ModuleGate module={module}>
-                            <Screen />
-                          </ModuleGate>
-                        }
-                        path={module.path}
-                      />
-                    );
-                  })}
+        <VenueProvider>
+          <DisplayPreferencesProvider>
+            <ErrorBoundary>
+              <Routes>
+                <Route element={<LandingScreen />} path="/" />
+                <Route element={<RequireRole />}>
+                  <Route element={<Shell />}>
+                    {MODULES.map((module) => {
+                      const Screen = screens[module.id];
+                      return (
+                        <Route
+                          key={module.id}
+                          element={
+                            <ModuleGate module={module}>
+                              <Screen />
+                            </ModuleGate>
+                          }
+                          path={module.path}
+                        />
+                      );
+                    })}
+                  </Route>
                 </Route>
-              </Route>
-              <Route element={<Navigate replace to="/" />} path="*" />
-            </Routes>
-          </ErrorBoundary>
-        </DisplayPreferencesProvider>
+                <Route element={<Navigate replace to="/" />} path="*" />
+              </Routes>
+            </ErrorBoundary>
+          </DisplayPreferencesProvider>
+        </VenueProvider>
       </LanguageProvider>
     </RoleProvider>
   );

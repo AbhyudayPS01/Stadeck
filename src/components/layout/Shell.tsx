@@ -9,6 +9,7 @@ import { cx } from '../../utils/cx';
 import { isRtlLanguage } from '../../utils/detectLanguage';
 import { LanguagePicker } from './LanguagePicker';
 import { RoleSwitcher } from './RoleSwitcher';
+import { VenuePicker } from './VenuePicker';
 
 /** Dark-navy brand block shared by the mobile top bar and the desktop sidebar. */
 function BrandMark() {
@@ -96,6 +97,7 @@ export function Shell() {
           </nav>
           <div className="flex flex-col gap-4 border-t border-ops-border pt-4">
             <RoleSwitcher />
+            <VenuePicker />
             <LanguagePicker />
           </div>
         </div>

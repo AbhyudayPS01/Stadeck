@@ -3,6 +3,8 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RoleProvider } from '../../context/RoleProvider';
 import { LanguageProvider } from '../../context/LanguageProvider';
+import { VenueProvider } from '../../context/VenueProvider';
+import { DEFAULT_VENUE } from '../../services/data/venues';
 import type { Role } from '../../types/role';
 import type { SustainabilityMetrics } from '../../types/sustainability';
 import SustainabilityScreen from './SustainabilityScreen';
@@ -46,9 +48,11 @@ const REPORT = {
 function renderScreen(role: Role = 'fan') {
   return render(
     <RoleProvider initialRole={role}>
-      <LanguageProvider>
-        <SustainabilityScreen />
-      </LanguageProvider>
+      <VenueProvider>
+        <LanguageProvider>
+          <SustainabilityScreen />
+        </LanguageProvider>
+      </VenueProvider>
     </RoleProvider>,
   );
 }
@@ -91,7 +95,7 @@ describe('SustainabilityScreen — eco actions', () => {
 
     expect(await screen.findByText(TIPS.summary)).toBeInTheDocument();
     expect(screen.getByText('Refill a bottle at a hydration station.')).toBeInTheDocument();
-    expect(getSustainabilityTipsMock).toHaveBeenCalledWith(FIXED_METRICS);
+    expect(getSustainabilityTipsMock).toHaveBeenCalledWith(FIXED_METRICS, DEFAULT_VENUE);
   });
 
   it('marks mock eco actions with the Demo data badge', async () => {
@@ -136,6 +140,6 @@ describe('SustainabilityScreen — organizer match report', () => {
     expect(await screen.findByText(REPORT.headline)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Highlights' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'For the next match' })).toBeInTheDocument();
-    expect(getSustainabilityReportMock).toHaveBeenCalledWith(FIXED_METRICS);
+    expect(getSustainabilityReportMock).toHaveBeenCalledWith(FIXED_METRICS, DEFAULT_VENUE);
   });
 });

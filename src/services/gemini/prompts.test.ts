@@ -257,6 +257,45 @@ describe('venue context', () => {
     expect(prompt).not.toContain('MetLife');
   });
 
+  it('grounds crowd management reasoning in the venue’s roof, without an altitude note below threshold', () => {
+    const attStadium = findVenue('att-stadium');
+    expect(attStadium).toBeDefined();
+    if (!attStadium) return;
+    const prompt = buildCrowdManagementPrompt({ readings: [], venue: attStadium });
+    expect(prompt).toContain('retractable roof');
+    expect(prompt).not.toContain('elevation');
+  });
+
+  it('adds an altitude note to ops reasoning at high-altitude venues', () => {
+    const azteca = findVenue('estadio-azteca');
+    expect(azteca).toBeDefined();
+    if (!azteca) return;
+
+    const crowdPrompt = buildCrowdManagementPrompt({ readings: [], venue: azteca });
+    expect(crowdPrompt).toContain('2240m elevation');
+    expect(crowdPrompt).toContain('dehydration');
+
+    const scenarioPrompt = buildScenarioPrompt({ scenario: 'Heat wave during a match', venue: azteca });
+    expect(scenarioPrompt).toContain('2240m elevation');
+  });
+
+  it('carries the venue conditions line into real-time decision support prompts', () => {
+    const sofiStadium = findVenue('sofi-stadium');
+    expect(sofiStadium).toBeDefined();
+    if (!sofiStadium) return;
+    const incident = {
+      id: 'incident-4',
+      category: 'weather' as const,
+      severity: 'critical' as const,
+      summary: 'Storm approaching',
+      location: 'Venue-wide',
+      reportedAt: 'now',
+      status: 'open' as const,
+    };
+    const prompt = buildRealTimeDecisionSupportPrompt({ incident, venue: sofiStadium });
+    expect(prompt).toContain('fixed roof');
+  });
+
   it('anchors the lost-child protocol to the venue’s own reunification section', () => {
     const toronto = findVenue('bmo-field');
     expect(toronto).toBeDefined();

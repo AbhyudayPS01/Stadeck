@@ -7,10 +7,15 @@ import { LoadingRow } from '../../components/ui/LoadingRow';
 import { MAX_USER_INPUT_LENGTH, SUPPORTED_LANGUAGES } from '../../config/constants';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useUiStrings } from '../../hooks/useUiStrings';
+import type { Venue } from '../../types/venue';
 import { isRtlLanguage } from '../../utils/detectLanguage';
 import { formatUiString } from '../../utils/uiText';
 import { COMMON_QUESTIONS } from './commonQuestions';
 import { useVolunteerAssist, type VolunteerAnswer } from './useVolunteerAssist';
+
+export interface VolunteerAssistProps {
+  venue: Venue;
+}
 
 /**
  * The dual-language answer panels: English for the volunteer to read, the
@@ -58,9 +63,9 @@ function AnswerPanels({ answer }: { answer: VolunteerAnswer }) {
  * the same grounded concierge pathway as the fan chat, presented for
  * one-handed use.
  */
-export function VolunteerAssist() {
+export function VolunteerAssist({ venue }: VolunteerAssistProps) {
   const { language } = useLanguage();
-  const { answer, isLoading, error, ask, retry } = useVolunteerAssist(language);
+  const { answer, isLoading, error, ask, retry } = useVolunteerAssist(language, venue);
   const strings = useUiStrings();
   const [draft, setDraft] = useState('');
   const inputId = useId();

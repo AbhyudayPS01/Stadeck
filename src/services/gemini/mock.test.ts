@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { SUPPORTED_LANGUAGES } from '../../config/constants';
 import { getInitialAnnouncements } from '../data/announcements';
+import { getVenueLayout } from '../data/stadiumLayout';
+import { findVenue, VENUES } from '../data/venues';
 import {
   mockAccessibilityResponse,
   mockAnnouncementTranslationResponse,
@@ -34,6 +36,14 @@ describe('mock responses', () => {
     expect(mockFn()).toEqual(mockFn());
   });
 });
+
+function requireVenue(id: string) {
+  const venue = findVenue(id);
+  if (!venue) {
+    throw new Error(`missing test venue ${id}`);
+  }
+  return venue;
+}
 
 describe('mockNavigationResponse', () => {
   it('returns a non-empty summary and at least one step', () => {
@@ -83,6 +93,23 @@ describe('mockPlainLanguageResponse', () => {
       mockPlainLanguageResponse(announcement),
     );
   });
+
+  it('substitutes the venue’s own rail station and first-aid sections, leaving no template tokens', () => {
+    const toronto = requireVenue('bmo-field');
+    const [transit, services] = getInitialAnnouncements(toronto).filter((announcement) =>
+      ['transit', 'services'].includes(announcement.category),
+    );
+    if (!transit || !services) {
+      throw new Error('announcement categories missing in test setup');
+    }
+
+    const transitRewrite = mockPlainLanguageResponse(transit, toronto).rewrite;
+    expect(transitRewrite).toContain('Exhibition Station');
+    expect(transitRewrite).not.toContain('{{');
+
+    const servicesRewrite = mockPlainLanguageResponse(services, toronto).rewrite;
+    expect(servicesRewrite).not.toContain('{{');
+  });
 });
 
 describe('mockCrowdManagementResponse', () => {
@@ -91,6 +118,25 @@ describe('mockCrowdManagementResponse', () => {
     expect(response.gatesToOpen.length).toBeGreaterThan(0);
     expect(response.stewardRedeployment.length).toBeGreaterThan(0);
     expect(response.congestionForecast.length).toBeGreaterThan(0);
+  });
+
+  it('reproduces the original hand-tuned sections for the default venue', () => {
+    const response = mockCrowdManagementResponse();
+    expect(response.stewardRedeployment.join(' ')).toContain('Sections 128-132');
+  });
+
+  it('cites only sections that exist in each venue’s generated layout', () => {
+    for (const venue of VENUES) {
+      const sectionLabels = new Set(
+        getVenueLayout(venue.id).sections.map((section) => section.label),
+      );
+      const response = mockCrowdManagementResponse(venue);
+      const cited = response.stewardRedeployment.join(' ').match(/Sections (\d+)-(\d+)/);
+      if (cited) {
+        expect(sectionLabels.has(cited[1] ?? ''), venue.id).toBe(true);
+        expect(sectionLabels.has(cited[2] ?? ''), venue.id).toBe(true);
+      }
+    }
   });
 });
 
@@ -112,10 +158,54 @@ describe('mockRealTimeDecisionSupportResponse', () => {
     expect(response.escalationCriteria.join(' ')).toContain('15 minutes');
   });
 
+  it('pages the guest services desk actually nearest the reunification point, agreeing with the facts sheet', () => {
+    // stadiumFacts.ts computes the same "nearest desk" for its reunification
+    // fact — this keeps the offline action plan and the concierge's grounded
+    // answer consistent instead of citing two different desks for one venue.
+    const response = mockRealTimeDecisionSupportResponse('lost-child');
+    expect(response.teamsToNotify.join(' ')).toContain('Guest Services desk 123');
+  });
+
   it('keeps the generic containment plan for every other category', () => {
     expect(mockRealTimeDecisionSupportResponse('medical')).toEqual(
       mockRealTimeDecisionSupportResponse(),
     );
+  });
+
+  it('anchors the lost-child plan to a different venue’s own reunification section', () => {
+    const toronto = requireVenue('bmo-field');
+    const response = mockRealTimeDecisionSupportResponse('lost-child', toronto);
+
+    const reunification = getVenueLayout('bmo-field').amenities.find(
+      (amenity) => amenity.type === 'family-reunification',
+    );
+    expect(reunification).toBeDefined();
+    const expectedSection = reunification?.sectionId.replace('sec-', '');
+
+    expect(response.summary).toContain(`Section ${expectedSection}`);
+    expect(response.summary).not.toContain('Section 121');
+  });
+
+  it('names the venue’s own guest services desk for a generic containment plan', () => {
+    const toronto = requireVenue('bmo-field');
+    const response = mockRealTimeDecisionSupportResponse('medical', toronto);
+    expect(response.teamsToNotify.join(' ')).not.toContain('desk 103');
+  });
+});
+
+describe('mockTransportationResponse', () => {
+  it('reproduces the default venue’s rail station in the departure narrative', () => {
+    const response = mockTransportationResponse();
+    expect(response.steps.join(' ')).toContain('Meadowlands Station');
+    expect(response.steps.join(' ')).toContain('Secaucus');
+  });
+
+  it('names a different venue’s own rail station and hub', () => {
+    const toronto = requireVenue('bmo-field');
+    const response = mockTransportationResponse(toronto);
+    expect(response.steps.join(' ')).toContain('Exhibition Station');
+    expect(response.steps.join(' ')).toContain('Union Station');
+    expect(response.steps.join(' ')).not.toContain('Meadowlands');
   });
 });
 
@@ -147,6 +237,37 @@ describe('mockMultilingualAssistanceResponse', () => {
   it('falls back to English for an unsupported language code', () => {
     const response = mockMultilingualAssistanceResponse('xx');
     expect(response.language).toBe('en');
+  });
+
+  it('reproduces the default venue’s sections in the English reply', () => {
+    const response = mockMultilingualAssistanceResponse('en');
+    expect(response.reply).toContain('sections 112 and 132');
+    expect(response.reply).toContain('sections 103 and 123');
+  });
+
+  it('cites a different venue’s own first-aid and guest-services sections', () => {
+    const toronto = requireVenue('bmo-field');
+    const response = mockMultilingualAssistanceResponse('en', toronto);
+
+    const layout = getVenueLayout('bmo-field');
+    const firstAid = [
+      ...new Set(
+        layout.amenities
+          .filter((amenity) => amenity.type === 'first-aid')
+          .map((amenity) => amenity.sectionId.replace('sec-', '')),
+      ),
+    ];
+    expect(response.reply).toContain(firstAid[0]);
+    expect(response.reply).not.toContain('sections 112 and 132');
+  });
+
+  it('leaves no template tokens in any supported language for any venue', () => {
+    for (const venue of VENUES) {
+      for (const code of SUPPORTED_LANGUAGES.map((option) => option.code)) {
+        const response = mockMultilingualAssistanceResponse(code, venue);
+        expect(response.reply, `${venue.id} ${code}`).not.toContain('{{');
+      }
+    }
   });
 });
 

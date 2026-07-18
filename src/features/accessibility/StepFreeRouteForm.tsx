@@ -2,13 +2,14 @@ import type { FormEvent } from 'react';
 import { Button } from '../../components/ui/Button';
 import { FormSelect } from '../../components/ui/FormSelect';
 import { useUiStrings } from '../../hooks/useUiStrings';
-import { GATES } from '../../services/data/stadiumLayout';
-import type { StadiumSection } from '../../types/stadium';
+import type { Gate, StadiumSection } from '../../types/stadium';
 
 export interface StepFreeRouteFormProps {
   gateId: string;
   sectionId: string;
-  /** The accessible seating destinations (from the stadium layout config). */
+  /** The active venue's own gates (from its generated layout). */
+  gates: readonly Gate[];
+  /** The accessible seating destinations (from the venue's layout config). */
   destinations: readonly StadiumSection[];
   onGateChange: (gateId: string) => void;
   onSectionChange: (sectionId: string) => void;
@@ -19,6 +20,7 @@ export interface StepFreeRouteFormProps {
 export function StepFreeRouteForm({
   gateId,
   sectionId,
+  gates,
   destinations,
   onGateChange,
   onSectionChange,
@@ -33,7 +35,7 @@ export function StepFreeRouteForm({
   return (
     <form className="mt-3 flex flex-col gap-3" onSubmit={handleSubmit}>
       <FormSelect label={strings['navigation.entryGate']} onChange={onGateChange} value={gateId}>
-        {GATES.map((gate) => (
+        {gates.map((gate) => (
           <option key={gate.id} value={gate.id}>
             {gate.label} ({gate.compassPoint})
           </option>

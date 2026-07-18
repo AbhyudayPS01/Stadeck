@@ -8,11 +8,13 @@ import { useGemini } from '../../hooks/useGemini';
 import { useUiStrings } from '../../hooks/useUiStrings';
 import { getNavigationDirections } from '../../services/gemini';
 import type { Gate, StadiumSection } from '../../types/stadium';
+import type { Venue } from '../../types/venue';
 import { formatUiString } from '../../utils/uiText';
 
 export interface DirectionsPanelProps {
   gate: Gate;
   section: StadiumSection;
+  venue: Venue;
 }
 
 /**
@@ -20,8 +22,11 @@ export interface DirectionsPanelProps {
  * when the fan submits a different plan (the props change), never on map
  * hover/selection alone — the parent only re-renders this with a new plan.
  */
-export function DirectionsPanel({ gate, section }: DirectionsPanelProps) {
-  const fetcher = useCallback(() => getNavigationDirections(gate, section), [gate, section]);
+export function DirectionsPanel({ gate, section, venue }: DirectionsPanelProps) {
+  const fetcher = useCallback(
+    () => getNavigationDirections(gate, section, venue),
+    [gate, section, venue],
+  );
   const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
   const strings = useUiStrings();
 

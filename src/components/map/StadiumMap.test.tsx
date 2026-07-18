@@ -2,7 +2,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { LanguageProvider } from '../../context/LanguageProvider';
-import { AMENITIES, SECTIONS } from '../../services/data/stadiumLayout';
+import { AMENITIES, getVenueLayout, SECTIONS } from '../../services/data/stadiumLayout';
+import { findVenue } from '../../services/data/venues';
 import { StadiumMap } from './StadiumMap';
 
 describe('StadiumMap', () => {
@@ -255,6 +256,53 @@ describe('StadiumMap', () => {
     expect(hitCircles).toHaveLength(AMENITIES.length);
     await user.click(hitCircles[0] as Element);
     expect(screen.getByRole('dialog', { name: 'Restroom details' })).toBeInTheDocument();
+  });
+
+  it('renders a different venue’s layout when given one, with no leftover MetLife sections', () => {
+    const bmoField = findVenue('bmo-field');
+    if (!bmoField) {
+      throw new Error('expected bmo-field in the venue registry');
+    }
+    const bmoLayout = getVenueLayout('bmo-field');
+    render(
+      <LanguageProvider>
+        <StadiumMap venue={bmoField} />
+      </LanguageProvider>,
+    );
+
+    expect(
+      screen.getByRole('group', { name: /Schematic seating map of BMO Field/ }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /^Section \d+/ })).toHaveLength(
+      bmoLayout.sections.length,
+    );
+    // MetLife's larger lower bowl runs past section 124; BMO Field's smaller
+    // ring must not still show sections that only exist at the default venue.
+    expect(bmoLayout.sections.length).toBeLessThan(SECTIONS.length);
+  });
+
+  it('closes an open amenity popup when the venue switches', async () => {
+    const user = userEvent.setup();
+    const bmoField = findVenue('bmo-field');
+    if (!bmoField) {
+      throw new Error('expected bmo-field in the venue registry');
+    }
+    const { rerender } = render(
+      <LanguageProvider>
+        <StadiumMap venue={undefined} />
+      </LanguageProvider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Restroom, near section 105' }));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    rerender(
+      <LanguageProvider>
+        <StadiumMap venue={bmoField} />
+      </LanguageProvider>,
+    );
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('reduces label density instead of shrinking text: minors classed or dropped', () => {

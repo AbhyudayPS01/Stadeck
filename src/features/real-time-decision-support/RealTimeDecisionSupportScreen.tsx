@@ -4,6 +4,7 @@ import { INCIDENT_FEED_INTERVAL_MS, INCIDENT_FEED_LIMIT } from '../../config/con
 import { useMockStream } from '../../hooks/useMockStream';
 import { useRole } from '../../hooks/useRole';
 import { useUiStrings } from '../../hooks/useUiStrings';
+import { useVenue } from '../../hooks/useVenue';
 import { generateIncident, getInitialIncidents } from '../../services/data/incidents';
 import type { Incident } from '../../types/incident';
 import { ActionPlanPanel } from './ActionPlanPanel';
@@ -14,10 +15,23 @@ import { ScenarioPlanner } from './ScenarioPlanner';
 export default function RealTimeDecisionSupportScreen() {
   const strings = useUiStrings();
   const { role } = useRole();
-  const [incidents, setIncidents] = useState<Incident[]>(getInitialIncidents);
+  const { venue } = useVenue();
+  const [incidents, setIncidents] = useState<Incident[]>(() => getInitialIncidents(venue));
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const incoming = useMockStream(generateIncident, INCIDENT_FEED_INTERVAL_MS);
+  // Incident locations are venue-specific — re-seed the feed and clear the
+  // selection rather than leave incidents (and a selected plan) that cite a
+  // section only the previous venue has.
+  useEffect(() => {
+    setIncidents(getInitialIncidents(venue));
+    setSelectedId(null);
+  }, [venue]);
+
+  const incoming = useMockStream(
+    () => generateIncident(venue),
+    INCIDENT_FEED_INTERVAL_MS,
+    venue,
+  );
   useEffect(() => {
     setIncidents((previous) =>
       previous.some((incident) => incident.id === incoming.id)
@@ -41,7 +55,7 @@ export default function RealTimeDecisionSupportScreen() {
         <div className="flex flex-col gap-gutter">
           {selected ? (
             // Keyed so switching incidents remounts the panel and fetches a fresh plan.
-            <ActionPlanPanel key={selected.id} incident={selected} />
+            <ActionPlanPanel key={selected.id} incident={selected} venue={venue} />
           ) : (
             <EmptyState
               message={strings['empty.incidentNotSelected']}
@@ -50,7 +64,7 @@ export default function RealTimeDecisionSupportScreen() {
               title={strings['rtds.noIncidentSelectedTitle']}
             />
           )}
-          {role === 'organizer' ? <ScenarioPlanner /> : null}
+          {role === 'organizer' ? <ScenarioPlanner key={venue.id} venue={venue} /> : null}
         </div>
       </div>
     </main>

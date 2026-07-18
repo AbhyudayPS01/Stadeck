@@ -7,16 +7,21 @@ import { useGemini } from '../../hooks/useGemini';
 import { useUiStrings } from '../../hooks/useUiStrings';
 import { getStepFreeRoute } from '../../services/gemini';
 import type { Gate, StadiumSection } from '../../types/stadium';
+import type { Venue } from '../../types/venue';
 import { formatUiString } from '../../utils/uiText';
 
 export interface StepFreeGuidancePanelProps {
   gate: Gate;
   section: StadiumSection;
+  venue: Venue;
 }
 
 /** AI step-free route guidance for a submitted gate → accessible seating plan. */
-export function StepFreeGuidancePanel({ gate, section }: StepFreeGuidancePanelProps) {
-  const fetcher = useCallback(() => getStepFreeRoute(gate, section), [gate, section]);
+export function StepFreeGuidancePanel({ gate, section, venue }: StepFreeGuidancePanelProps) {
+  const fetcher = useCallback(
+    () => getStepFreeRoute(gate, section, venue),
+    [gate, section, venue],
+  );
   const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
   const strings = useUiStrings();
 

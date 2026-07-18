@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import { getVolunteerAnswer, type MockReason } from '../../services/gemini';
+import type { Venue } from '../../types/venue';
 
 export interface VolunteerAnswer {
   question: string;
@@ -27,7 +28,7 @@ export interface VolunteerAssistState {
  * (requested in parallel through the same service pathway as the fan chat).
  * A request id guards against a stale answer overwriting a newer one.
  */
-export function useVolunteerAssist(language: string): VolunteerAssistState {
+export function useVolunteerAssist(language: string, venue: Venue): VolunteerAssistState {
   const [answer, setAnswer] = useState<VolunteerAnswer | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,8 +47,9 @@ export function useVolunteerAssist(language: string): VolunteerAssistState {
       setIsLoading(true);
       setError(null);
 
-      const englishRequest = getVolunteerAnswer(trimmed, 'en');
-      const translatedRequest = language === 'en' ? null : getVolunteerAnswer(trimmed, language);
+      const englishRequest = getVolunteerAnswer(trimmed, 'en', venue);
+      const translatedRequest =
+        language === 'en' ? null : getVolunteerAnswer(trimmed, language, venue);
 
       Promise.all([englishRequest, translatedRequest])
         .then(([englishResult, translatedResult]) => {
@@ -80,7 +82,7 @@ export function useVolunteerAssist(language: string): VolunteerAssistState {
           setIsLoading(false);
         });
     },
-    [language],
+    [language, venue],
   );
 
   const retry = useCallback(() => {

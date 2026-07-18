@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { LanguageProvider } from '../../context/LanguageProvider';
+import { VenueProvider } from '../../context/VenueProvider';
+import { DEFAULT_VENUE } from '../../services/data/venues';
 import type { KpiSnapshot } from '../../types/operational';
 import OperationalIntelligenceScreen from './OperationalIntelligenceScreen';
 
@@ -52,13 +54,19 @@ beforeEach(() => {
   getKpiSnapshotMock.mockReturnValue(FIXED_KPIS);
 });
 
-describe('OperationalIntelligenceScreen — KPI board', () => {
-  it('renders every KPI with its label, value, unit, trend word, and severity badge', () => {
-    render(
+function renderScreen() {
+  return render(
+    <VenueProvider>
       <LanguageProvider>
         <OperationalIntelligenceScreen />
-      </LanguageProvider>,
-    );
+      </LanguageProvider>
+    </VenueProvider>,
+  );
+}
+
+describe('OperationalIntelligenceScreen — KPI board', () => {
+  it('renders every KPI with its label, value, unit, trend word, and severity badge', () => {
+    renderScreen();
 
     expect(screen.getByRole('heading', { name: 'Attendance' })).toBeInTheDocument();
     expect(screen.getByText('78,375')).toBeInTheDocument();
@@ -69,11 +77,7 @@ describe('OperationalIntelligenceScreen — KPI board', () => {
   });
 
   it('clamps negative values from the untrusted feed to zero before rendering', () => {
-    render(
-      <LanguageProvider>
-        <OperationalIntelligenceScreen />
-      </LanguageProvider>,
-    );
+    renderScreen();
 
     expect(screen.getByText('0')).toBeInTheDocument();
     expect(screen.queryByText('-4')).not.toBeInTheDocument();
@@ -87,18 +91,14 @@ describe('OperationalIntelligenceScreen — executive briefing', () => {
       data: BRIEFING,
       source: 'live',
     });
-    render(
-      <LanguageProvider>
-        <OperationalIntelligenceScreen />
-      </LanguageProvider>,
-    );
+    renderScreen();
 
     await user.click(screen.getByRole('button', { name: 'Generate briefing' }));
 
     expect(await screen.findByText(BRIEFING.summary)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Anomalies to act on' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Trends to watch' })).toBeInTheDocument();
-    expect(getOperationalIntelligenceSummaryMock).toHaveBeenCalledWith(FIXED_KPIS);
+    expect(getOperationalIntelligenceSummaryMock).toHaveBeenCalledWith(FIXED_KPIS, DEFAULT_VENUE);
   });
 
   it('marks mock briefings with the Demo data badge', async () => {
@@ -107,11 +107,7 @@ describe('OperationalIntelligenceScreen — executive briefing', () => {
       data: BRIEFING,
       source: 'mock',
     });
-    render(
-      <LanguageProvider>
-        <OperationalIntelligenceScreen />
-      </LanguageProvider>,
-    );
+    renderScreen();
 
     await user.click(screen.getByRole('button', { name: 'Generate briefing' }));
 
@@ -123,11 +119,7 @@ describe('OperationalIntelligenceScreen — executive briefing', () => {
     getOperationalIntelligenceSummaryMock
       .mockRejectedValueOnce(new Error('boom'))
       .mockResolvedValueOnce({ data: BRIEFING, source: 'live' });
-    render(
-      <LanguageProvider>
-        <OperationalIntelligenceScreen />
-      </LanguageProvider>,
-    );
+    renderScreen();
 
     await user.click(screen.getByRole('button', { name: 'Generate briefing' }));
     expect(await screen.findByRole('alert')).toHaveTextContent(/could not be generated/i);
@@ -139,11 +131,7 @@ describe('OperationalIntelligenceScreen — executive briefing', () => {
   it('re-briefs with fresh KPIs on demand', async () => {
     const user = userEvent.setup();
     getOperationalIntelligenceSummaryMock.mockResolvedValue({ data: BRIEFING, source: 'live' });
-    render(
-      <LanguageProvider>
-        <OperationalIntelligenceScreen />
-      </LanguageProvider>,
-    );
+    renderScreen();
 
     await user.click(screen.getByRole('button', { name: 'Generate briefing' }));
     await screen.findByText(BRIEFING.summary);

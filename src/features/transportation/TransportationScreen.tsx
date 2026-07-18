@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TRANSIT_REFRESH_INTERVAL_MS } from '../../config/constants';
 import { useMockStream } from '../../hooks/useMockStream';
 import { useUiStrings } from '../../hooks/useUiStrings';
+import { useVenue } from '../../hooks/useVenue';
 import { getTransitOptions } from '../../services/data/transit';
 import { EgressPlanner } from './EgressPlanner';
 import { TransitBoard } from './TransitBoard';
@@ -14,8 +15,19 @@ import { TransitBoard } from './TransitBoard';
  */
 export default function TransportationScreen() {
   const strings = useUiStrings();
-  const options = useMockStream(getTransitOptions, TRANSIT_REFRESH_INTERVAL_MS);
+  const { venue } = useVenue();
+  const options = useMockStream(
+    () => getTransitOptions(venue),
+    TRANSIT_REFRESH_INTERVAL_MS,
+    venue,
+  );
   const [recommendedOptionId, setRecommendedOptionId] = useState<string | null>(null);
+
+  // The AI's previous pick was grounded in the old venue's board — clear it
+  // rather than leave a stale "AI pick" badge pointing at the wrong context.
+  useEffect(() => {
+    setRecommendedOptionId(null);
+  }, [venue]);
 
   return (
     <main className="min-h-screen bg-fan-bg px-gutter py-section md:px-page">
@@ -27,7 +39,12 @@ export default function TransportationScreen() {
       </p>
       <div className="mt-section grid grid-cols-1 items-start gap-gutter xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
         <TransitBoard options={options} recommendedOptionId={recommendedOptionId} />
-        <EgressPlanner onRecommendation={setRecommendedOptionId} options={options} />
+        <EgressPlanner
+          key={venue.id}
+          onRecommendation={setRecommendedOptionId}
+          options={options}
+          venue={venue}
+        />
       </div>
     </main>
   );

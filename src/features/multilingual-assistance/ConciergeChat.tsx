@@ -7,10 +7,15 @@ import { ErrorState } from '../../components/ui/ErrorState';
 import { CHAT_INPUT_DEBOUNCE_MS, SUPPORTED_LANGUAGES } from '../../config/constants';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { useUiStrings } from '../../hooks/useUiStrings';
+import type { Venue } from '../../types/venue';
 import { cx } from '../../utils/cx';
 import { detectLanguage } from '../../utils/detectLanguage';
 import { ChatMessageBubble } from './ChatMessageBubble';
 import { useConciergeChat } from './useConciergeChat';
+
+export interface ConciergeChatProps {
+  venue: Venue;
+}
 
 /** Starter questions in different languages — the empty state doubles as a demo of auto-detection. */
 const SUGGESTIONS: ReadonlyArray<{ text: string; language: string }> = [
@@ -41,10 +46,10 @@ function TypingIndicator() {
  * in visually; a screen-reader-only live region announces it once complete,
  * so assistive tech hears one clean announcement instead of every partial.
  */
-export function ConciergeChat() {
+export function ConciergeChat({ venue }: ConciergeChatProps) {
   const strings = useUiStrings();
   const { messages, isSending, error, lastSource, lastMockReason, send, retry } =
-    useConciergeChat();
+    useConciergeChat(venue);
   const [draft, setDraft] = useState('');
   const inputId = useId();
   const listRef = useRef<HTMLUListElement>(null);

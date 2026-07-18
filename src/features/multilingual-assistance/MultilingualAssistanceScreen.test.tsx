@@ -3,6 +3,8 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { LanguageProvider } from '../../context/LanguageProvider';
 import { RoleProvider } from '../../context/RoleProvider';
+import { VenueProvider } from '../../context/VenueProvider';
+import { DEFAULT_VENUE } from '../../services/data/venues';
 import type { Role } from '../../types/role';
 import MultilingualAssistanceScreen from './MultilingualAssistanceScreen';
 
@@ -25,9 +27,11 @@ const getVolunteerAnswerMock = vi.mocked(getVolunteerAnswer);
 function renderScreen(role: Role = 'fan', initialLanguage = 'en') {
   return render(
     <RoleProvider initialRole={role}>
-      <LanguageProvider initialLanguage={initialLanguage}>
-        <MultilingualAssistanceScreen />
-      </LanguageProvider>
+      <VenueProvider>
+        <LanguageProvider initialLanguage={initialLanguage}>
+          <MultilingualAssistanceScreen />
+        </LanguageProvider>
+      </VenueProvider>
     </RoleProvider>,
   );
 }
@@ -58,7 +62,10 @@ describe('MultilingualAssistanceScreen — concierge send flow', () => {
     expect(conversation().getByText('¿Dónde está la Puerta C?')).toBeInTheDocument();
     const reply = await conversation().findByText('La Puerta C está en el lado este del estadio.');
     expect(reply).toHaveAttribute('lang', 'es');
-    expect(getMultilingualReplyMock).toHaveBeenCalledWith('¿Dónde está la Puerta C?');
+    expect(getMultilingualReplyMock).toHaveBeenCalledWith(
+      '¿Dónde está la Puerta C?',
+      DEFAULT_VENUE,
+    );
   });
 
   it('renders Arabic replies right-to-left', async () => {
@@ -103,7 +110,7 @@ describe('MultilingualAssistanceScreen — concierge send flow', () => {
     await user.click(screen.getByRole('button', { name: 'Where is Gate C?' }));
 
     expect(await conversation().findByText('Gate C is on the east side.')).toBeInTheDocument();
-    expect(getMultilingualReplyMock).toHaveBeenCalledWith('Where is Gate C?');
+    expect(getMultilingualReplyMock).toHaveBeenCalledWith('Where is Gate C?', DEFAULT_VENUE);
   });
 
   it('shows a designed error state with retry when the send fails unexpectedly', async () => {
@@ -179,10 +186,12 @@ describe('MultilingualAssistanceScreen — volunteer mode', () => {
     expect(getVolunteerAnswerMock).toHaveBeenCalledWith(
       'Where is the nearest first aid station?',
       'en',
+      DEFAULT_VENUE,
     );
     expect(getVolunteerAnswerMock).toHaveBeenCalledWith(
       'Where is the nearest first aid station?',
       'ar',
+      DEFAULT_VENUE,
     );
   });
 
@@ -201,7 +210,11 @@ describe('MultilingualAssistanceScreen — volunteer mode', () => {
       await screen.findByText('Merchandise stands are near sections 110 and 130.'),
     ).toBeInTheDocument();
     expect(getVolunteerAnswerMock).toHaveBeenCalledTimes(1);
-    expect(getVolunteerAnswerMock).toHaveBeenCalledWith('Where is merchandise?', 'en');
+    expect(getVolunteerAnswerMock).toHaveBeenCalledWith(
+      'Where is merchandise?',
+      'en',
+      DEFAULT_VENUE,
+    );
   });
 
   it('marks volunteer answers served by the fallback as offline capability', async () => {

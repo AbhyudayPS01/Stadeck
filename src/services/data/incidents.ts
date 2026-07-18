@@ -1,7 +1,6 @@
 import type { Incident, IncidentCategory, IncidentSeverity } from '../../types/incident';
-import type { StadiumSection, VenueLayout } from '../../types/stadium';
 import type { Venue } from '../../types/venue';
-import { getVenueLayout, sectionNumber } from './stadiumLayout';
+import { getVenueLayout, sectionNumber, sectionNumberAtRingFraction } from './stadiumLayout';
 import { pickRandom } from './random';
 import { DEFAULT_VENUE } from './venues';
 
@@ -10,17 +9,6 @@ interface IncidentTemplate {
   severity: IncidentSeverity;
   summary: string;
   location: string;
-}
-
-/** The section a given fraction of the way around a tier ring — mirrors the amenity plan's convention. */
-function sectionAtFraction(
-  layout: VenueLayout,
-  tier: StadiumSection['tier'],
-  fraction: number,
-): string {
-  const ring = layout.sections.filter((section) => section.tier === tier);
-  const section = ring[Math.floor(fraction * ring.length)];
-  return section ? sectionNumber(section.id) : '';
 }
 
 /**
@@ -38,7 +26,7 @@ function incidentTemplatesFor(venue: Venue): IncidentTemplate[] {
       category: 'medical',
       severity: 'elevated',
       summary: 'Fan requiring medical assistance',
-      location: `Section ${sectionAtFraction(layout, 'lower', 0.425)}, Row 20`,
+      location: `Section ${sectionNumberAtRingFraction(layout, 'lower', 0.425)}, Row 20`,
     },
     {
       category: 'crowd',
@@ -68,7 +56,7 @@ function incidentTemplatesFor(venue: Venue): IncidentTemplate[] {
       category: 'facilities',
       severity: 'normal',
       summary: 'Restroom facility reporting a plumbing issue',
-      location: `Section ${sectionAtFraction(layout, 'club', 0.5625)} concourse`,
+      location: `Section ${sectionNumberAtRingFraction(layout, 'club', 0.5625)} concourse`,
     },
     {
       category: 'transportation',

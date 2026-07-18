@@ -42,6 +42,45 @@ describe('VENUES', () => {
       expect(venue.rail.station).not.toMatch(/station/i);
     }
   });
+
+  it('gives every venue a valid roof type', () => {
+    for (const venue of VENUES) {
+      expect(['open', 'retractable', 'fixed']).toContain(venue.roof);
+    }
+  });
+
+  it('keeps altitude within a plausible range for a World Cup host venue', () => {
+    for (const venue of VENUES) {
+      expect(venue.altitudeMeters).toBeGreaterThanOrEqual(0);
+      expect(venue.altitudeMeters).toBeLessThanOrEqual(3000);
+    }
+  });
+
+  it('flags Mexico City and Guadalajara as the high-altitude venues', () => {
+    const highAltitude = VENUES.filter((venue) => venue.altitudeMeters > 1500).map(
+      (venue) => venue.id,
+    );
+    expect(new Set(highAltitude)).toEqual(new Set(['estadio-azteca', 'estadio-akron']));
+  });
+
+  it('keeps every coordinate within world bounds and roughly inside its host country', () => {
+    for (const venue of VENUES) {
+      expect(venue.latitude).toBeGreaterThanOrEqual(-90);
+      expect(venue.latitude).toBeLessThanOrEqual(90);
+      expect(venue.longitude).toBeGreaterThanOrEqual(-180);
+      expect(venue.longitude).toBeLessThanOrEqual(180);
+      // North America: a loose sanity bound, not a precise border check.
+      expect(venue.latitude).toBeGreaterThanOrEqual(14);
+      expect(venue.latitude).toBeLessThanOrEqual(60);
+      expect(venue.longitude).toBeGreaterThanOrEqual(-130);
+      expect(venue.longitude).toBeLessThanOrEqual(-65);
+    }
+  });
+
+  it('has unique coordinates per venue', () => {
+    const coords = new Set(VENUES.map((venue) => `${venue.latitude},${venue.longitude}`));
+    expect(coords.size).toBe(VENUES.length);
+  });
 });
 
 describe('findVenue', () => {

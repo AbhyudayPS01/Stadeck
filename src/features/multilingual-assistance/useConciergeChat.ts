@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { getMultilingualReply, type MockReason } from '../../services/gemini';
 import type { ChatMessage } from '../../types/chat';
+import type { Venue } from '../../types/venue';
 import { detectLanguage } from '../../utils/detectLanguage';
 
 export interface ConciergeChatState {
@@ -23,7 +24,7 @@ export interface ConciergeChatState {
  * service auto-detects the language and falls back to a deterministic mock —
  * and appends the assistant message with its definitive language code.
  */
-export function useConciergeChat(): ConciergeChatState {
+export function useConciergeChat(venue: Venue): ConciergeChatState {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +51,7 @@ export function useConciergeChat(): ConciergeChatState {
     setIsSending(true);
     setError(null);
 
-    getMultilingualReply(trimmed)
+    getMultilingualReply(trimmed, venue)
       .then((result) => {
         sequenceRef.current += 1;
         const assistantMessage: ChatMessage = {
@@ -74,7 +75,7 @@ export function useConciergeChat(): ConciergeChatState {
         setError('The concierge could not answer just now.');
         setIsSending(false);
       });
-  }, []);
+  }, [venue]);
 
   const retry = useCallback(() => {
     const failedText = lastFailedTextRef.current;

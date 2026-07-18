@@ -1,10 +1,8 @@
+import { useMemo } from 'react';
 import { gatePoint, sectionPath } from '../../components/map/mapGeometry';
 import { useUiStrings } from '../../hooks/useUiStrings';
-import { GATES, SECTIONS } from '../../services/data/stadiumLayout';
 import type { DensityReading } from '../../types/crowd';
-
-const SECTION_BY_ID = new Map(SECTIONS.map((section) => [section.id, section]));
-const GATE_BY_ID = new Map(GATES.map((gate) => [gate.id, gate]));
+import type { VenueLayout } from '../../types/stadium';
 
 /** Elevated zones get a translucent gold wash. */
 const ELEVATED_FILL = 'rgba(232,169,59,0.55)';
@@ -62,8 +60,19 @@ export function HeatmapLegend() {
  * text. Critical zones get a hatch pattern on top of the red wash, and the
  * legend labels every treatment — meaning is never color-only.
  */
-export function DensityHeatmapLayer({ readings }: { readings: DensityReading[] }) {
+export function DensityHeatmapLayer({
+  readings,
+  layout,
+}: {
+  readings: DensityReading[];
+  layout: VenueLayout;
+}) {
   const hotReadings = readings.filter((reading) => reading.level !== 'normal');
+  const sectionById = useMemo(
+    () => new Map(layout.sections.map((section) => [section.id, section])),
+    [layout],
+  );
+  const gateById = useMemo(() => new Map(layout.gates.map((gate) => [gate.id, gate])), [layout]);
 
   return (
     <g aria-hidden="true">
@@ -80,7 +89,7 @@ export function DensityHeatmapLayer({ readings }: { readings: DensityReading[] }
         </pattern>
       </defs>
       {hotReadings.map((reading) => {
-        const section = SECTION_BY_ID.get(reading.zoneId);
+        const section = sectionById.get(reading.zoneId);
         if (section) {
           return (
             <path
@@ -91,7 +100,7 @@ export function DensityHeatmapLayer({ readings }: { readings: DensityReading[] }
           );
         }
 
-        const gate = GATE_BY_ID.get(reading.zoneId);
+        const gate = gateById.get(reading.zoneId);
         if (!gate) {
           return null; // sensor zone with no map geometry — nothing to paint
         }

@@ -4,7 +4,9 @@ import { Card } from '../../components/ui/Card';
 import { DENSITY_REFRESH_INTERVAL_MS } from '../../config/constants';
 import { useMockStream } from '../../hooks/useMockStream';
 import { useUiStrings } from '../../hooks/useUiStrings';
+import { useVenue } from '../../hooks/useVenue';
 import { generateDensityReadings } from '../../services/data/density';
+import { getVenueLayout } from '../../services/data/stadiumLayout';
 import { CrowdAnalysisPanel } from './CrowdAnalysisPanel';
 import { DensityHeatmapLayer, HeatmapLegend } from './DensityHeatmapLayer';
 import { ZoneWatchlist } from './ZoneWatchlist';
@@ -12,7 +14,13 @@ import { ZoneWatchlist } from './ZoneWatchlist';
 /** Crowd Management — implements the challenge clause "crowd management". */
 export default function CrowdManagementScreen() {
   const strings = useUiStrings();
-  const readings = useMockStream(generateDensityReadings, DENSITY_REFRESH_INTERVAL_MS);
+  const { venue } = useVenue();
+  const layout = getVenueLayout(venue.id);
+  const readings = useMockStream(
+    () => generateDensityReadings(layout),
+    DENSITY_REFRESH_INTERVAL_MS,
+    venue,
+  );
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-ops-bg to-ops-bg2 px-gutter py-section md:px-page">
@@ -31,13 +39,17 @@ export default function CrowdManagementScreen() {
               className="h-2.5 w-2.5 animate-blink rounded-pill bg-ok motion-reduce:animate-none"
             />
           </div>
-          <StadiumMap className="mt-4" overlays={<DensityHeatmapLayer readings={readings} />} />
+          <StadiumMap
+            className="mt-4"
+            overlays={<DensityHeatmapLayer layout={layout} readings={readings} />}
+            venue={venue}
+          />
           <HeatmapLegend />
           <MapLegend theme="ops" />
         </Card>
         <div className="flex flex-col gap-gutter">
-          <ZoneWatchlist readings={readings} />
-          <CrowdAnalysisPanel readings={readings} />
+          <ZoneWatchlist layout={layout} readings={readings} />
+          <CrowdAnalysisPanel key={venue.id} readings={readings} venue={venue} />
         </div>
       </div>
     </main>

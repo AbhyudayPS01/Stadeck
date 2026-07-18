@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { LanguageProvider } from '../../context/LanguageProvider';
+import { DEFAULT_VENUE, findVenue } from '../../services/data/venues';
 import { AnnouncementsPanel } from './AnnouncementsPanel';
 
 vi.mock('../../services/gemini', () => ({
@@ -28,10 +29,10 @@ import { getAnnouncementTranslation } from '../../services/gemini';
 
 const getAnnouncementTranslationMock = vi.mocked(getAnnouncementTranslation);
 
-function renderPanel(initialLanguage: string) {
+function renderPanel(initialLanguage: string, venue = DEFAULT_VENUE) {
   return render(
     <LanguageProvider initialLanguage={initialLanguage}>
-      <AnnouncementsPanel />
+      <AnnouncementsPanel venue={venue} />
     </LanguageProvider>,
   );
 }
@@ -69,7 +70,17 @@ describe('AnnouncementsPanel', () => {
     expect(getAnnouncementTranslationMock).toHaveBeenCalledWith(
       expect.objectContaining({ message: expect.stringContaining('Kickoff') }),
       'es',
+      DEFAULT_VENUE,
     );
+  });
+
+  it('seeds a different venue’s own announcement content when given one', () => {
+    const toronto = findVenue('bmo-field');
+    expect(toronto).toBeDefined();
+    if (!toronto) return;
+    renderPanel('en', toronto);
+
+    expect(screen.getByText(/Exhibition Station/)).toBeInTheDocument();
   });
 
   it('marks mock translations with the Demo data badge and renders Arabic RTL', async () => {

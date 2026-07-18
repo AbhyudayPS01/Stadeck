@@ -8,10 +8,15 @@ import { useUiStrings } from '../../hooks/useUiStrings';
 import { getInitialAnnouncements } from '../../services/data/announcements';
 import { getPlainLanguageRewrite, type MockReason } from '../../services/gemini';
 import type { Announcement } from '../../types/announcement';
+import type { Venue } from '../../types/venue';
 
 type RewriteEntry =
   | { status: 'loading' }
   | { status: 'done'; text: string; source: 'live' | 'mock'; mockReason?: MockReason };
+
+export interface AccessCompanionProps {
+  venue: Venue;
+}
 
 /**
  * "Access Companion": one click rewrites any venue announcement into plain
@@ -19,14 +24,14 @@ type RewriteEntry =
  * reading-related access needs. Uses the announcement backlog rather than the
  * live stream: rewrites should stay on screen, not scroll away.
  */
-export function AccessCompanion() {
+export function AccessCompanion({ venue }: AccessCompanionProps) {
   const strings = useUiStrings();
-  const [announcements] = useState<Announcement[]>(getInitialAnnouncements);
+  const [announcements] = useState<Announcement[]>(() => getInitialAnnouncements(venue));
   const [rewrites, setRewrites] = useState<Record<string, RewriteEntry>>({});
 
   const rewrite = (announcement: Announcement): void => {
     setRewrites((previous) => ({ ...previous, [announcement.id]: { status: 'loading' } }));
-    getPlainLanguageRewrite(announcement).then((result) => {
+    getPlainLanguageRewrite(announcement, venue).then((result) => {
       setRewrites((previous) => ({
         ...previous,
         [announcement.id]: {

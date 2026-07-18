@@ -9,18 +9,24 @@ import { useGemini } from '../../hooks/useGemini';
 import { useUiStrings } from '../../hooks/useUiStrings';
 import { getCrowdManagementSummary } from '../../services/gemini';
 import type { DensityReading } from '../../types/crowd';
+import type { Venue } from '../../types/venue';
 
 interface CrowdAnalysisPanelProps {
   readings: DensityReading[];
+  venue: Venue;
 }
 
 interface AnalysisResultProps {
   snapshot: DensityReading[];
+  venue: Venue;
   onReanalyze: () => void;
 }
 
-function AnalysisResult({ snapshot, onReanalyze }: AnalysisResultProps) {
-  const fetcher = useCallback(() => getCrowdManagementSummary(snapshot), [snapshot]);
+function AnalysisResult({ snapshot, venue, onReanalyze }: AnalysisResultProps) {
+  const fetcher = useCallback(
+    () => getCrowdManagementSummary(snapshot, venue),
+    [snapshot, venue],
+  );
   const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
   const strings = useUiStrings();
 
@@ -67,7 +73,7 @@ function AnalysisResult({ snapshot, onReanalyze }: AnalysisResultProps) {
  * (so the 5-second ticks don't retrigger the analysis) and renders the
  * structured staff recommendations from the Gemini service.
  */
-export function CrowdAnalysisPanel({ readings }: CrowdAnalysisPanelProps) {
+export function CrowdAnalysisPanel({ readings, venue }: CrowdAnalysisPanelProps) {
   const strings = useUiStrings();
   const [snapshot, setSnapshot] = useState<DensityReading[] | null>(null);
 
@@ -80,7 +86,11 @@ export function CrowdAnalysisPanel({ readings }: CrowdAnalysisPanelProps) {
           <Button onClick={() => setSnapshot(readings)}>{strings['crowd.analyzeCta']}</Button>
         </div>
       ) : (
-        <AnalysisResult onReanalyze={() => setSnapshot([...readings])} snapshot={snapshot} />
+        <AnalysisResult
+          onReanalyze={() => setSnapshot([...readings])}
+          snapshot={snapshot}
+          venue={venue}
+        />
       )}
     </Card>
   );

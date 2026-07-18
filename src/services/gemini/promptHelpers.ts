@@ -25,6 +25,33 @@ export function venuePersona(descriptor: string, venue: Venue): string {
   return `You are Stadeck's ${descriptor} at ${venue.name} in ${venue.city}, hosting ${venue.stage} at FIFA World Cup 2026.`;
 }
 
+const ROOF_REASONING_HINTS: Record<Venue['roof'], string> = {
+  open: 'open-air, so weather (rain, heat, lightning) directly affects crowd flow and delay decisions',
+  retractable: 'a retractable roof — factor in whether it would realistically be closed for the weather',
+  fixed: 'a fixed roof, so outdoor weather does not affect play or crowd flow',
+};
+
+/** Elevation above which crowd/ops reasoning should account for altitude effects on fans. */
+const HIGH_ALTITUDE_THRESHOLD_METERS = 1500;
+
+/**
+ * One-line venue-conditions brief for ops-facing prompts (crowd management,
+ * real-time decision support, scenario planning): roof status always, plus
+ * an altitude note at high-altitude venues — the two attributes most likely
+ * to change what "the right call" is, grounded instead of left for the model
+ * to guess or default to sea-level assumptions.
+ *
+ * @param venue The venue the assistant is reasoning about.
+ * @returns The context sentence.
+ */
+export function venueConditionsLine(venue: Venue): string {
+  const roofNote = `The venue is ${ROOF_REASONING_HINTS[venue.roof]}.`;
+  if (venue.altitudeMeters <= HIGH_ALTITUDE_THRESHOLD_METERS) {
+    return roofNote;
+  }
+  return `${roofNote} It sits at ${venue.altitudeMeters}m elevation — factor in faster fan fatigue and quicker dehydration when planning steward deployment or pacing.`;
+}
+
 /**
  * The full sensor sweep is one zone per section and gate — raw JSON would
  * blow the proxy's payload cap and bury the signal. The prompt gets

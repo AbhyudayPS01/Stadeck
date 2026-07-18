@@ -3,6 +3,8 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ignoringIsolates } from '../../test/textMatchers';
 import { LanguageProvider } from '../../context/LanguageProvider';
+import { VenueProvider } from '../../context/VenueProvider';
+import { DEFAULT_VENUE } from '../../services/data/venues';
 import type { DensityReading } from '../../types/crowd';
 import CrowdManagementScreen from './CrowdManagementScreen';
 
@@ -33,6 +35,16 @@ const ANALYSIS = {
   congestionForecast: 'Pressure peaks in 15 minutes, then eases.',
 };
 
+function renderScreen() {
+  return render(
+    <VenueProvider>
+      <LanguageProvider>
+        <CrowdManagementScreen />
+      </LanguageProvider>
+    </VenueProvider>,
+  );
+}
+
 beforeEach(() => {
   getCrowdManagementSummaryMock.mockReset();
   generateDensityReadingsMock.mockReset();
@@ -41,11 +53,7 @@ beforeEach(() => {
 
 describe('CrowdManagementScreen', () => {
   it('lists the busiest zones with badge words, labels, and occupancy — never color alone', () => {
-    render(
-      <LanguageProvider>
-        <CrowdManagementScreen />
-      </LanguageProvider>,
-    );
+    renderScreen();
 
     const watchlist = within(screen.getByRole('list', { name: 'Busiest zones' }));
     const rows = watchlist.getAllByRole('listitem');
@@ -59,11 +67,7 @@ describe('CrowdManagementScreen', () => {
   });
 
   it('renders the density heatmap overlay on the stadium map with a labeled legend', () => {
-    render(
-      <LanguageProvider>
-        <CrowdManagementScreen />
-      </LanguageProvider>,
-    );
+    renderScreen();
 
     expect(
       screen.getByRole('group', { name: /Schematic seating map of MetLife Stadium/ }),
@@ -75,11 +79,7 @@ describe('CrowdManagementScreen', () => {
   it('analyzes the current state and renders the structured recommendation cards', async () => {
     const user = userEvent.setup();
     getCrowdManagementSummaryMock.mockResolvedValueOnce({ data: ANALYSIS, source: 'live' });
-    render(
-      <LanguageProvider>
-        <CrowdManagementScreen />
-      </LanguageProvider>,
-    );
+    renderScreen();
 
     await user.click(screen.getByRole('button', { name: 'Analyze current state' }));
 
@@ -88,17 +88,13 @@ describe('CrowdManagementScreen', () => {
     expect(screen.getByText('Gate A')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Steward redeployment' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Congestion forecast' })).toBeInTheDocument();
-    expect(getCrowdManagementSummaryMock).toHaveBeenCalledWith(FIXED_READINGS);
+    expect(getCrowdManagementSummaryMock).toHaveBeenCalledWith(FIXED_READINGS, DEFAULT_VENUE);
   });
 
   it('marks mock analyses with the Demo data badge', async () => {
     const user = userEvent.setup();
     getCrowdManagementSummaryMock.mockResolvedValueOnce({ data: ANALYSIS, source: 'mock' });
-    render(
-      <LanguageProvider>
-        <CrowdManagementScreen />
-      </LanguageProvider>,
-    );
+    renderScreen();
 
     await user.click(screen.getByRole('button', { name: 'Analyze current state' }));
 
@@ -110,11 +106,7 @@ describe('CrowdManagementScreen', () => {
     getCrowdManagementSummaryMock
       .mockRejectedValueOnce(new Error('boom'))
       .mockResolvedValueOnce({ data: ANALYSIS, source: 'live' });
-    render(
-      <LanguageProvider>
-        <CrowdManagementScreen />
-      </LanguageProvider>,
-    );
+    renderScreen();
 
     await user.click(screen.getByRole('button', { name: 'Analyze current state' }));
     expect(await screen.findByRole('alert')).toHaveTextContent(/could not be completed/i);
@@ -126,11 +118,7 @@ describe('CrowdManagementScreen', () => {
   it('re-analyzes with fresh readings on demand', async () => {
     const user = userEvent.setup();
     getCrowdManagementSummaryMock.mockResolvedValue({ data: ANALYSIS, source: 'live' });
-    render(
-      <LanguageProvider>
-        <CrowdManagementScreen />
-      </LanguageProvider>,
-    );
+    renderScreen();
 
     await user.click(screen.getByRole('button', { name: 'Analyze current state' }));
     await screen.findByText('East side is under pressure.');

@@ -4,7 +4,9 @@ import userEvent from '@testing-library/user-event';
 import { ignoringIsolates } from '../../test/textMatchers';
 import { RoleProvider } from '../../context/RoleProvider';
 import { LanguageProvider } from '../../context/LanguageProvider';
+import { VenueProvider } from '../../context/VenueProvider';
 import { MAX_USER_INPUT_LENGTH } from '../../config/constants';
+import { DEFAULT_VENUE } from '../../services/data/venues';
 import type { Role } from '../../types/role';
 import RealTimeDecisionSupportScreen from './RealTimeDecisionSupportScreen';
 
@@ -71,9 +73,11 @@ const PLAN = {
 function renderScreen(role: Role = 'organizer') {
   return render(
     <RoleProvider initialRole={role}>
-      <LanguageProvider>
-        <RealTimeDecisionSupportScreen />
-      </LanguageProvider>
+      <VenueProvider>
+        <LanguageProvider>
+          <RealTimeDecisionSupportScreen />
+        </LanguageProvider>
+      </VenueProvider>
     </RoleProvider>,
   );
 }
@@ -109,6 +113,7 @@ describe('RealTimeDecisionSupportScreen', () => {
     expect(screen.getByText(ignoringIsolates('elevated priority'))).toBeInTheDocument();
     expect(getRealTimeDecisionSupportMock).toHaveBeenCalledWith(
       expect.objectContaining({ summary: 'Dense queue building at entry' }),
+      DEFAULT_VENUE,
     );
     expect(screen.getByRole('button', { name: /Dense queue building at entry/ })).toHaveAttribute(
       'aria-pressed',
@@ -156,7 +161,10 @@ describe('RealTimeDecisionSupportScreen', () => {
     expect(
       await screen.findByText('Contain the queue and reassess in ten minutes.'),
     ).toBeInTheDocument();
-    expect(getScenarioPlanMock).toHaveBeenCalledWith('Rail line goes down at halftime');
+    expect(getScenarioPlanMock).toHaveBeenCalledWith(
+      'Rail line goes down at halftime',
+      DEFAULT_VENUE,
+    );
   });
 
   it('hides the what-if scenario planner from volunteers', () => {

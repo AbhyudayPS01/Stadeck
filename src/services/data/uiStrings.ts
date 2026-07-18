@@ -23,6 +23,7 @@ import { SHELL_STRINGS, type ShellStringKey } from './uiStringsShell';
 import { SUSTAINABILITY_STRINGS, type SustainabilityStringKey } from './uiStringsSustainability';
 import { TRANSPORTATION_STRINGS, type TransportationStringKey } from './uiStringsTransportation';
 import { UI_LANGUAGES, type UiLanguage } from './uiStringsTypes';
+import { VENUE_STRINGS, type VenueStringKey } from './uiStringsVenue';
 import { VOLUNTEER_STRINGS, type VolunteerStringKey } from './uiStringsVolunteer';
 
 /**
@@ -56,7 +57,8 @@ export type UiStringKey =
   | MultilingualAssistanceStringKey
   | VolunteerStringKey
   | OperationalIntelligenceStringKey
-  | RealTimeDecisionSupportStringKey;
+  | RealTimeDecisionSupportStringKey
+  | VenueStringKey;
 
 /** One complete interface-string table for a single language. */
 export type UiStrings = Readonly<Record<UiStringKey, string>>;
@@ -76,6 +78,7 @@ export const UI_STRING_TABLES = {
   volunteer: VOLUNTEER_STRINGS,
   operationalIntelligence: OPERATIONAL_INTELLIGENCE_STRINGS,
   realTimeDecisionSupport: REAL_TIME_DECISION_SUPPORT_STRINGS,
+  venue: VENUE_STRINGS,
 } as const;
 
 function buildLanguage(language: UiLanguage): UiStrings {
@@ -93,6 +96,7 @@ function buildLanguage(language: UiLanguage): UiStrings {
     ...VOLUNTEER_STRINGS[language],
     ...OPERATIONAL_INTELLIGENCE_STRINGS[language],
     ...REAL_TIME_DECISION_SUPPORT_STRINGS[language],
+    ...VENUE_STRINGS[language],
   };
 }
 

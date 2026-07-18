@@ -7,11 +7,16 @@ import { MAX_USER_INPUT_LENGTH } from '../../config/constants';
 import { useGemini } from '../../hooks/useGemini';
 import { useUiStrings } from '../../hooks/useUiStrings';
 import { getScenarioPlan } from '../../services/gemini';
+import type { Venue } from '../../types/venue';
 import { ActionPlanDetails } from './ActionPlanDetails';
 
-function ScenarioResult({ scenario }: { scenario: string }) {
+export interface ScenarioPlannerProps {
+  venue: Venue;
+}
+
+function ScenarioResult({ scenario, venue }: { scenario: string; venue: Venue }) {
   const strings = useUiStrings();
-  const fetcher = useCallback(() => getScenarioPlan(scenario), [scenario]);
+  const fetcher = useCallback(() => getScenarioPlan(scenario, venue), [scenario, venue]);
   const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
 
   if (isLoading) {
@@ -36,7 +41,7 @@ function ScenarioResult({ scenario }: { scenario: string }) {
  * sanitized + delimiter-wrapped by guard.ts inside the prompt builder before
  * it ever reaches the model.
  */
-export function ScenarioPlanner() {
+export function ScenarioPlanner({ venue }: ScenarioPlannerProps) {
   const strings = useUiStrings();
   const [draft, setDraft] = useState('');
   const [submitted, setSubmitted] = useState<string | null>(null);
@@ -72,7 +77,7 @@ export function ScenarioPlanner() {
       </form>
       {submitted !== null ? (
         <div className="mt-4">
-          <ScenarioResult scenario={submitted} />
+          <ScenarioResult scenario={submitted} venue={venue} />
         </div>
       ) : null}
     </Card>

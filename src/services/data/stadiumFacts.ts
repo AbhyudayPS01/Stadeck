@@ -1,6 +1,13 @@
-import type { AmenityType, StadiumSection, VenueLayout } from '../../types/stadium';
 import type { Venue } from '../../types/venue';
 import { getVenueLayout, nearestAmenity, sectionNumber } from './stadiumLayout';
+import {
+  anchorNumbers,
+  formatList,
+  paymentsFact,
+  sectionList,
+  tierRange,
+  venueConditionsFact,
+} from './stadiumFactsHelpers';
 import { DEFAULT_VENUE } from './venues';
 
 /**
@@ -8,7 +15,8 @@ import { DEFAULT_VENUE } from './venues';
  * per venue. Section numbers, gate letters, and transit details are derived
  * from the same registry entry and layout the schematic map renders, so AI
  * answers, the map, and mock feeds never contradict each other. Details are
- * demo fiction for World Cup 2026 matchdays, not venue guidance.
+ * demo fiction for World Cup 2026 matchdays, not venue guidance. Per-clause
+ * building blocks live in stadiumFactsHelpers.ts.
  */
 
 export interface StadiumFact {
@@ -16,26 +24,6 @@ export interface StadiumFact {
   /** Coarse grouping, useful for future retrieval-style filtering. */
   topic: string;
   fact: string;
-}
-
-/** en-US so lists read as English prose, matching the rest of the fact sheet. */
-const LIST_FORMAT = new Intl.ListFormat('en-US', { style: 'long', type: 'conjunction' });
-
-/** Distinct anchor-section numbers for an amenity type, in ring order. */
-function anchorNumbers(layout: VenueLayout, type: AmenityType): string[] {
-  const numbers = layout.amenities
-    .filter((amenity) => amenity.type === type)
-    .map((amenity) => sectionNumber(amenity.sectionId));
-  return [...new Set(numbers)];
-}
-
-function sectionList(layout: VenueLayout, type: AmenityType): string {
-  return LIST_FORMAT.format(anchorNumbers(layout, type));
-}
-
-function tierRange(layout: VenueLayout, tier: StadiumSection['tier']): string {
-  const ring = layout.sections.filter((section) => section.tier === tier);
-  return `${ring[0]?.label ?? ''}-${ring[ring.length - 1]?.label ?? ''}`;
 }
 
 function buildStadiumFacts(venue: Venue): readonly StadiumFact[] {
@@ -68,7 +56,7 @@ function buildStadiumFacts(venue: Venue): readonly StadiumFact[] {
     {
       id: 'fact-cashless',
       topic: 'payments',
-      fact: 'The stadium is fully cashless: card and mobile payments only, no cash accepted anywhere. Cash-to-card kiosks on each concourse convert cash to a free prepaid card.',
+      fact: paymentsFact(venue),
     },
     {
       id: 'fact-re-entry',
@@ -103,7 +91,7 @@ function buildStadiumFacts(venue: Venue): readonly StadiumFact[] {
     {
       id: 'fact-water',
       topic: 'services',
-      fact: `Free filtered water refill stations are on every concourse, including near sections ${LIST_FORMAT.format(waterSample)}; bringing an empty reusable bottle through security is permitted.`,
+      fact: `Free filtered water refill stations are on every concourse, including near sections ${formatList(waterSample)}; bringing an empty reusable bottle through security is permitted.`,
     },
     {
       id: 'fact-food',
@@ -123,7 +111,7 @@ function buildStadiumFacts(venue: Venue): readonly StadiumFact[] {
     {
       id: 'fact-guest-services',
       topic: 'services',
-      fact: `Guest Services desks at sections ${LIST_FORMAT.format(guestServices)} handle lost and found, lost children, language help, and free sensory kits to borrow.`,
+      fact: `Guest Services desks at sections ${formatList(guestServices)} handle lost and found, lost children, language help, and free sensory kits to borrow.`,
     },
     {
       id: 'fact-family-reunification',
@@ -139,6 +127,11 @@ function buildStadiumFacts(venue: Venue): readonly StadiumFact[] {
       id: 'fact-emergency-exits',
       topic: 'safety',
       fact: 'Emergency exits marked with an X on the upper concourse at the four compass points are for emergencies only — follow staff instructions and do not use them during normal operations.',
+    },
+    {
+      id: 'fact-venue-conditions',
+      topic: 'weather',
+      fact: venueConditionsFact(venue),
     },
     {
       id: 'fact-step-free',

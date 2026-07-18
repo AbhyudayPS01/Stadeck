@@ -1,7 +1,8 @@
-import { memo, useCallback, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { memo, useCallback, useEffect, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { getVenueLayout, TIER_NAMES } from '../../services/data/stadiumLayout';
 import { DEFAULT_VENUE } from '../../services/data/venues';
-import { AMENITIES, GATES, SECTIONS, TIER_NAMES } from '../../services/data/stadiumLayout';
-import type { SectionTier, StadiumSection } from '../../types/stadium';
+import type { SectionTier, StadiumSection, VenueLayout } from '../../types/stadium';
+import type { Venue } from '../../types/venue';
 import { cx } from '../../utils/cx';
 import { AmenityPopup } from './AmenityPopup';
 import {
@@ -14,6 +15,8 @@ import {
 import { AmenityMarker, GateMarker, PitchField } from './markers';
 
 export interface StadiumMapProps {
+  /** Venue whose generated layout to render; defaults to the demo venue. */
+  venue?: Venue;
   /**
    * Overlay layers (density heatmaps, routes, alert rings) rendered in a
    * group above the base map. Position overlay elements with the helpers in
@@ -99,6 +102,7 @@ function SectionShape({ section, selected, onSelect }: SectionShapeProps) {
 }
 
 interface StadiumMapBaseProps {
+  layout: VenueLayout;
   selectedSectionId: string | null;
   openAmenityId: string | null;
   onSelectSection?: (sectionId: string) => void;
@@ -107,12 +111,15 @@ interface StadiumMapBaseProps {
 }
 
 /**
- * The base map: pitch, 96 section arcs, amenities, gates — all derived from
- * the typed stadiumLayout config, never hand-drawn. Memoized so overlay
- * updates (which change on every simulated tick) never re-render these ~200
- * computed SVG nodes; only selection, amenity-popup, or handler changes do.
+ * The base map: pitch, section arcs, amenities, gates — all derived from a
+ * venue's generated layout, never hand-drawn. Memoized so overlay updates
+ * (which change on every simulated tick) never re-render these ~200 computed
+ * SVG nodes; only a selection, amenity-popup, handler, or venue change does —
+ * `layout` is a stable object per venue (see getVenueLayout), so switching
+ * back to an already-visited venue reuses the same reference too.
  */
 const StadiumMapBase = memo(function StadiumMapBase({
+  layout,
   selectedSectionId,
   openAmenityId,
   onSelectSection,
@@ -122,7 +129,7 @@ const StadiumMapBase = memo(function StadiumMapBase({
   return (
     <>
       <PitchField />
-      {SECTIONS.map((section) => (
+      {layout.sections.map((section) => (
         <SectionShape
           key={section.id}
           onSelect={onSelectSection}
@@ -130,7 +137,7 @@ const StadiumMapBase = memo(function StadiumMapBase({
           selected={section.id === selectedSectionId}
         />
       ))}
-      {AMENITIES.map((amenity) => (
+      {layout.amenities.map((amenity) => (
         <AmenityMarker
           key={amenity.id}
           amenity={amenity}
@@ -138,7 +145,7 @@ const StadiumMapBase = memo(function StadiumMapBase({
           onToggle={onToggleAmenity}
         />
       ))}
-      {GATES.map((gate) => (
+      {layout.gates.map((gate) => (
         <GateMarker key={gate.id} gate={gate} onSelect={onSelectGate} />
       ))}
     </>
@@ -146,13 +153,13 @@ const StadiumMapBase = memo(function StadiumMapBase({
 });
 
 /**
- * Clean schematic map of the demo venue: concentric ring layout with labeled
- * section blocks (101–140 lower, 201–216 club, 301–340 upper), Gates A–H at
- * compass points, and amenity markers that open a detail popup. Every
- * section, gate, and amenity is keyboard-focusable with an accessible name
- * (CLAUDE.md stadium map rules).
+ * Clean schematic map of the active venue: concentric ring layout with
+ * labeled section blocks, Gates A–H at compass points, and amenity markers
+ * that open a detail popup. Every section, gate, and amenity is
+ * keyboard-focusable with an accessible name (CLAUDE.md stadium map rules).
  */
 export function StadiumMap({
+  venue = DEFAULT_VENUE,
   overlays,
   selectedSectionId = null,
   onSelectSection,
@@ -160,6 +167,14 @@ export function StadiumMap({
   className,
 }: StadiumMapProps) {
   const [openAmenityId, setOpenAmenityId] = useState<string | null>(null);
+  const layout = getVenueLayout(venue.id);
+  // Amenity ids are shared across venues (same plan, different anchors), so
+  // an open popup would otherwise silently re-anchor to the new venue's
+  // section instead of closing — close it so a venue switch never leaves an
+  // amenity detail open behind the fan's back.
+  useEffect(() => {
+    setOpenAmenityId(null);
+  }, [venue]);
   // Stable identities: both handlers reach StadiumMapBase, so a new function
   // per render would defeat its memo and redraw all ~200 base SVG nodes.
   const toggleAmenity = useCallback((amenityId: string): void => {
@@ -168,18 +183,19 @@ export function StadiumMap({
   const dismissAmenity = useCallback((): void => {
     setOpenAmenityId(null);
   }, []);
-  const openAmenity = AMENITIES.find((amenity) => amenity.id === openAmenityId);
+  const openAmenity = layout.amenities.find((amenity) => amenity.id === openAmenityId);
 
   return (
     <div className={cx('relative', className)}>
       <svg
-        aria-label={`Schematic seating map of ${DEFAULT_VENUE.name}`}
+        aria-label={`Schematic seating map of ${venue.name}`}
         className="h-auto w-full"
         preserveAspectRatio="xMidYMid meet"
         role="group"
         viewBox={`0 0 ${MAP_SIZE} ${MAP_SIZE}`}
       >
         <StadiumMapBase
+          layout={layout}
           onSelectGate={onSelectGate}
           onSelectSection={onSelectSection}
           onToggleAmenity={toggleAmenity}

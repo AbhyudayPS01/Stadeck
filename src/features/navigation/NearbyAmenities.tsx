@@ -1,21 +1,23 @@
 import { Card } from '../../components/ui/Card';
 import { useUiStrings } from '../../hooks/useUiStrings';
 import { nearestAmenity, nearestGate, sectionNumber } from '../../services/data/stadiumLayout';
-import type { StadiumSection } from '../../types/stadium';
+import type { StadiumSection, VenueLayout } from '../../types/stadium';
 import { formatUiString } from '../../utils/uiText';
 
 export interface NearbyAmenitiesProps {
   section: StadiumSection;
+  /** The active venue's generated layout, so nearest-amenity lookups stay venue-scoped. */
+  layout: VenueLayout;
 }
 
 /**
  * Closest restroom, food, and exit for the selected section — computed from
  * the stadium layout config, no AI round-trip needed for fixed geography.
  */
-export function NearbyAmenities({ section }: NearbyAmenitiesProps) {
+export function NearbyAmenities({ section, layout }: NearbyAmenitiesProps) {
   const strings = useUiStrings();
-  const restroom = nearestAmenity(section, 'restroom');
-  const food = nearestAmenity(section, 'food');
+  const restroom = nearestAmenity(section, 'restroom', layout);
+  const food = nearestAmenity(section, 'food', layout);
   const exit = nearestGate(section);
 
   // Labels translate; "Section 105" / "Gate A" are wayfinding identifiers and

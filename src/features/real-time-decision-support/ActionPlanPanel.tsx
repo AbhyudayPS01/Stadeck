@@ -6,10 +6,12 @@ import { useGemini } from '../../hooks/useGemini';
 import { useUiStrings } from '../../hooks/useUiStrings';
 import { getRealTimeDecisionSupport } from '../../services/gemini';
 import type { Incident } from '../../types/incident';
+import type { Venue } from '../../types/venue';
 import { ActionPlanDetails } from './ActionPlanDetails';
 
 interface ActionPlanPanelProps {
   incident: Incident;
+  venue: Venue;
 }
 
 /**
@@ -17,9 +19,12 @@ interface ActionPlanPanelProps {
  * incident in the parent, so selecting a different incident remounts the
  * panel and requests a fresh plan.
  */
-export function ActionPlanPanel({ incident }: ActionPlanPanelProps) {
+export function ActionPlanPanel({ incident, venue }: ActionPlanPanelProps) {
   const strings = useUiStrings();
-  const fetcher = useCallback(() => getRealTimeDecisionSupport(incident), [incident]);
+  const fetcher = useCallback(
+    () => getRealTimeDecisionSupport(incident, venue),
+    [incident, venue],
+  );
   const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
 
   return (

@@ -79,4 +79,36 @@ describe('useMockStream', () => {
     expect(result.current).toBe('from-second');
     expect(firstGenerator).toHaveBeenCalledTimes(1); // only the initial mount call
   });
+
+  it('does not regenerate on mount just because a resetKey was passed', () => {
+    const generator = vi.fn().mockReturnValue('value');
+    renderHook(() => useMockStream(generator, 1000, 'metlife-stadium'));
+
+    expect(generator).toHaveBeenCalledTimes(1);
+  });
+
+  it('regenerates immediately when resetKey changes, without waiting for the interval', () => {
+    const generator = vi.fn().mockReturnValueOnce('from-metlife').mockReturnValueOnce('from-bmo');
+    const { result, rerender } = renderHook(
+      ({ resetKey }) => useMockStream(generator, 1000, resetKey),
+      { initialProps: { resetKey: 'metlife-stadium' } },
+    );
+
+    expect(result.current).toBe('from-metlife');
+    rerender({ resetKey: 'bmo-field' });
+
+    expect(result.current).toBe('from-bmo');
+    expect(generator).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not regenerate when resetKey is passed but unchanged', () => {
+    const generator = vi.fn().mockReturnValue('value');
+    const { rerender } = renderHook(({ resetKey }) => useMockStream(generator, 1000, resetKey), {
+      initialProps: { resetKey: 'metlife-stadium' },
+    });
+
+    rerender({ resetKey: 'metlife-stadium' });
+
+    expect(generator).toHaveBeenCalledTimes(1);
+  });
 });

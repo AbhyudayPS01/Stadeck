@@ -1,8 +1,8 @@
 import { Card } from '../../components/ui/Card';
 import { StatTile } from '../../components/ui/StatTile';
-import { DEFAULT_VENUE } from '../../services/data/venues';
 import { useUiStrings } from '../../hooks/useUiStrings';
 import type { SustainabilityMetrics } from '../../types/sustainability';
+import type { Venue } from '../../types/venue';
 import { estimateCrowdCarbonTonnes } from '../../utils/carbon';
 import { formatCount } from '../../utils/format';
 import { clamp } from '../../utils/numbers';
@@ -10,6 +10,7 @@ import { formatUiString } from '../../utils/uiText';
 
 export interface SustainabilityDashboardProps {
   metrics: SustainabilityMetrics;
+  venue: Venue;
 }
 
 /**
@@ -17,14 +18,14 @@ export interface SustainabilityDashboardProps {
  * untrusted (SECURITY.md): percentages are clamped to 0-100 and volumes to
  * non-negative before render.
  */
-export function SustainabilityDashboard({ metrics }: SustainabilityDashboardProps) {
+export function SustainabilityDashboard({ metrics, venue }: SustainabilityDashboardProps) {
   const strings = useUiStrings();
   const wastePercent = clamp(metrics.wasteDivertedPercent, 0, 100);
   const energyPercent = clamp(metrics.renewableEnergyPercent, 0, 100);
   const transitPercent = clamp(metrics.transitModeSharePercent, 0, 100);
   const waterLiters = clamp(metrics.waterUsageLiters, 0, Number.MAX_SAFE_INTEGER);
   const offsetKg = clamp(metrics.carbonOffsetKg, 0, Number.MAX_SAFE_INTEGER);
-  const crowdCarbonTonnes = estimateCrowdCarbonTonnes(DEFAULT_VENUE.capacity, transitPercent);
+  const crowdCarbonTonnes = estimateCrowdCarbonTonnes(venue.capacity, transitPercent);
 
   return (
     <Card>
@@ -65,7 +66,7 @@ export function SustainabilityDashboard({ metrics }: SustainabilityDashboardProp
         />
         <StatTile
           caption={formatUiString(strings['sustainability.crowdCarbonCaption'], {
-            count: formatCount(DEFAULT_VENUE.capacity),
+            count: formatCount(venue.capacity),
           })}
           label={strings['sustainability.crowdCarbon']}
           value={`~${formatCount(crowdCarbonTonnes)} t`}

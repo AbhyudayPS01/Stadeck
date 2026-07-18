@@ -1,5 +1,6 @@
 import { useRole } from '../../hooks/useRole';
 import { useUiStrings } from '../../hooks/useUiStrings';
+import { useVenue } from '../../hooks/useVenue';
 import { AnnouncementsPanel } from './AnnouncementsPanel';
 import { ConciergeChat } from './ConciergeChat';
 import { VolunteerAssist } from './VolunteerAssist';
@@ -15,6 +16,7 @@ import { VolunteerAssist } from './VolunteerAssist';
 export default function MultilingualAssistanceScreen() {
   const strings = useUiStrings();
   const { role } = useRole();
+  const { venue } = useVenue();
   return (
     <main className="min-h-screen bg-fan-bg px-gutter py-section md:px-page">
       <h1 className="font-display text-h1 text-fan-ink">
@@ -24,8 +26,12 @@ export default function MultilingualAssistanceScreen() {
         {strings['module.multilingual-assistance.description']}
       </p>
       <div className="mt-section grid grid-cols-1 items-start gap-gutter xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
-        {role === 'volunteer' ? <VolunteerAssist /> : <ConciergeChat />}
-        <AnnouncementsPanel />
+        {role === 'volunteer' ? (
+          <VolunteerAssist key={`volunteer-${venue.id}`} venue={venue} />
+        ) : (
+          <ConciergeChat key={`chat-${venue.id}`} venue={venue} />
+        )}
+        <AnnouncementsPanel key={`announcements-${venue.id}`} venue={venue} />
       </div>
     </main>
   );

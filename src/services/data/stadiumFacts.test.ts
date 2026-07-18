@@ -59,6 +59,36 @@ describe('getStadiumFacts', () => {
     }
   });
 
+  it('tells Mexican-venue fans cash is accepted, unlike the cashless US/Canada default', () => {
+    const metlife = getStadiumFactsContext().toLowerCase();
+    expect(metlife).toContain('fully cashless');
+    expect(metlife).not.toContain('cash are all accepted');
+
+    const azteca = getStadiumFactsContext(requireVenue('estadio-azteca')).toLowerCase();
+    expect(azteca).toContain('cash are all accepted');
+    expect(azteca).not.toContain('fully cashless');
+  });
+
+  it('describes each venue’s actual roof configuration', () => {
+    const attStadium = getStadiumFactsContext(requireVenue('att-stadium'));
+    expect(attStadium).toContain('retractable roof');
+
+    const sofiStadium = getStadiumFactsContext(requireVenue('sofi-stadium'));
+    expect(sofiStadium).toContain('fixed roof');
+
+    const metlife = getStadiumFactsContext();
+    expect(metlife).toContain('open-air bowl');
+  });
+
+  it('adds an altitude advisory only for high-altitude venues', () => {
+    const azteca = getStadiumFactsContext(requireVenue('estadio-azteca'));
+    expect(azteca).toContain('2240m above sea level');
+    expect(azteca).toContain('stay hydrated');
+
+    const metlife = getStadiumFactsContext();
+    expect(metlife).not.toContain('above sea level');
+  });
+
   it('covers the topics that catch international visitors out', () => {
     const context = getStadiumFactsContext().toLowerCase();
     for (const topic of [

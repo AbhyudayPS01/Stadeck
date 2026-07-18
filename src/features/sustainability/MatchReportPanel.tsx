@@ -9,9 +9,11 @@ import { useGemini } from '../../hooks/useGemini';
 import { useUiStrings } from '../../hooks/useUiStrings';
 import { getSustainabilityReport } from '../../services/gemini';
 import type { SustainabilityMetrics } from '../../types/sustainability';
+import type { Venue } from '../../types/venue';
 
 export interface MatchReportPanelProps {
   metrics: SustainabilityMetrics;
+  venue: Venue;
 }
 
 interface ReportListProps {
@@ -28,9 +30,12 @@ function ReportList({ title, items }: ReportListProps) {
   );
 }
 
-function ReportResult({ metrics }: MatchReportPanelProps) {
+function ReportResult({ metrics, venue }: MatchReportPanelProps) {
   const strings = useUiStrings();
-  const fetcher = useCallback(() => getSustainabilityReport(metrics), [metrics]);
+  const fetcher = useCallback(
+    () => getSustainabilityReport(metrics, venue),
+    [metrics, venue],
+  );
   const { data, source, mockReason, isLoading, error, refetch } = useGemini(fetcher);
 
   if (isLoading) {
@@ -70,7 +75,7 @@ function ReportResult({ metrics }: MatchReportPanelProps) {
  * Organizer-only sustainability match report over a metrics snapshot — the
  * screen renders this panel only for the organizer role.
  */
-export function MatchReportPanel({ metrics }: MatchReportPanelProps) {
+export function MatchReportPanel({ metrics, venue }: MatchReportPanelProps) {
   const strings = useUiStrings();
   const [snapshot, setSnapshot] = useState<SustainabilityMetrics | null>(null);
 
@@ -85,7 +90,7 @@ export function MatchReportPanel({ metrics }: MatchReportPanelProps) {
           </Button>
         </div>
       ) : (
-        <ReportResult metrics={snapshot} />
+        <ReportResult metrics={snapshot} venue={venue} />
       )}
     </Card>
   );
