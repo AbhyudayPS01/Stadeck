@@ -1,4 +1,4 @@
-# CLAUDE.md — Stadeck Project Constitution
+# SPEC.md — Stadeck Project Constitution
 
 Read this file fully before every task. Every rule here applies to every phase, every file, every commit. When any instruction in a task prompt conflicts with this file, this file wins.
 
