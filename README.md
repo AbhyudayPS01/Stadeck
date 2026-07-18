@@ -2,7 +2,9 @@
 
 [![CI](https://github.com/AbhyudayPS01/stadeck/actions/workflows/ci.yml/badge.svg)](https://github.com/AbhyudayPS01/stadeck/actions/workflows/ci.yml)
 
-GenAI-powered stadium operations and fan experience for the FIFA World Cup 2026 Final at MetLife Stadium — eight modules covering everything from seat-level wayfinding to organizer decision support, all working with or without a live Gemini key.
+GenAI-powered stadium operations and fan experience platform built to enhance the overall tournament experience for fans, organizers, volunteers, and venue staff.
+
+The FIFA World Cup 2026 spans 16 venues across the USA, Canada, and Mexico, with fans arriving from around the globe speaking many languages. Stadeck serves this entire tournament and its global audience through multi-venue intelligence and native multilingual support.
 
 **Live demo:** _deployment link pending final submission_
 
