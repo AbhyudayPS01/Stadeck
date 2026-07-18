@@ -1,5 +1,15 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { GEMINI_MODEL, MAX_GEMINI_PROMPT_LENGTH } from '../src/config/constants';
+
+/**
+ * Inlined rather than imported from src/config/constants.ts: Vercel's Node
+ * runtime loads this function as an ESM module and cannot resolve a
+ * relative import that reaches outside api/ without an explicit file
+ * extension, which fails at runtime with ERR_MODULE_NOT_FOUND (this only
+ * surfaces in the deployed function, not in `tsc`'s Bundler resolution or
+ * Vite's build). Keep these two values in sync with constants.ts by hand.
+ */
+const GEMINI_MODEL = 'gemini-1.5-flash';
+const MAX_GEMINI_PROMPT_LENGTH = 8_000;
 
 /**
  * Vercel's Node runtime augments the standard http request/response with

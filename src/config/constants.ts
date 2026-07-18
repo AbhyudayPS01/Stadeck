@@ -167,13 +167,16 @@ export const INCIDENT_FEED_INTERVAL_MS = 30_000;
 /** Most recent incidents kept in the feed. */
 export const INCIDENT_FEED_LIMIT = 8;
 
-/** Gemini model requested through the serverless proxy — never called directly from the client. */
-export const GEMINI_MODEL = 'gemini-1.5-flash';
-
 /** Cap on raw end-user text before it reaches guard.ts (see guard.ts for why). */
 export const MAX_USER_INPUT_LENGTH = 500;
 
-/** Cap on the fully-assembled prompt the proxy will accept, enforced server-side in api/gemini.ts. */
+/**
+ * Cap on the fully-assembled prompt the proxy will accept. The proxy
+ * (api/gemini.ts) enforces its own inlined copy of this value at runtime —
+ * see that file for why it can't import this one — this export exists so
+ * client-side code (stadiumFacts's size test) can check against the same
+ * cap without duplicating the number a third time.
+ */
 export const MAX_GEMINI_PROMPT_LENGTH = 8_000;
 
 /** Client request timeout before client.ts aborts and (if retries are exhausted) falls back to mock. */
