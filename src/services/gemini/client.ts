@@ -28,7 +28,8 @@ function isTextPayload(payload: unknown): payload is { text: string } {
   return (
     typeof payload === 'object' &&
     payload !== null &&
-    typeof (payload as { text?: unknown }).text === 'string'
+    'text' in payload &&
+    typeof payload.text === 'string'
   );
 }
 

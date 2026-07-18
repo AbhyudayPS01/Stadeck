@@ -31,7 +31,13 @@ interface GeminiProxyRequestBody {
 }
 
 interface GeminiUpstreamPayload {
-  candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+  candidates: Array<{
+    content: {
+      parts: Array<{
+        text: string;
+      }>;
+    };
+  }>;
 }
 
 const UPSTREAM_TIMEOUT_MS = 12_000;
@@ -47,14 +53,37 @@ function isValidRequestBody(body: unknown): body is GeminiProxyRequestBody {
     return false;
   }
 
-  const prompt = (body as { prompt: unknown }).prompt;
-  return (
-    typeof prompt === 'string' && prompt.length > 0 && prompt.length <= MAX_GEMINI_PROMPT_LENGTH
-  );
+  if (!('prompt' in body) || typeof body.prompt !== 'string') {
+    return false;
+  }
+  const prompt = body.prompt;
+
+  return prompt.length > 0 && prompt.length <= MAX_GEMINI_PROMPT_LENGTH;
 }
 
-function extractText(payload: GeminiUpstreamPayload): string | undefined {
-  return payload.candidates?.[0]?.content?.parts?.[0]?.text;
+function extractText(payload: unknown): string | undefined {
+  if (
+    typeof payload === 'object' &&
+    payload !== null &&
+    'candidates' in payload &&
+    Array.isArray(payload.candidates) &&
+    payload.candidates.length > 0 &&
+    typeof payload.candidates[0] === 'object' &&
+    payload.candidates[0] !== null &&
+    'content' in payload.candidates[0] &&
+    typeof payload.candidates[0].content === 'object' &&
+    payload.candidates[0].content !== null &&
+    'parts' in payload.candidates[0].content &&
+    Array.isArray(payload.candidates[0].content.parts) &&
+    payload.candidates[0].content.parts.length > 0 &&
+    typeof payload.candidates[0].content.parts[0] === 'object' &&
+    payload.candidates[0].content.parts[0] !== null &&
+    'text' in payload.candidates[0].content.parts[0] &&
+    typeof payload.candidates[0].content.parts[0].text === 'string'
+  ) {
+    return payload.candidates[0].content.parts[0].text;
+  }
+  return undefined;
 }
 
 /**
