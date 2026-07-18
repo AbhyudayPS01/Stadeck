@@ -40,7 +40,11 @@ interface GeminiUpstreamPayload {
   }>;
 }
 
-const UPSTREAM_TIMEOUT_MS = 12_000;
+/**
+ * Inlined to avoid ERR_MODULE_NOT_FOUND on Vercel Node runtime.
+ * Must exactly match GEMINI_REQUEST_TIMEOUT_MS in src/config/constants.ts.
+ */
+const UPSTREAM_TIMEOUT_MS = 15_000;
 
 /** Request validation: exactly one field, `prompt`, a non-empty string within the payload cap. */
 function isValidRequestBody(body: unknown): body is GeminiProxyRequestBody {
