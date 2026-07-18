@@ -76,7 +76,13 @@ import {
  */
 export type { GeminiResult, MockReason } from './callFeature';
 
-/** Turn-by-turn walking directions from an entry gate to a seating section. */
+/**
+ * Turn-by-turn walking directions from an entry gate to a seating section.
+ * @param gate The starting gate for the route.
+ * @param section The destination seating section.
+ * @param venue The stadium context (defaults to demo venue).
+ * @returns A structured plan with steps and an ETA.
+ */
 export async function getNavigationDirections(
   gate: Gate,
   section: StadiumSection,
@@ -90,7 +96,12 @@ export async function getNavigationDirections(
   );
 }
 
-/** Gate/steward recommendations and a congestion forecast over the live sensor sweep. */
+/**
+ * Gate/steward recommendations and a congestion forecast over the live sensor sweep.
+ * @param readings Array of live density readings for zones/gates.
+ * @param venue The stadium context (defaults to demo venue).
+ * @returns Congestion forecast and redeployment advice.
+ */
 export async function getCrowdManagementSummary(
   readings: DensityReading[],
   venue: Venue = DEFAULT_VENUE,
@@ -103,7 +114,13 @@ export async function getCrowdManagementSummary(
   );
 }
 
-/** Step-free route from an entry gate to an accessible seating section. */
+/**
+ * Step-free route from an entry gate to an accessible seating section.
+ * @param gate The starting gate.
+ * @param section The destination accessible section.
+ * @param venue The stadium context (defaults to demo venue).
+ * @returns Accessible route and recommended accommodations.
+ */
 export async function getStepFreeRoute(
   gate: Gate,
   section: StadiumSection,
@@ -117,7 +134,12 @@ export async function getStepFreeRoute(
   );
 }
 
-/** "Access Companion": rewrites a venue announcement into plain language. */
+/**
+ * "Access Companion": rewrites a venue announcement into plain language.
+ * @param announcement The venue announcement to rewrite.
+ * @param venue The stadium context (defaults to demo venue).
+ * @returns The plain-language rewritten text.
+ */
 export async function getPlainLanguageRewrite(
   announcement: Announcement,
   venue: Venue = DEFAULT_VENUE,
@@ -130,7 +152,13 @@ export async function getPlainLanguageRewrite(
   );
 }
 
-/** Personalized post-match departure strategy built from the live transit board. */
+/**
+ * Personalized post-match departure strategy built from the live transit board.
+ * @param options Array of current transit options available.
+ * @param destination The fan's desired final destination.
+ * @param venue The stadium context (defaults to demo venue).
+ * @returns Recommended departure strategy with concrete times.
+ */
 export async function getTransportationRecommendation(
   options: TransitOption[],
   destination: string,
@@ -144,7 +172,12 @@ export async function getTransportationRecommendation(
   );
 }
 
-/** Per-fan eco-actions grounded in the live venue metrics. */
+/**
+ * Per-fan eco-actions grounded in the live venue metrics.
+ * @param metrics The current sustainability metrics for the stadium.
+ * @param venue The stadium context (defaults to demo venue).
+ * @returns Personalized tips for reducing environmental impact.
+ */
 export async function getSustainabilityTips(
   metrics: SustainabilityMetrics,
   venue: Venue = DEFAULT_VENUE,
@@ -157,7 +190,12 @@ export async function getSustainabilityTips(
   );
 }
 
-/** Organizer sustainability match report over the same venue metrics. */
+/**
+ * Organizer sustainability match report over the same venue metrics.
+ * @param metrics The current sustainability metrics for the stadium.
+ * @param venue The stadium context (defaults to demo venue).
+ * @returns Executive summary, highlights, and recommendations.
+ */
 export async function getSustainabilityReport(
   metrics: SustainabilityMetrics,
   venue: Venue = DEFAULT_VENUE,
@@ -174,6 +212,9 @@ export async function getSustainabilityReport(
  * Concierge chat: the model detects the fan's language and answers in it,
  * grounded in the local stadium facts. On the mock path, the client-side
  * heuristic picks the reply language so offline detection still works.
+ * @param message The user's input message.
+ * @param venue The stadium context (defaults to demo venue).
+ * @returns Fact-grounded reply and the detected language code.
  */
 export async function getMultilingualReply(
   message: string,
@@ -194,6 +235,10 @@ export async function getMultilingualReply(
  * for the volunteer, the fan's language to show the fan — so the translated
  * half gets its own limiter key (see LimiterKey) and never rate-limits the
  * English half it always ships with.
+ * @param question The fan's question relayed by the volunteer.
+ * @param targetLanguage The language code to translate the response into.
+ * @param venue The stadium context (defaults to demo venue).
+ * @returns Fact-grounded reply translated into the target language.
  */
 export async function getVolunteerAnswer(
   question: string,
@@ -213,7 +258,13 @@ export async function getVolunteerAnswer(
   );
 }
 
-/** One-click translation of a venue announcement into the fan's chosen language. */
+/**
+ * One-click translation of a venue announcement into the fan's chosen language.
+ * @param announcement The venue announcement to translate.
+ * @param targetLanguage The target language code.
+ * @param venue The stadium context (defaults to demo venue).
+ * @returns The translated announcement string.
+ */
 export async function getAnnouncementTranslation(
   announcement: Announcement,
   targetLanguage: string,
@@ -227,7 +278,12 @@ export async function getAnnouncementTranslation(
   );
 }
 
-/** On-demand executive briefing over the organizer KPI snapshot. */
+/**
+ * On-demand executive briefing over the organizer KPI snapshot.
+ * @param kpis Current operational KPIs.
+ * @param venue The stadium context (defaults to demo venue).
+ * @returns Executive summary, anomalies, and operational trends.
+ */
 export async function getOperationalIntelligenceSummary(
   kpis: KpiSnapshot[],
   venue: Venue = DEFAULT_VENUE,
@@ -240,7 +296,12 @@ export async function getOperationalIntelligenceSummary(
   );
 }
 
-/** Structured action plan (actions, teams, escalation criteria) for a reported incident. */
+/**
+ * Structured action plan (actions, teams, escalation criteria) for a reported incident.
+ * @param incident The reported incident requiring an action plan.
+ * @param venue The stadium context (defaults to demo venue).
+ * @returns A structured decision support plan prioritizing actions.
+ */
 export async function getRealTimeDecisionSupport(
   incident: Incident,
   venue: Venue = DEFAULT_VENUE,
@@ -253,7 +314,12 @@ export async function getRealTimeDecisionSupport(
   );
 }
 
-/** Organizer "what-if" scenario planning — same action-plan shape as incident analysis. */
+/**
+ * Organizer "what-if" scenario planning — same action-plan shape as incident analysis.
+ * @param scenario The hypothetical scenario described by the organizer.
+ * @param venue The stadium context (defaults to demo venue).
+ * @returns A structured decision support plan for the scenario.
+ */
 export async function getScenarioPlan(
   scenario: string,
   venue: Venue = DEFAULT_VENUE,
