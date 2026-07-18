@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 /**
  * Returns `value` only after it has stopped changing for `delayMs`
- * (CLAUDE.md: chat/translation inputs are debounced at 300ms). Keeps
+ * (SPEC.md: chat/translation inputs are debounced at 300ms). Keeps
  * per-keystroke work — like the live language-detection hint — off the hot
  * typing path. The pending timeout is cleared on every change and on unmount.
  */

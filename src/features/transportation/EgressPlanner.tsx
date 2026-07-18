@@ -64,7 +64,7 @@ function StrategyResult({ plan, venue, onRecommendation }: StrategyResultProps) 
           <DemoDataBadge reason={mockReason ?? undefined} />
         </span>
       ) : null}
-      {/* AI response region per CLAUDE.md accessibility rules */}
+      {/* AI response region per SPEC.md accessibility rules */}
       <div aria-live="polite">
         <p className="text-body-sm text-fan-ink">{data.summary}</p>
         <p className="mt-2 rounded-md bg-pitch-tint px-3 py-2 text-body-sm font-semibold text-pitch-darker">

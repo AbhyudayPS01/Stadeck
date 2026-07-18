@@ -156,7 +156,7 @@ const StadiumMapBase = memo(function StadiumMapBase({
  * Clean schematic map of the active venue: concentric ring layout with
  * labeled section blocks, Gates A–H at compass points, and amenity markers
  * that open a detail popup. Every section, gate, and amenity is
- * keyboard-focusable with an accessible name (CLAUDE.md stadium map rules).
+ * keyboard-focusable with an accessible name (SPEC.md stadium map rules).
  */
 export function StadiumMap({
   venue = DEFAULT_VENUE,

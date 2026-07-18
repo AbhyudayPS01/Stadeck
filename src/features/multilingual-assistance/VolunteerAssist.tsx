@@ -104,7 +104,7 @@ export function VolunteerAssist({ venue }: VolunteerAssistProps) {
         ))}
       </ul>
 
-      {/* AI response region per CLAUDE.md accessibility rules */}
+      {/* AI response region per SPEC.md accessibility rules */}
       <div aria-live="polite" className="mt-4 flex flex-col gap-3">
         {isLoading ? <LoadingRow label={strings['volunteer.fetching']} /> : null}
         {error !== null ? (

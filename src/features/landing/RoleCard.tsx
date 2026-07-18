@@ -36,7 +36,7 @@ function RoleCardHeading({ option }: { option: RoleOption }) {
  * One role entry card. Fan enters in one click; gated roles validate a demo
  * access code. The "Continue with demo access" button submits the role's demo
  * code through the exact same resolveAccessCode path as the text field —
- * one validation path, no bypass logic (CLAUDE.md product shape).
+ * one validation path, no bypass logic (SPEC.md product shape).
  */
 export function RoleCard({ option, onEnter }: RoleCardProps) {
   const strings = useUiStrings();

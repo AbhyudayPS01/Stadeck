@@ -10,7 +10,7 @@ export interface Announcement {
   /**
    * Canned translations keyed by BCP-47 code — the deterministic offline path
    * for one-click translation. The live path asks Gemini instead; these keep
-   * the demo fully multilingual with zero API key (CLAUDE.md mock fallback).
+   * the demo fully multilingual with zero API key (SPEC.md mock fallback).
    */
   translations: Readonly<Record<string, string>>;
   /** ISO timestamp. */

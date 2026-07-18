@@ -46,7 +46,7 @@ interface GateMarkerProps {
   onSelect?: (gateId: string) => void;
 }
 
-/** Keyboard-focusable gate marker at its compass point (CLAUDE.md map rules). */
+/** Keyboard-focusable gate marker at its compass point (SPEC.md map rules). */
 export function GateMarker({ gate, onSelect }: GateMarkerProps) {
   const point = gatePoint(gate);
   const activate = (): void => onSelect?.(gate.id);

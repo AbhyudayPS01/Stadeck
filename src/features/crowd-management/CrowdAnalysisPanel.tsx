@@ -54,7 +54,7 @@ function AnalysisResult({ snapshot, venue, onReanalyze }: AnalysisResultProps) {
           <DemoDataBadge reason={mockReason ?? undefined} theme="ops" />
         </span>
       ) : null}
-      {/* AI response region per CLAUDE.md accessibility rules */}
+      {/* AI response region per SPEC.md accessibility rules */}
       <p aria-live="polite" className="text-body-sm text-ops-body">
         {data.summary}
       </p>

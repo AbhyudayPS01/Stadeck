@@ -28,7 +28,7 @@ export function ActionPlanDetails({ plan, source, mockReason }: ActionPlanDetail
         </Badge>
         {source === 'mock' ? <DemoDataBadge reason={mockReason} theme="ops" /> : null}
       </div>
-      {/* AI response region per CLAUDE.md accessibility rules */}
+      {/* AI response region per SPEC.md accessibility rules */}
       <p aria-live="polite" className="text-body-sm text-ops-body">
         {plan.summary}
       </p>

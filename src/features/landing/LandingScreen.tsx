@@ -9,7 +9,7 @@ import { RoleCard } from './RoleCard';
 
 /**
  * Landing role gate — the entry to Stadeck's three role views (Fan,
- * Volunteer & Staff, Organizer) from the CLAUDE.md product shape. Not one of
+ * Volunteer & Staff, Organizer) from the SPEC.md product shape. Not one of
  * the eight challenge modules; those live under src/features/<module>.
  */
 export default function LandingScreen() {

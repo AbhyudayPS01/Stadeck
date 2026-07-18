@@ -127,7 +127,7 @@ export const SUPPORTED_LANGUAGES: readonly LanguageOption[] = [
 /** Default interface language until the visitor picks another. */
 export const DEFAULT_LANGUAGE = 'en';
 
-/** Delay before the chat input's language-detection hint recomputes (CLAUDE.md: debounce chat inputs). */
+/** Delay before the chat input's language-detection hint recomputes (SPEC.md: debounce chat inputs). */
 export const CHAT_INPUT_DEBOUNCE_MS = 300;
 
 /** How often the simulated venue announcement feed emits a new item. */

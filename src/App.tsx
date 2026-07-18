@@ -13,7 +13,7 @@ import LandingScreen from './features/landing/LandingScreen';
 import type { ModuleId } from './types/module';
 
 /**
- * Route-level code splitting for all eight modules (CLAUDE.md efficiency
+ * Route-level code splitting for all eight modules (SPEC.md efficiency
  * rules); the landing screen loads eagerly because it is always the first
  * paint. The Suspense boundary lives in Shell, next to the Outlet, so the
  * sidebar stays interactive while a module chunk loads.

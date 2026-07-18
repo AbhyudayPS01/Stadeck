@@ -16,7 +16,7 @@ const TIME_FORMAT = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute
 /**
  * The live incident feed with severity triage. Each row is a real button
  * (aria-pressed marks the selected incident) and the list is aria-live so new
- * incidents are announced (CLAUDE.md accessibility rules).
+ * incidents are announced (SPEC.md accessibility rules).
  */
 export function IncidentFeed({ incidents, selectedId, onSelect }: IncidentFeedProps) {
   const strings = useUiStrings();

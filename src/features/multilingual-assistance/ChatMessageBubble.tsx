@@ -13,7 +13,7 @@ interface ChatMessageBubbleProps {
 /**
  * One chat bubble. Sets `lang` (and `dir` for RTL scripts like Arabic) on the
  * text itself so screen readers switch pronunciation and the browser shapes
- * the text correctly — UI chrome around it stays English per CLAUDE.md.
+ * the text correctly — UI chrome around it stays English per SPEC.md.
  */
 export function ChatMessageBubble({ message, stream = false }: ChatMessageBubbleProps) {
   const prefersReducedMotion = useReducedMotion();

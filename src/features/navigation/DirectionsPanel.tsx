@@ -55,7 +55,7 @@ export function DirectionsPanel({ gate, section, venue }: DirectionsPanelProps) 
         </Badge>
         {source === 'mock' ? <DemoDataBadge reason={mockReason ?? undefined} /> : null}
       </div>
-      {/* AI response region per CLAUDE.md accessibility rules */}
+      {/* AI response region per SPEC.md accessibility rules */}
       <div aria-live="polite">
         <p className="text-body-sm text-fan-ink">{data.summary}</p>
         <StepList items={data.steps} ordered />

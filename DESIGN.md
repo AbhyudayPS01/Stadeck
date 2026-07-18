@@ -269,4 +269,4 @@ All poses share the 220×220 viewBox and the same body (white ball, pentagon pan
 
 ## 8. Screen reference
 
-The interactive mockups (landing/role select, fan home, multilingual chat, crowd management, decision support, component sheet) live in the Claude Design workspace and are **not part of this repository** — this document is the complete engineering source of truth. Screens implement: landing = fan theme with dark hero; fan home, chat = fan theme; crowd management, decision support = ops theme; components follow §4.
+The interactive mockups (landing/role select, fan home, multilingual chat, crowd management, decision support, component sheet) live in the design workspace and are **not part of this repository** — this document is the complete engineering source of truth. Screens implement: landing = fan theme with dark hero; fan home, chat = fan theme; crowd management, decision support = ops theme; components follow §4.

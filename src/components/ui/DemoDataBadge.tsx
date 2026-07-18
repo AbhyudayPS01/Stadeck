@@ -22,7 +22,7 @@ const THEME_CLASSES: Record<CardTheme, string> = {
 /**
  * Marks AI content that came from the deterministic mock rather than a live
  * Gemini call — the app quietly keeps working, but never passes demo data
- * off as live (CLAUDE.md Gemini rules). Gold mono-tag styling per DESIGN.md §4.
+ * off as live (SPEC.md Gemini rules). Gold mono-tag styling per DESIGN.md §4.
  */
 export function DemoDataBadge({ theme = 'fan', reason = 'unavailable' }: DemoDataBadgeProps) {
   const strings = useUiStrings();
