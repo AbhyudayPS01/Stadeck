@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { findVenue, VENUES } from './venues';
 import { generateDensityReadings, levelForPercent } from './density';
-import { GATES, SECTIONS } from './stadiumLayout';
+import { getVenueLayout, GATES, SECTIONS } from './stadiumLayout';
 
 describe('levelForPercent', () => {
   it('returns normal below 80', () => {
@@ -32,5 +33,30 @@ describe('generateDensityReadings', () => {
       expect(reading.percentOfCapacity).toBeGreaterThanOrEqual(0);
       expect(reading.percentOfCapacity).toBeLessThanOrEqual(100);
     }
+  });
+
+  it('sweeps every venue’s own layout, citing only zones that actually exist there', () => {
+    for (const venue of VENUES) {
+      const layout = getVenueLayout(venue.id);
+      const readings = generateDensityReadings(layout);
+      expect(readings, venue.id).toHaveLength(layout.sections.length + layout.gates.length);
+
+      const zoneIds = new Set([
+        ...layout.sections.map((section) => section.id),
+        ...layout.gates.map((gate) => gate.id),
+      ]);
+      for (const reading of readings) {
+        expect(zoneIds.has(reading.zoneId), `${venue.id}: ${reading.zoneId}`).toBe(true);
+      }
+    }
+  });
+
+  it('sweeps a different section/gate count for a smaller venue than the default', () => {
+    const toronto = findVenue('bmo-field');
+    expect(toronto).toBeDefined();
+    if (!toronto) return;
+
+    const torontoReadings = generateDensityReadings(getVenueLayout(toronto.id));
+    expect(torontoReadings.length).not.toBe(generateDensityReadings().length);
   });
 });

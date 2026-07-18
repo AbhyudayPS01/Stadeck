@@ -171,15 +171,31 @@ describe('getVenueLayout', () => {
     expect(byTier('upper')).toHaveLength(40);
   });
 
-  it('generates quarter-symmetric section rings for every venue', () => {
+  it('generates quarter-symmetric section rings for every venue’s registered tiers', () => {
     for (const venue of VENUES) {
       const layout = getVenueLayout(venue.id);
-      for (const tier of ['lower', 'club', 'upper'] as const) {
+      const tiersPresent = new Set(layout.sections.map((section) => section.tier));
+      expect(tiersPresent.size, venue.id).toBe(venue.tierCount);
+      for (const tier of tiersPresent) {
         const count = layout.sections.filter((section) => section.tier === tier).length;
         expect(count % 4, `${venue.id} ${tier}`).toBe(0);
         expect(count, `${venue.id} ${tier}`).toBeGreaterThanOrEqual(8);
         expect(count, `${venue.id} ${tier}`).toBeLessThanOrEqual(48);
       }
+    }
+  });
+
+  it('drops the club tier only for venues registered with a two-tier bowl', () => {
+    for (const venue of VENUES) {
+      const layout = getVenueLayout(venue.id);
+      const hasClubTier = layout.sections.some((section) => section.tier === 'club');
+      expect(hasClubTier, venue.id).toBe(venue.tierCount === 3);
+    }
+  });
+
+  it('matches the registry gate count at every venue', () => {
+    for (const venue of VENUES) {
+      expect(getVenueLayout(venue.id).gates.length, venue.id).toBe(venue.gateCount);
     }
   });
 

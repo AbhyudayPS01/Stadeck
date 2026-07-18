@@ -49,6 +49,33 @@ describe('VENUES', () => {
     }
   });
 
+  it('gives every venue a valid IANA time zone', () => {
+    for (const venue of VENUES) {
+      expect(() => new Intl.DateTimeFormat(undefined, { timeZone: venue.timezone }), venue.id).not
+        .toThrow();
+    }
+  });
+
+  it('gives every venue a non-empty distinguishing note', () => {
+    for (const venue of VENUES) {
+      expect(venue.note.length, venue.id).toBeGreaterThan(0);
+    }
+  });
+
+  it('gives every venue a valid tier count and gate count that drive the generated layout', () => {
+    for (const venue of VENUES) {
+      expect([2, 3], venue.id).toContain(venue.tierCount);
+      expect(venue.gateCount, venue.id).toBeGreaterThan(0);
+    }
+  });
+
+  it('drops the club tier only for the smallest-capacity venues', () => {
+    const twoTierIds = VENUES.filter((venue) => venue.tierCount === 2).map((venue) => venue.id);
+    expect(new Set(twoTierIds)).toEqual(
+      new Set(['bmo-field', 'bc-place', 'estadio-bbva', 'estadio-akron']),
+    );
+  });
+
   it('keeps altitude within a plausible range for a World Cup host venue', () => {
     for (const venue of VENUES) {
       expect(venue.altitudeMeters).toBeGreaterThanOrEqual(0);

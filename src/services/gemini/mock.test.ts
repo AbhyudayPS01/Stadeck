@@ -138,6 +138,15 @@ describe('mockCrowdManagementResponse', () => {
       }
     }
   });
+
+  it('flags the altitude effect on fan exertion at a high-altitude venue, unlike the default venue', () => {
+    const azteca = requireVenue('estadio-azteca');
+    const response = mockCrowdManagementResponse(azteca);
+    expect(response.stewardRedeployment.join(' ')).toContain('2240m altitude');
+
+    const metlife = mockCrowdManagementResponse();
+    expect(metlife.stewardRedeployment.join(' ')).not.toContain('altitude');
+  });
 });
 
 describe('mockRealTimeDecisionSupportResponse', () => {
@@ -190,6 +199,26 @@ describe('mockRealTimeDecisionSupportResponse', () => {
     const toronto = requireVenue('bmo-field');
     const response = mockRealTimeDecisionSupportResponse('medical', toronto);
     expect(response.teamsToNotify.join(' ')).not.toContain('desk 103');
+  });
+
+  it('tells staff to evaluate closing the roof for a weather incident at a retractable-roof venue', () => {
+    const attStadium = requireVenue('att-stadium');
+    const response = mockRealTimeDecisionSupportResponse('weather', attStadium);
+    expect(response.summary).toContain('retractable roof');
+    expect(response.immediateActions.join(' ')).toContain('closing the retractable roof');
+    expect(response.priority).toBe('critical');
+  });
+
+  it('gives a different weather plan for an open-air venue with no roof to close', () => {
+    const metlife = mockRealTimeDecisionSupportResponse('weather');
+    expect(metlife.summary).toContain('no roof to close');
+    expect(metlife.summary).not.toContain('retractable');
+  });
+
+  it('gives a different weather plan for a fixed-roof venue', () => {
+    const sofi = requireVenue('sofi-stadium');
+    const response = mockRealTimeDecisionSupportResponse('weather', sofi);
+    expect(response.summary).toContain('fixed roof already shields the bowl');
   });
 });
 

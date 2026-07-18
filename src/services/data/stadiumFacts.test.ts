@@ -48,11 +48,19 @@ describe('getStadiumFacts', () => {
   });
 
   it('only cites section numbers that exist in each venue’s generated layout', () => {
+    // fact-venue-profile states registry numbers (capacity, elevation) that
+    // happen to format as bare 3-digit tokens (e.g. a 180m elevation) without
+    // being section citations, so it is excluded from this scan — every
+    // other fact's numbers must still resolve to a real section.
     for (const venue of VENUES) {
       const sectionLabels = new Set(
         getVenueLayout(venue.id).sections.map((section) => section.label),
       );
-      const citedNumbers = getStadiumFactsContext(venue).match(/\b\d{3}\b/g) ?? [];
+      const sectionFacts = getStadiumFacts(venue)
+        .filter((fact) => fact.id !== 'fact-venue-profile')
+        .map((fact) => fact.fact)
+        .join('\n');
+      const citedNumbers = sectionFacts.match(/\b\d{3}\b/g) ?? [];
       for (const cited of citedNumbers) {
         expect(sectionLabels.has(cited), `${venue.id} cites section ${cited}`).toBe(true);
       }
@@ -87,6 +95,53 @@ describe('getStadiumFacts', () => {
 
     const metlife = getStadiumFactsContext();
     expect(metlife).not.toContain('above sea level');
+  });
+
+  it('states MetLife’s Final-venue profile: stage, cashless payments, clear-bag policy, and Meadowlands rail egress', () => {
+    const metlife = getStadiumFactsContext().toLowerCase();
+    expect(metlife).toContain('hosting the final');
+    expect(metlife).toContain('fully cashless');
+    expect(metlife).toContain('clear bags up to 12 x 6 x 12 inches');
+    expect(metlife).toContain('meadowlands');
+  });
+
+  it('states Azteca’s altitude, hydration guidance, and medical-incident risk note', () => {
+    const azteca = getStadiumFactsContext(requireVenue('estadio-azteca')).toLowerCase();
+    expect(azteca).toContain('2240m elevation');
+    expect(azteca).toContain('stay hydrated');
+    expect(azteca).toContain('medical-incident');
+  });
+
+  it('states AT&T Stadium’s retractable roof and its climate-controlled concourses', () => {
+    const attStadium = getStadiumFactsContext(requireVenue('att-stadium')).toLowerCase();
+    expect(attStadium).toContain('retractable roof');
+    expect(attStadium).toContain('climate-controlled');
+  });
+
+  it('states BMO Field’s smaller capacity, Canadian venue, and different payment/bag norms', () => {
+    const bmo = getStadiumFactsContext(requireVenue('bmo-field')).toLowerCase();
+    expect(bmo).toContain('smaller host venues');
+    expect(bmo).toContain('canadian venue');
+    expect(bmo).toContain('canadian dollars');
+    expect(bmo).toContain('14 x 14 x 6 inches');
+  });
+
+  it('gives every venue its own registry facts (capacity, roof, elevation, time zone) with no empty fact set', () => {
+    for (const venue of VENUES) {
+      const context = getStadiumFactsContext(venue);
+      expect(context.length, venue.id).toBeGreaterThan(0);
+      expect(context, venue.id).toContain(venue.timezone);
+      expect(context, venue.id).toContain(`${venue.altitudeMeters}m elevation`);
+      expect(context.toLowerCase(), venue.id).toContain(venue.stage.toLowerCase());
+    }
+  });
+
+  it('drops the club-level line from the seating fact for two-tier venues', () => {
+    const bmo = getStadiumFactsContext(requireVenue('bmo-field'));
+    expect(bmo).not.toContain('club level');
+
+    const metlife = getStadiumFactsContext();
+    expect(metlife).toContain('club level');
   });
 
   it('covers the topics that catch international visitors out', () => {

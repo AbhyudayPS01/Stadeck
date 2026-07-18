@@ -25,6 +25,24 @@ describe('getKpiSnapshot', () => {
     expect(attendance?.value).toBeLessThanOrEqual(toronto.capacity);
   });
 
+  it('reports proportionally different attendance for a small venue than a large one, not the same numbers relabeled', () => {
+    const toronto = findVenue('bmo-field'); // 45,000-seat venue
+    const azteca = findVenue('estadio-azteca'); // 87,000-seat venue
+    expect(toronto).toBeDefined();
+    expect(azteca).toBeDefined();
+    if (!toronto || !azteca) return;
+
+    const attendanceValues = (venue: NonNullable<typeof toronto>) =>
+      Array.from(
+        { length: 20 },
+        () => getKpiSnapshot(venue).find((kpi) => kpi.id === 'attendance')?.value ?? 0,
+      );
+
+    const torontoMax = Math.max(...attendanceValues(toronto));
+    const aztecaMin = Math.min(...attendanceValues(azteca));
+    expect(torontoMax).toBeLessThan(aztecaMin);
+  });
+
   it('flags gate wait time as elevated only once it reaches 10 minutes', () => {
     const kpis = getKpiSnapshot();
     const gateWait = kpis.find((kpi) => kpi.id === 'gate-wait-time');

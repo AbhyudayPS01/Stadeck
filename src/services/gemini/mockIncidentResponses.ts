@@ -48,12 +48,47 @@ function lostChildPlan(venue: Venue): RealTimeDecisionSupportResponse {
   };
 }
 
+/**
+ * The roof determines whether "close the roof" is even an available move, so
+ * the weather plan's first action names the venue's actual roof type instead
+ * of a generic shelter instruction — mirrors buildRealTimeDecisionSupportPrompt's
+ * venueConditionsLine grounding on the live path (see prompts.ts).
+ */
+const ROOF_WEATHER_ACTIONS: Record<Venue['roof'], string> = {
+  retractable:
+    'Evaluate closing the retractable roof now to protect play and move fans under cover.',
+  fixed:
+    'The fixed roof already shields the bowl — focus stewards on outer-concourse and parking-lot safety instead of in-bowl shelter.',
+  open: 'There is no roof to close — direct fans to the covered concourses and follow the weather-delay protocol.',
+};
+
+function weatherPlan(venue: Venue): RealTimeDecisionSupportResponse {
+  const roofAction = ROOF_WEATHER_ACTIONS[venue.roof];
+  return {
+    summary: `Weather incident: ${roofAction}`,
+    immediateActions: [
+      roofAction,
+      'Pause concessions and activities using open flames or exposed equipment.',
+      'Brief stewards on the shelter-in-place plan and reassess in 15 minutes.',
+    ],
+    teamsToNotify: ['Operations control room', 'Grounds and roof crew', 'Security control room'],
+    escalationCriteria: [
+      'The weather threat persists past the 15-minute reassessment window.',
+      'Wind, hail, or lightning begins directly affecting fan safety in the concourses.',
+    ],
+    priority: 'critical',
+  };
+}
+
 export function mockRealTimeDecisionSupportResponse(
   category?: IncidentCategory,
   venue: Venue = DEFAULT_VENUE,
 ): RealTimeDecisionSupportResponse {
   if (category === 'lost-child') {
     return lostChildPlan(venue);
+  }
+  if (category === 'weather') {
+    return weatherPlan(venue);
   }
   const { guestServices } = venueAnchors(venue);
   return {

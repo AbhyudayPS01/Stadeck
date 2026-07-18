@@ -2,6 +2,7 @@ import { getVenueLayout, sectionNumberAtRingFraction } from '../data/stadiumLayo
 import { DEFAULT_VENUE } from '../data/venues';
 import type { Announcement } from '../../types/announcement';
 import type { Venue } from '../../types/venue';
+import { HIGH_ALTITUDE_THRESHOLD_METERS } from './promptHelpers';
 import type {
   AccessibilityResponse,
   AnnouncementTranslationResponse,
@@ -57,6 +58,7 @@ export function mockCrowdManagementResponse(
   const layout = getVenueLayout(venue.id);
   const sectionA = sectionNumberAtRingFraction(layout, 'lower', 0.675);
   const sectionB = sectionNumberAtRingFraction(layout, 'lower', 0.775);
+  const isHighAltitude = venue.altitudeMeters > HIGH_ALTITUDE_THRESHOLD_METERS;
   return {
     summary:
       'Gate C and the surrounding east-side sections are approaching capacity; the rest of the venue is flowing normally.',
@@ -65,6 +67,11 @@ export function mockCrowdManagementResponse(
       'Move two steward teams from the west concourse to Gate C to manage the queue.',
       `Post one team at Sections ${sectionA}-${sectionB} to keep the east stairwells clear.`,
       'Hold one mobile team near Gate E in case rail arrivals surge.',
+      ...(isHighAltitude
+        ? [
+            `Add an extra medical team on the concourse — at ${venue.altitudeMeters}m altitude, exertion in dense queues raises the chance of a fan needing help.`,
+          ]
+        : []),
     ],
     congestionForecast:
       'East-side pressure should peak within 15 minutes as rail arrivals land, then ease once Gates A and B absorb the redirected flow.',

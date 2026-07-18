@@ -31,8 +31,12 @@ const ROOF_REASONING_HINTS: Record<Venue['roof'], string> = {
   fixed: 'a fixed roof, so outdoor weather does not affect play or crowd flow',
 };
 
-/** Elevation above which crowd/ops reasoning should account for altitude effects on fans. */
-const HIGH_ALTITUDE_THRESHOLD_METERS = 1500;
+/**
+ * Elevation above which crowd/ops reasoning should account for altitude
+ * effects on fans — shared with the offline mock fallbacks (mock.ts) so the
+ * live and offline paths agree on which venues get the altitude callout.
+ */
+export const HIGH_ALTITUDE_THRESHOLD_METERS = 1500;
 
 /**
  * One-line venue-conditions brief for ops-facing prompts (crowd management,

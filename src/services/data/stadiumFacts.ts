@@ -2,11 +2,13 @@ import type { Venue } from '../../types/venue';
 import { getVenueLayout, nearestAmenity, sectionNumber } from './stadiumLayout';
 import {
   anchorNumbers,
+  bagPolicyFact,
   formatList,
   paymentsFact,
   sectionList,
   tierRange,
   venueConditionsFact,
+  venueProfileFact,
 } from './stadiumFactsHelpers';
 import { DEFAULT_VENUE } from './venues';
 
@@ -44,14 +46,19 @@ function buildStadiumFacts(venue: Venue): readonly StadiumFact[] {
 
   return [
     {
+      id: 'fact-venue-profile',
+      topic: 'venue',
+      fact: venueProfileFact(venue),
+    },
+    {
       id: 'fact-gates',
       topic: 'entry',
-      fact: 'Gates A through H sit at compass points around the stadium and open 3 hours before kickoff.',
+      fact: `Gates ${layout.gates[0]?.label.replace('Gate ', '') ?? ''} through ${layout.gates[layout.gates.length - 1]?.label.replace('Gate ', '') ?? ''} sit at compass points around the stadium and open 3 hours before kickoff.`,
     },
     {
       id: 'fact-bag-policy',
       topic: 'entry',
-      fact: 'Only clear bags up to 12 x 6 x 12 inches or small clutches are allowed; non-compliant bags can be checked for a fee at the bag-check tents outside Gate B.',
+      fact: bagPolicyFact(venue),
     },
     {
       id: 'fact-cashless',
@@ -71,7 +78,10 @@ function buildStadiumFacts(venue: Venue): readonly StadiumFact[] {
     {
       id: 'fact-seating-tiers',
       topic: 'seating',
-      fact: `Seating: lower bowl sections ${tierRange(layout, 'lower')}, club level ${tierRange(layout, 'club')}, upper bowl ${tierRange(layout, 'upper')}.`,
+      fact:
+        venue.tierCount === 3
+          ? `Seating: lower bowl sections ${tierRange(layout, 'lower')}, club level ${tierRange(layout, 'club')}, upper bowl ${tierRange(layout, 'upper')}.`
+          : `Seating: lower bowl sections ${tierRange(layout, 'lower')}, upper bowl ${tierRange(layout, 'upper')}.`,
     },
     {
       id: 'fact-accessible-seating',

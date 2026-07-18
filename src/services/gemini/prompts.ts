@@ -66,9 +66,10 @@ export function buildCrowdManagementPrompt(params: {
   venue?: Venue;
 }): string {
   const { readings, venue = DEFAULT_VENUE } = params;
+  const gateCount = getVenueLayout(venue.id).gates.length;
   return [
     venuePersona('crowd management assistant for venue staff', venue),
-    `The venue seats ${formatCount(venue.capacity)} fans behind 8 gates. ${venueConditionsLine(venue)}`,
+    `The venue seats ${formatCount(venue.capacity)} fans behind ${gateCount} gates. ${venueConditionsLine(venue)}`,
     `Aggregated live occupancy readings (zone ids: sec-<number> = seating section, gate-<letter> = entry gate):\n${compactDensityReadings(readings)}`,
     'Recommend which gates to open, how to redeploy stewards, and forecast congestion for the next 30 minutes.',
     jsonOnlyInstruction(

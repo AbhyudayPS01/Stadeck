@@ -33,11 +33,27 @@ interface TierPlan {
   capacityPerSection: number;
 }
 
-const TIER_PLANS: readonly TierPlan[] = [
+/** Lower/club/upper bowl profile for a venue.tierCount === 3 registry entry. */
+const THREE_TIER_PLANS: readonly TierPlan[] = [
   { tier: 'lower', startNumber: 101, capacityShare: 0.44, capacityPerSection: 900 },
   { tier: 'club', startNumber: 201, capacityShare: 0.1, capacityPerSection: 500 },
   { tier: 'upper', startNumber: 301, capacityShare: 0.46, capacityPerSection: 955 },
 ];
+
+/**
+ * Lower/upper bowl profile for a venue.tierCount === 2 registry entry — smaller
+ * soccer-specific grounds with no club level. No amenity in stadiumAmenities.ts
+ * anchors to the 'club' tier, so dropping it never leaves an amenity orphaned.
+ */
+const TWO_TIER_PLANS: readonly TierPlan[] = [
+  { tier: 'lower', startNumber: 101, capacityShare: 0.55, capacityPerSection: 900 },
+  { tier: 'upper', startNumber: 301, capacityShare: 0.45, capacityPerSection: 955 },
+];
+
+/** The tier plan for a venue's registry tierCount — drives its generated bowl shape. */
+function tierPlansFor(venue: Venue): readonly TierPlan[] {
+  return venue.tierCount === 2 ? TWO_TIER_PLANS : THREE_TIER_PLANS;
+}
 
 /**
  * Section counts snap to multiples of 4 so every ring is quarter-symmetric
@@ -50,8 +66,8 @@ function sectionCountFor(plan: TierPlan, capacity: number): number {
   return 4 * clamp(quarters, 2, 12);
 }
 
-function buildSections(capacity: number): StadiumSection[] {
-  return TIER_PLANS.flatMap((plan) => {
+function buildSections(capacity: number, tierPlans: readonly TierPlan[]): StadiumSection[] {
+  return tierPlans.flatMap((plan) => {
     const count = sectionCountFor(plan, capacity);
     const angleStep = 360 / count;
     return Array.from({ length: count }, (_, index) => {
@@ -95,6 +111,11 @@ export const GATES: readonly Gate[] = GATE_DEFINITIONS.map((definition, index) =
   angle: index * 45,
 }));
 
+/** The gate set for a venue's registry gateCount — every venue currently uses all 8. */
+function gatesFor(venue: Venue): readonly Gate[] {
+  return GATES.slice(0, venue.gateCount);
+}
+
 function buildAmenities(sections: readonly StadiumSection[]): Amenity[] {
   return AMENITY_PLAN.map((entry, index) => {
     const ring = sections.filter((section) => section.tier === entry.tier);
@@ -120,8 +141,9 @@ function buildAmenities(sections: readonly StadiumSection[]): Amenity[] {
 const layoutCache = new Map<string, VenueLayout>();
 
 function buildVenueLayout(venue: Venue): VenueLayout {
-  const sections = buildSections(venue.capacity);
-  return { venueId: venue.id, sections, gates: GATES, amenities: buildAmenities(sections) };
+  const sections = buildSections(venue.capacity, tierPlansFor(venue));
+  const gates = gatesFor(venue);
+  return { venueId: venue.id, sections, gates, amenities: buildAmenities(sections) };
 }
 
 /**

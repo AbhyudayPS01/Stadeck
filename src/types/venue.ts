@@ -49,4 +49,16 @@ export interface Venue {
    */
   latitude: number;
   longitude: number;
+  /** IANA time zone identifier, e.g. "America/New_York" — grounds local-time facts and prompts. */
+  timezone: string;
+  /**
+   * Seating tiers the generated map renders: 3 for a lower/club/upper bowl,
+   * 2 for smaller soccer-specific grounds with no club level (see
+   * services/data/stadiumLayout.ts's tier plans).
+   */
+  tierCount: 2 | 3;
+  /** Entry gates the generated map renders, one per compass point (see stadiumLayout.ts's GATES). */
+  gateCount: number;
+  /** A short factual note distinguishing this venue, shown in venue-facing copy. */
+  note: string;
 }
