@@ -25,11 +25,11 @@ export interface GeminiResult<T> {
  */
 export type LimiterKey =
   | FeatureId
-  | 'announcement-translation'
-  | 'scenario-planning'
-  | 'plain-language'
-  | 'sustainability-report'
-  | 'volunteer-assist-translation';
+  | 'multilingual:announcement-translation'
+  | 'real-time-decision-support:scenario-planning'
+  | 'accessibility:plain-language'
+  | 'sustainability:report'
+  | 'multilingual:volunteer-assist-translation';
 
 const lastCalledAt = new Map<LimiterKey, number>();
 

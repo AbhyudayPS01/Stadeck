@@ -145,7 +145,7 @@ export async function getPlainLanguageRewrite(
   venue: Venue = DEFAULT_VENUE,
 ): Promise<GeminiResult<PlainLanguageResponse>> {
   return callFeature(
-    'plain-language',
+    'accessibility:plain-language',
     buildPlainLanguagePrompt({ message: announcement.message, venue }),
     isPlainLanguageResponse,
     () => mockPlainLanguageResponse(announcement, venue),
@@ -201,7 +201,7 @@ export async function getSustainabilityReport(
   venue: Venue = DEFAULT_VENUE,
 ): Promise<GeminiResult<SustainabilityReportResponse>> {
   return callFeature(
-    'sustainability-report',
+    'sustainability:report',
     buildSustainabilityReportPrompt({ metrics, venue }),
     isSustainabilityReportResponse,
     mockSustainabilityReportResponse,
@@ -246,7 +246,7 @@ export async function getVolunteerAnswer(
   venue: Venue = DEFAULT_VENUE,
 ): Promise<GeminiResult<MultilingualAssistanceResponse>> {
   return callFeature(
-    targetLanguage === 'en' ? 'multilingual-assistance' : 'volunteer-assist-translation',
+    targetLanguage === 'en' ? 'multilingual-assistance' : 'multilingual:volunteer-assist-translation',
     buildMultilingualAssistancePrompt({
       message: question,
       facts: getStadiumFactsContext(venue),
@@ -271,7 +271,7 @@ export async function getAnnouncementTranslation(
   venue: Venue = DEFAULT_VENUE,
 ): Promise<GeminiResult<AnnouncementTranslationResponse>> {
   return callFeature(
-    'announcement-translation',
+    'multilingual:announcement-translation',
     buildAnnouncementTranslationPrompt({ message: announcement.message, targetLanguage, venue }),
     isAnnouncementTranslationResponse,
     () => mockAnnouncementTranslationResponse(announcement, targetLanguage),
@@ -325,7 +325,7 @@ export async function getScenarioPlan(
   venue: Venue = DEFAULT_VENUE,
 ): Promise<GeminiResult<RealTimeDecisionSupportResponse>> {
   return callFeature(
-    'scenario-planning',
+    'real-time-decision-support:scenario-planning',
     buildScenarioPrompt({ scenario, venue }),
     isRealTimeDecisionSupportResponse,
     mockScenarioPlanResponse,
