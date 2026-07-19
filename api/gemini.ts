@@ -1,15 +1,11 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
-/**
- * Inlined rather than imported from src/config/constants.ts: Vercel's Node
- * runtime loads this function as an ESM module and cannot resolve a
- * relative import that reaches outside api/ without an explicit file
- * extension, which fails at runtime with ERR_MODULE_NOT_FOUND (this only
- * surfaces in the deployed function, not in `tsc`'s Bundler resolution or
- * Vite's build). Keep these two values in sync with constants.ts by hand.
- */
-const GEMINI_MODEL = 'gemini-flash-latest';
-const MAX_GEMINI_PROMPT_LENGTH = 8_000;
+import {
+  GEMINI_MODEL,
+  MAX_GEMINI_PROMPT_LENGTH,
+  UPSTREAM_TIMEOUT_MS,
+  isValidRequestBody,
+} from './_shared';
 
 /**
  * Vercel's Node runtime augments the standard http request/response with
@@ -26,10 +22,6 @@ interface VercelResponse extends ServerResponse {
   json(body: unknown): VercelResponse;
 }
 
-interface GeminiProxyRequestBody {
-  prompt: string;
-}
-
 interface GeminiUpstreamPayload {
   candidates: Array<{
     content: {
@@ -38,31 +30,6 @@ interface GeminiUpstreamPayload {
       }>;
     };
   }>;
-}
-
-/**
- * Inlined to avoid ERR_MODULE_NOT_FOUND on Vercel Node runtime.
- * Must exactly match GEMINI_REQUEST_TIMEOUT_MS in src/config/constants.ts.
- */
-const UPSTREAM_TIMEOUT_MS = 15_000;
-
-/** Request validation: exactly one field, `prompt`, a non-empty string within the payload cap. */
-function isValidRequestBody(body: unknown): body is GeminiProxyRequestBody {
-  if (typeof body !== 'object' || body === null) {
-    return false;
-  }
-
-  const keys = Object.keys(body);
-  if (keys.length !== 1 || !keys.includes('prompt')) {
-    return false;
-  }
-
-  if (!('prompt' in body) || typeof body.prompt !== 'string') {
-    return false;
-  }
-  const prompt = body.prompt;
-
-  return prompt.length > 0 && prompt.length <= MAX_GEMINI_PROMPT_LENGTH;
 }
 
 function extractText(payload: unknown): string | undefined {

@@ -171,16 +171,13 @@ export const INCIDENT_FEED_LIMIT = 8;
 export const MAX_USER_INPUT_LENGTH = 500;
 
 /**
- * Cap on the fully-assembled prompt the proxy will accept. The proxy
- * (api/gemini.ts) enforces its own inlined copy of this value at runtime —
- * see that file for why it can't import this one — this export exists so
- * client-side code (stadiumFacts's size test) can check against the same
- * cap without duplicating the number a third time.
+ * Limits imported from the shared API constants so the client and server
+ * remain in sync without duplicating the values or breaking Vercel's runtime.
  */
-export const MAX_GEMINI_PROMPT_LENGTH = 8_000;
-
-/** Client request timeout before client.ts aborts and (if retries are exhausted) falls back to mock. */
-export const GEMINI_REQUEST_TIMEOUT_MS = 15_000;
+export {
+  MAX_GEMINI_PROMPT_LENGTH,
+  UPSTREAM_TIMEOUT_MS as GEMINI_REQUEST_TIMEOUT_MS,
+} from '../../api/_shared';
 
 /** Retry attempts client.ts makes on a 429/5xx before giving up. */
 export const GEMINI_MAX_RETRIES = 2;
