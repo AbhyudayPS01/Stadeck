@@ -28,7 +28,7 @@ describe('RoleSwitcher', () => {
   it('names the active role view', () => {
     renderSwitcher();
 
-    expect(screen.getByText('Volunteer & Staff')).toBeInTheDocument();
+    expect(screen.getByText('Volunteer & Venue Staff')).toBeInTheDocument();
   });
 
   it('returns to the landing role gate when switching roles', async () => {

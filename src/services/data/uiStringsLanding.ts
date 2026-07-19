@@ -35,7 +35,7 @@ export const LANDING_STRINGS: UiStringTable<LandingStringKey> = {
     'role.fan.label': 'Fan',
     'role.fan.description':
       'Wayfinding, matchday help, and multilingual assistance — no sign-in needed.',
-    'role.volunteer.label': 'Volunteer & Staff',
+    'role.volunteer.label': 'Volunteer & Venue Staff',
     'role.volunteer.description':
       'Crowd flow, accessibility support, and live guidance for teams on the concourse.',
     'role.organizer.label': 'Organizer',

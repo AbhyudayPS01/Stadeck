@@ -244,7 +244,7 @@ export function buildRealTimeDecisionSupportPrompt(params: {
     venueConditionsLine(venue),
     `An incident was reported:\n${JSON.stringify(incident)}`,
     ...(incident.category === 'lost-child' ? [lostChildProtocol(venue)] : []),
-    'Produce a structured action plan: immediate actions in order, teams to notify, and escalation criteria.',
+    'Produce a structured action plan: immediate actions in order, venue staff to notify (stewards, ground staff, security/police liaison, gate/concourse staff), and escalation criteria.',
     jsonOnlyInstruction(ACTION_PLAN_SHAPE),
   ].join('\n\n');
 }
@@ -255,7 +255,7 @@ export function buildScenarioPrompt(params: { scenario: string; venue?: Venue })
     venuePersona('real-time decision support assistant for venue staff', venue),
     venueConditionsLine(venue),
     `An organizer wants to war-game a hypothetical matchday scenario:\n${wrapUntrustedInput(scenario)}`,
-    'Produce a structured contingency plan: immediate actions in order, teams to notify, and escalation criteria.',
+    'Produce a structured contingency plan: immediate actions in order, venue staff to notify (stewards, ground staff, security/police liaison, gate/concourse staff), and escalation criteria.',
     jsonOnlyInstruction(ACTION_PLAN_SHAPE),
   ].join('\n\n');
 }

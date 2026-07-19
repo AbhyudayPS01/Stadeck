@@ -120,7 +120,7 @@ describe('RealTimeDecisionSupportScreen', () => {
       await screen.findByText('Contain the queue and reassess in ten minutes.'),
     ).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Immediate actions' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Teams to notify' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Venue staff & teams to notify' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Escalation criteria' })).toBeInTheDocument();
     expect(screen.getByText(ignoringIsolates('elevated priority'))).toBeInTheDocument();
     expect(getRealTimeDecisionSupportMock).toHaveBeenCalledWith(

@@ -35,11 +35,11 @@ describe('Landing role gate', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('unlocks Volunteer & Staff with a typed access code', async () => {
+  it('unlocks Volunteer & Venue Staff with a typed access code', async () => {
     const user = userEvent.setup();
     renderApp();
 
-    const form = gatedForm('Volunteer & Staff');
+    const form = gatedForm('Volunteer & Venue Staff');
     await user.type(form.getByLabelText('Demo access code'), DEMO_ACCESS_CODES.volunteer);
     await user.click(form.getByRole('button', { name: 'Enter with code' }));
 
@@ -66,13 +66,13 @@ describe('Landing role gate', () => {
     const user = userEvent.setup();
     renderApp();
 
-    const form = gatedForm('Volunteer & Staff');
+    const form = gatedForm('Volunteer & Venue Staff');
     await user.type(form.getByLabelText('Demo access code'), 'NOT-A-REAL-CODE');
     await user.click(form.getByRole('button', { name: 'Enter with code' }));
 
     // The role name is bidi-isolated by formatUiString; '.' absorbs the marks.
     expect(form.getByRole('alert')).toHaveTextContent(
-      /does not unlock the .Volunteer & Staff. view/,
+      /does not unlock the .Volunteer & Venue Staff. view/,
     );
     expect(screen.getByRole('heading', { name: 'Choose your view' })).toBeInTheDocument();
   });
@@ -81,13 +81,13 @@ describe('Landing role gate', () => {
     const user = userEvent.setup();
     renderApp();
 
-    const form = gatedForm('Volunteer & Staff');
+    const form = gatedForm('Volunteer & Venue Staff');
     await user.type(form.getByLabelText('Demo access code'), DEMO_ACCESS_CODES.organizer);
     await user.click(form.getByRole('button', { name: 'Enter with code' }));
 
     // The role name is bidi-isolated by formatUiString; '.' absorbs the marks.
     expect(form.getByRole('alert')).toHaveTextContent(
-      /does not unlock the .Volunteer & Staff. view/,
+      /does not unlock the .Volunteer & Venue Staff. view/,
     );
   });
 });

@@ -70,6 +70,18 @@ export const MODULES: readonly Module[] = [
     path: '/real-time-decision-support',
     roles: ['volunteer', 'organizer'],
   },
+  {
+    id: 'emergency-services',
+    label: 'Emergency Services',
+    path: '/emergency-services',
+    roles: ['volunteer', 'organizer'],
+  },
+  {
+    id: 'lost-and-found',
+    label: 'Lost & Found',
+    path: '/lost-and-found',
+    roles: ['fan', 'volunteer', 'organizer'],
+  },
 ];
 
 /** The three role views selectable from the landing screen, in display order. */
@@ -82,7 +94,7 @@ export const ROLES: readonly RoleOption[] = [
   },
   {
     id: 'volunteer',
-    label: 'Volunteer & Staff',
+    label: 'Volunteer & Venue Staff',
     description: 'Crowd flow, accessibility support, and live guidance for teams on the concourse.',
     gated: true,
   },

@@ -30,6 +30,12 @@ export const MODULE_META_STRINGS: UiStringTable<ModuleMetaStringKey> = {
     'module.real-time-decision-support.title': 'Real-Time Decision Support',
     'module.real-time-decision-support.description':
       'Triage live incidents and get structured AI action plans — plus what-if scenario planning for organizers.',
+    'module.emergency-services.title': 'Emergency Services',
+    'module.emergency-services.description':
+      'Immediate access to report critical incidents and coordinate with on-site police, stewards, and medical teams.',
+    'module.lost-and-found.title': 'Lost & Found',
+    'module.lost-and-found.description':
+      'Report lost items or check the database of items found around the venue.',
   },
   es: {
     'module.navigation.title': 'Navegación',
@@ -56,6 +62,12 @@ export const MODULE_META_STRINGS: UiStringTable<ModuleMetaStringKey> = {
     'module.real-time-decision-support.title': 'Apoyo a Decisiones en Tiempo Real',
     'module.real-time-decision-support.description':
       'Prioriza incidentes en vivo y obtén planes de acción estructurados de IA, además de planificación de escenarios hipotéticos.',
+    'module.emergency-services.title': 'Emergency Services',
+    'module.emergency-services.description':
+      'Immediate access to report critical incidents and coordinate with on-site police, stewards, and medical teams.',
+    'module.lost-and-found.title': 'Objetos Perdidos',
+    'module.lost-and-found.description':
+      'Reporta un objeto perdido o busca entre los objetos encontrados en el estadio.',
   },
   fr: {
     'module.navigation.title': 'Navigation',
@@ -81,7 +93,13 @@ export const MODULE_META_STRINGS: UiStringTable<ModuleMetaStringKey> = {
       "La situation opérationnelle en un coup d'œil : KPI en direct de chaque système surveillé, avec briefing exécutif IA à la demande.",
     'module.real-time-decision-support.title': 'Aide à la Décision en Temps Réel',
     'module.real-time-decision-support.description':
-      "Triez les incidents en direct et obtenez des plans d'action structurés par IA, plus la planification de scénarios hypothétiques.",
+      "Triez les incidents en direct et obtenez des plans d'action structurados par IA, plus la planification de scénarios hypothétiques.",
+    'module.emergency-services.title': 'Emergency Services',
+    'module.emergency-services.description':
+      'Immediate access to report critical incidents and coordinate with on-site police, stewards, and medical teams.',
+    'module.lost-and-found.title': 'Objets Perdus',
+    'module.lost-and-found.description':
+      'Signalez un objet perdu ou parcourez les objets trouvés dans le stade.',
   },
   pt: {
     'module.navigation.title': 'Navegação',
@@ -108,6 +126,12 @@ export const MODULE_META_STRINGS: UiStringTable<ModuleMetaStringKey> = {
     'module.real-time-decision-support.title': 'Apoio à Decisão em Tempo Real',
     'module.real-time-decision-support.description':
       'Faça a triagem de incidentes ao vivo e receba planos de ação estruturados de IA, além de planejamento de cenários hipotéticos.',
+    'module.emergency-services.title': 'Emergency Services',
+    'module.emergency-services.description':
+      'Immediate access to report critical incidents and coordinate with on-site police, stewards, and medical teams.',
+    'module.lost-and-found.title': 'Achados e Perdidos',
+    'module.lost-and-found.description':
+      'Reporte um item perdido ou navegue pelos itens encontrados no local.',
   },
   de: {
     'module.navigation.title': 'Navigation',
@@ -134,6 +158,12 @@ export const MODULE_META_STRINGS: UiStringTable<ModuleMetaStringKey> = {
     'module.real-time-decision-support.title': 'Echtzeit-Entscheidungshilfe',
     'module.real-time-decision-support.description':
       'Vorfälle live sichten und strukturierte KI-Maßnahmenpläne erhalten — plus Was-wäre-wenn-Szenarien.',
+    'module.emergency-services.title': 'Emergency Services',
+    'module.emergency-services.description':
+      'Immediate access to report critical incidents and coordinate with on-site police, stewards, and medical teams.',
+    'module.lost-and-found.title': 'Fundbüro',
+    'module.lost-and-found.description':
+      'Melden Sie einen verlorenen Gegenstand oder durchsuchen Sie die im Stadion gefundenen Gegenstände.',
   },
   hi: {
     'module.navigation.title': 'नेविगेशन',
@@ -160,6 +190,12 @@ export const MODULE_META_STRINGS: UiStringTable<ModuleMetaStringKey> = {
     'module.real-time-decision-support.title': 'रीयल-टाइम निर्णय सहायता',
     'module.real-time-decision-support.description':
       'लाइव घटनाओं को प्राथमिकता दें और संरचित AI कार्य-योजनाएँ पाएँ — साथ ही काल्पनिक परिदृश्यों की योजना।',
+    'module.emergency-services.title': 'Emergency Services',
+    'module.emergency-services.description':
+      'Immediate access to report critical incidents and coordinate with on-site police, stewards, and medical teams.',
+    'module.lost-and-found.title': 'खोया और पाया',
+    'module.lost-and-found.description':
+      'खोई हुई वस्तु की रिपोर्ट करें या स्टेडियम में मिली हुई वस्तुओं को ब्राउज़ करें।',
   },
   ar: {
     'module.navigation.title': 'التنقل',
@@ -186,6 +222,12 @@ export const MODULE_META_STRINGS: UiStringTable<ModuleMetaStringKey> = {
     'module.real-time-decision-support.title': 'دعم القرار الفوري',
     'module.real-time-decision-support.description':
       'افرز الحوادث المباشرة واحصل على خطط عمل منظمة بالذكاء الاصطناعي، إضافة إلى تخطيط سيناريوهات افتراضية.',
+    'module.emergency-services.title': 'Emergency Services',
+    'module.emergency-services.description':
+      'Immediate access to report critical incidents and coordinate with on-site police, stewards, and medical teams.',
+    'module.lost-and-found.title': 'المفقودات والمعثورات',
+    'module.lost-and-found.description':
+      'أبلغ عن عنصر مفقود أو تصفح العناصر التي تم العثور عليها في الملعب.',
   },
   ja: {
     'module.navigation.title': 'ナビゲーション',
@@ -212,5 +254,11 @@ export const MODULE_META_STRINGS: UiStringTable<ModuleMetaStringKey> = {
     'module.real-time-decision-support.title': 'リアルタイム意思決定支援',
     'module.real-time-decision-support.description':
       'ライブのインシデントをトリアージし、構造化されたAIアクションプランを取得。仮想シナリオの計画も。',
+    'module.emergency-services.title': 'Emergency Services',
+    'module.emergency-services.description':
+      'Immediate access to report critical incidents and coordinate with on-site police, stewards, and medical teams.',
+    'module.lost-and-found.title': 'Lost & Found',
+    'module.lost-and-found.description':
+      'Report lost items or check the database of items found around the venue.',
   },
 };

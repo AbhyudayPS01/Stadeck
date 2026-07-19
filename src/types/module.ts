@@ -9,7 +9,9 @@ export type ModuleId =
   | 'sustainability'
   | 'multilingual-assistance'
   | 'operational-intelligence'
-  | 'real-time-decision-support';
+  | 'real-time-decision-support'
+  | 'emergency-services'
+  | 'lost-and-found';
 
 /** Route and display metadata for a single module, used to drive navigation and routing. */
 export interface Module {

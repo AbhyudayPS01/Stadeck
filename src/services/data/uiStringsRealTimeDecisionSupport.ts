@@ -39,7 +39,7 @@ export const REAL_TIME_DECISION_SUPPORT_STRINGS: UiStringTable<RealTimeDecisionS
     'rtds.planFailedTitle': 'Plan failed',
     'rtds.planFailed': 'The action plan could not be generated.',
     'rtds.immediateActions': 'Immediate actions',
-    'rtds.teamsToNotify': 'Teams to notify',
+    'rtds.teamsToNotify': 'Venue staff & teams to notify',
     'rtds.escalationCriteria': 'Escalation criteria',
     'rtds.priority': '{level} priority',
     'rtds.whatIf': 'What-if scenario',

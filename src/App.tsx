@@ -33,6 +33,12 @@ const screens: Record<ModuleId, ReturnType<typeof lazy>> = {
   'real-time-decision-support': lazy(
     () => import('./features/real-time-decision-support/RealTimeDecisionSupportScreen'),
   ),
+  'emergency-services': lazy(
+    () => import('./features/emergency-services/EmergencyServicesScreen'),
+  ),
+  'lost-and-found': lazy(
+    () => import('./features/lost-and-found/LostAndFoundScreen'),
+  ),
 };
 
 /**

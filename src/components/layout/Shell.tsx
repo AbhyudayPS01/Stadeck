@@ -10,6 +10,7 @@ import { isRtlLanguage } from '../../utils/detectLanguage';
 import { LanguagePicker } from './LanguagePicker';
 import { RoleSwitcher } from './RoleSwitcher';
 import { VenuePicker } from './VenuePicker';
+import { FloatingChatbot } from './FloatingChatbot';
 
 /** Dark-navy brand block shared by the mobile top bar and the desktop sidebar. */
 function BrandMark() {
@@ -123,6 +124,7 @@ export function Shell() {
           <Outlet />
         </Suspense>
       </div>
+      <FloatingChatbot />
     </div>
   );
 }

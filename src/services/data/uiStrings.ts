@@ -3,7 +3,15 @@ import {
   CROWD_MANAGEMENT_STRINGS,
   type CrowdManagementStringKey,
 } from './uiStringsCrowdManagement';
+import {
+  EMERGENCY_SERVICES_STRINGS,
+  type EmergencyServicesStringKey,
+} from './uiStringsEmergencyServices';
 import { LANDING_STRINGS, type LandingStringKey } from './uiStringsLanding';
+import {
+  LOST_AND_FOUND_STRINGS,
+  type LostAndFoundStringKey,
+} from './uiStringsLostAndFound';
 import { MAP_STRINGS, type MapStringKey } from './uiStringsMap';
 import { MODULE_META_STRINGS, type ModuleMetaStringKey } from './uiStringsModuleMeta';
 import {
@@ -58,7 +66,9 @@ export type UiStringKey =
   | VolunteerStringKey
   | OperationalIntelligenceStringKey
   | RealTimeDecisionSupportStringKey
-  | VenueStringKey;
+  | VenueStringKey
+  | EmergencyServicesStringKey
+  | LostAndFoundStringKey;
 
 /** One complete interface-string table for a single language. */
 export type UiStrings = Readonly<Record<UiStringKey, string>>;
@@ -79,6 +89,8 @@ export const UI_STRING_TABLES = {
   operationalIntelligence: OPERATIONAL_INTELLIGENCE_STRINGS,
   realTimeDecisionSupport: REAL_TIME_DECISION_SUPPORT_STRINGS,
   venue: VENUE_STRINGS,
+  emergencyServices: EMERGENCY_SERVICES_STRINGS,
+  lostAndFound: LOST_AND_FOUND_STRINGS,
 } as const;
 
 function buildLanguage(language: UiLanguage): UiStrings {
@@ -97,6 +109,8 @@ function buildLanguage(language: UiLanguage): UiStrings {
     ...OPERATIONAL_INTELLIGENCE_STRINGS[language],
     ...REAL_TIME_DECISION_SUPPORT_STRINGS[language],
     ...VENUE_STRINGS[language],
+    ...EMERGENCY_SERVICES_STRINGS[language],
+    ...LOST_AND_FOUND_STRINGS[language],
   };
 }
 

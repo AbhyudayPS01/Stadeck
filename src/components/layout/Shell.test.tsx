@@ -52,11 +52,11 @@ describe('Shell', () => {
     expect(screen.queryByRole('link', { name: 'Sustainability' })).not.toBeInTheDocument();
   });
 
-  it('shows organizers all eight modules', () => {
+  it('shows organizers all ten modules', () => {
     renderShellAs('organizer');
 
     const nav = screen.getByRole('navigation', { name: 'Modules' });
-    expect(within(nav).getAllByRole('link')).toHaveLength(8);
+    expect(within(nav).getAllByRole('link')).toHaveLength(10);
   });
 
   it('renders the routed module content, role switcher, and language picker', () => {
